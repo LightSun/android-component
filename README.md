@@ -1,2 +1,2 @@
 # android-component
-this are some android useful components.
+There are some android useful components.
