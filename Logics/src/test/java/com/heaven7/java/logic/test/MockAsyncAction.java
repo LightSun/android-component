@@ -2,6 +2,7 @@ package com.heaven7.java.logic.test;
 
 import com.heaven7.java.logic.AbstractLogicAction;
 import com.heaven7.java.logic.LogicParam;
+import com.heaven7.java.logic.Scheduler;
 
 public class MockAsyncAction extends AbstractLogicAction{
 	
@@ -30,6 +31,12 @@ public class MockAsyncAction extends AbstractLogicAction{
 	@Override
 	protected void cancelImpl(int tag, boolean immediately) {
 		mThread.interrupt();
+	}
+
+	@Override
+	public void observeOn(int tag, Scheduler scheduler) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

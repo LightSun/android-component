@@ -16,6 +16,12 @@ public interface Scheduler {
 	 *            the runnable task,
 	 */
 	void postDelay(long delay, Runnable task);
+	
+	/**
+	 * post a task to run in this scheduler's thread.
+	 * @param task the task.
+	 */
+	void post(Runnable task);
 
 	/**
 	 * remove the task from message pool.

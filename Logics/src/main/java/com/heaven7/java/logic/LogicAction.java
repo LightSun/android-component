@@ -28,28 +28,35 @@ public interface LogicAction extends ContextData {
      *
      * @param callback the logic callback
      */
-    void addStateCallback(LogicCallback callback);
+    void addStateCallback(int tag, LogicCallback callback);
 
     /**
      * remove the logic callback
      *
      * @param callback the logic callback.
      */
-    void removeStateCallback(LogicCallback callback);
+    void removeStateCallback(int tag, LogicCallback callback);
     
     
     /**
      * make the logic action schedule/perform on the target scheduler.
      * @param scheduler the target scheduler.
-     * @param tag the tag which scheduler apply to. -1 means apply to all tag.
+     * @param tag the tag which scheduler apply to. 
      * @see #perform(int, LogicParam)
      */
     void scheduleOn(int tag, Scheduler scheduler);
     
     /**
+     * set the delay to perform action.
+     * @param tag the tag
+     * @param delay the delay
+     */
+    void scheduleDelay(int tag, long delay);
+    
+    /**
      * make the logic action observe/callback on the target scheduler.
      * @param scheduler the target scheduler.
-     * @param tag the tag which scheduler apply to. -1 means apply to all tag.
+     * @param tag the tag which scheduler apply to.
      * @see #perform(int, LogicParam)
      */
     void observeOn(int tag, Scheduler scheduler);

@@ -20,11 +20,11 @@ public class LogicTask {
 	}
 
 	void addStateCallback(LogicCallback callback) {
-		action.addStateCallback(callback);
+		action.addStateCallback(tag, callback);
 	}
 	
 	void removeStateCallback(LogicCallback callback) {
-		action.removeStateCallback(callback);
+		action.removeStateCallback(tag, callback);
 	}
 	
 	void perform() {
