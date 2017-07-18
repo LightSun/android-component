@@ -11,14 +11,30 @@ public class LogicTask {
 	private final int tag;
 	private final LogicAction action;
 	private final LogicParam logicParam;
-	private Scheduler mScheduler;
-
+	
 	LogicTask(int tag, LogicAction action, LogicParam logicParam) {
 		this.tag = tag;
 		this.action = action;
 		this.logicParam = logicParam;
 	}
-
+	
+	public static LogicTask from(int tag, LogicAction action, LogicParam logicParam){
+		return new LogicTask(tag, action, logicParam);
+	}
+	
+	public LogicTask schedulerOn(Scheduler scheduler){
+		action.scheduleOn(tag, scheduler);
+		return this;
+	}
+	public LogicTask observeOn(Scheduler scheduler){
+		action.observeOn(tag, scheduler);
+		return this;
+	}
+	public LogicTask schedulerDelay(long delay){
+		action.scheduleDelay(tag, delay);
+		return this;
+	}
+	
 	void addStateCallback(LogicCallback callback) {
 		action.addStateCallback(tag, callback);
 	}
@@ -36,7 +52,9 @@ public class LogicTask {
 	}
 	
 	void setContextData(Object data) {
-		action.setContextData(data);
+		if( action.getContextData() == null){
+		    action.setContextData(data);
+		}
 	}
 
 	@Override

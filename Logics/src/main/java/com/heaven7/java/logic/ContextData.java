@@ -7,7 +7,6 @@ package com.heaven7.java.logic;
 
 public interface ContextData {
 
-
    void setContextData(Object t);
 
    Object getContextData();

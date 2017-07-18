@@ -2,6 +2,7 @@ package com.heaven7.java.logic;
 
 import com.heaven7.java.base.anno.Nullable;
 import com.heaven7.java.base.util.SparseArray;
+import com.heaven7.java.base.util.Throwables;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 
 	@Override
 	public final void addStateCallback(int tag, LogicCallback callback) {
+		Throwables.checkNull(callback);
 		synchronized (mCallbacks) {
 			ArrayList<LogicCallback> list = mCallbacks.get(tag);
 			if (list == null) {
@@ -63,6 +65,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 
 	@Override
 	public final void removeStateCallback(int tag, LogicCallback callback) {
+		Throwables.checkNull(callback);
 		synchronized (mCallbacks) {
 			ArrayList<LogicCallback> list = mCallbacks.get(tag);
 			if (list != null) {
@@ -361,7 +364,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 			callbacks = mCallbacks.get(tag);
 		}
 		if (callbacks != null) {
-			final Runner runner = new Runner(s, op, resultCode, tag, lm);
+			final CallbackRunner runner = new CallbackRunner(s, op, resultCode, tag, lm);
 			for (LogicCallback cl : callbacks) {
 				runner.scheduleCallback(this, cl);
 			}
@@ -427,14 +430,14 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		}
 	}
 
-	private static class Runner {
+	private static class CallbackRunner {
 		private final int op;
 		private final int resultCode;
 		private final int tag;
 		private final LogicParam lp;
 		private final Schedulers s;
 
-		public Runner(Schedulers s, int op, int resultCode, int tag, LogicParam lp) {
+		public CallbackRunner(Schedulers s, int op, int resultCode, int tag, LogicParam lp) {
 			super();
 			this.op = op;
 			this.resultCode = resultCode;

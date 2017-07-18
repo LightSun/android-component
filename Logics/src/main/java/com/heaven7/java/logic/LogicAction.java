@@ -1,5 +1,7 @@
 package com.heaven7.java.logic;
 
+import com.heaven7.java.base.anno.Nullable;
+
 /**
  * the logic state.
  * @author heaven7
@@ -40,11 +42,11 @@ public interface LogicAction extends ContextData {
     
     /**
      * make the logic action schedule/perform on the target scheduler.
-     * @param scheduler the target scheduler.
+     * @param scheduler the target scheduler. if null means clear scheduler.
      * @param tag the tag which scheduler apply to. 
      * @see #perform(int, LogicParam)
      */
-    void scheduleOn(int tag, Scheduler scheduler);
+    void scheduleOn(int tag, @Nullable Scheduler scheduler);
     
     /**
      * set the delay to perform action.
@@ -55,11 +57,11 @@ public interface LogicAction extends ContextData {
     
     /**
      * make the logic action observe/callback on the target scheduler.
-     * @param scheduler the target scheduler.
+     * @param scheduler the target scheduler. if null means clear scheduler.
      * @param tag the tag which scheduler apply to.
      * @see #perform(int, LogicParam)
      */
-    void observeOn(int tag, Scheduler scheduler);
+    void observeOn(int tag, @Nullable Scheduler scheduler);
 
     /**
      * perform this logic action.
