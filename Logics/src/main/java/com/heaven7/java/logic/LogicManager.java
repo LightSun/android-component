@@ -142,8 +142,8 @@ public final class LogicManager extends ContextDataImpl {
         final ParallelCallback callback = new ParallelCallback(baseKey, parallels, endAction);
         final Object data = getContextData();
         for(LogicTask task : parallels){
-            task.action.setContextData(data);
-            task.action.addStateCallback(callback);
+            task.setContextData(data);
+            task.addStateCallback(callback);
             task.perform();
         }
         return baseKey + count << SHIFT_SECONDARY + TYPE_PARALLEL << SHIFT_TYPE;
@@ -226,8 +226,8 @@ public final class LogicManager extends ContextDataImpl {
 
     private void performStateImpl(List<LogicTask> tasks, int key, int currentIndex, Runnable endAction) {
         final LogicTask target = tasks.get(currentIndex);
-        target.action.setContextData(getContextData());
-        target.action.addStateCallback(new InternalCallback(tasks, key, currentIndex, endAction));
+        target.setContextData(getContextData());
+        target.addStateCallback(new InternalCallback(tasks, key, currentIndex, endAction));
         target.perform();
     }
 
@@ -324,7 +324,7 @@ public final class LogicManager extends ContextDataImpl {
                    // Logger.i(TAG,"removeTask","task is removed . task = " + task);
                 }
             }
-            task.action.removeStateCallback(this);
+            task.removeStateCallback(this);
         }
     }
 
@@ -371,59 +371,7 @@ public final class LogicManager extends ContextDataImpl {
                 mLogicMap.remove(key);
             }
             //unregister.
-            mTasks.get(curIndex).action.removeStateCallback(this);
-        }
-    }
-
-    public static class LogicTask {
-        final int tag;
-        final LogicAction action;
-        final LogicParam logicParam;
-
-        LogicTask(int tag, LogicAction action, LogicParam logicParam) {
-            this.tag = tag;
-            this.action = action;
-            this.logicParam = logicParam;
-        }
-
-        void perform() {
-            action.perform(tag, logicParam);
-        }
-
-        void cancel(boolean immediately) {
-            action.cancel(tag, immediately);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            LogicTask logicTask = (LogicTask) o;
-
-            if (tag != logicTask.tag)
-                return false;
-            if (action != null ? !action.equals(logicTask.action) : logicTask.action != null)
-                return false;
-            return logicParam != null ? logicParam.equals(logicTask.logicParam) : logicTask.logicParam == null;
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = tag;
-            result = 31 * result + (action != null ? action.hashCode() : 0);
-            result = 31 * result + (logicParam != null ? logicParam.hashCode() : 0);
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "LogicTask{" +
-                    "tag=" + tag +
-                    ", action=" + action +
-                    ", logicParam=" + logicParam +
-                    '}';
+            mTasks.get(curIndex).removeStateCallback(this);
         }
     }
 

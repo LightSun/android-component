@@ -11,12 +11,12 @@ public abstract class DelayLogicAction extends AbstractLogicAction {
 
     private final SparseArray<Runnable> mDelayMap;
     private final long mDelayTime;
-    private final Callback mCallback;
+    private final Scheduler mScheduler;
 
-    public DelayLogicAction(Callback callback, boolean wantCount, long delayTime) {
+    public DelayLogicAction(Scheduler scheduler, boolean wantCount, long delayTime) {
         super(wantCount);
-        Throwables.checkNull(callback);
-        this.mCallback = callback;
+        Throwables.checkNull(scheduler);
+        this.mScheduler = scheduler;
         this.mDelayMap = new SparseArray<Runnable>(3);
         this.mDelayTime = delayTime;
     }
@@ -31,7 +31,7 @@ public abstract class DelayLogicAction extends AbstractLogicAction {
             }
         };
         mDelayMap.put(tag, r);
-        mCallback.postDelay(mDelayTime, r);
+        mScheduler.postDelay(mDelayTime, r);
     }
 
     protected void callSuperPerform(int tag, LogicParam param){
@@ -42,26 +42,9 @@ public abstract class DelayLogicAction extends AbstractLogicAction {
     protected void cancelImpl(int tag, boolean immediately) {
         final Runnable r = mDelayMap.get(tag);
         if(r != null) {
-            mCallback.remove(r);
+        	mScheduler.remove(r);
             mDelayMap.remove(tag);
         }
     }
 
-    /**
-     * a callback help handle the delay task.
-     */
-    public interface Callback{
-        /**
-         * post the runnable by target delay.
-         * @param delay the delay in mills
-         * @param task the runnable task,
-         */
-        void postDelay(long delay, Runnable task);
-
-        /**
-         * remove the task from message pool.
-         * @param task the task.
-         */
-        void remove(Runnable task);
-    }
 }

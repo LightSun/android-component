@@ -36,12 +36,29 @@ public interface LogicAction extends ContextData {
      * @param callback the logic callback.
      */
     void removeStateCallback(LogicCallback callback);
+    
+    
+    /**
+     * make the logic action schedule/perform on the target scheduler.
+     * @param scheduler the target scheduler.
+     * @param tag the tag which scheduler apply to. -1 means apply to all tag.
+     * @see #perform(int, LogicParam)
+     */
+    void scheduleOn(int tag, Scheduler scheduler);
+    
+    /**
+     * make the logic action observe/callback on the target scheduler.
+     * @param scheduler the target scheduler.
+     * @param tag the tag which scheduler apply to. -1 means apply to all tag.
+     * @see #perform(int, LogicParam)
+     */
+    void observeOn(int tag, Scheduler scheduler);
 
     /**
      * perform this logic action.
      *
      * @param tag   the tag of this state.
-     * @param param the logic param.
+     * @param param the logic parameter.
      */
     void perform(int tag, LogicParam param);
 
@@ -62,7 +79,20 @@ public interface LogicAction extends ContextData {
      * @return true if dispatch success, false otherwise.
      */
     boolean dispatchResult(int resultCode, int tag);
+    
 
+    /**
+     * indicate the logic action of target tag is running or not.
+     * @param tag  the tag
+     * @return true if the logic action of target tag is running
+     */
+	boolean isRunning(int tag);
+	 /**
+     * indicate  any tag of this logic action is running or not.
+     * @param tag  the tag
+     * @return true if any tag of this logic action is running
+     */
+	boolean isRunning();
 
     /**
      * the logic callback

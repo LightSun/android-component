@@ -6,20 +6,24 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * the logic state. support async and count analyse.
+ * the logic action. support async and count analyse.
  * default support multi tag in one {@linkplain AbstractLogicAction}.
- * Created by heaven7 on 2017/6/17 0017.
+ * you should call {@link #dispatchResult(int, int)} in {@linkplain #performImpl(int, int, LogicParam)} or it's relative method.
+ * Created by heaven7 on 2017/6/17.
  */
 public abstract class AbstractLogicAction extends ContextDataImpl implements LogicAction {
-
+	
     private final ArrayList<LogicCallback> mCallbacks;
 
+    /**
+     * tag info map.
+     */
     private final SparseArray<TagInfo> mTagMap;
 
     /**
      * the map which used to count the tag of state perform count.
      */
-    private SparseArray<Integer> mCountMap;
+    private final SparseArray<Integer> mCountMap;
 
     /**
      * create an instance of AbstractLogicAction.
@@ -28,11 +32,8 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
      */
     public AbstractLogicAction(boolean wantCount) {
         this.mCallbacks = new ArrayList<LogicCallback>(4);
-        this.mTagMap = new SparseArray<TagInfo>(5);
-       //this.mCancelMap = new SparseArray<>(4);//
-        if (wantCount) {
-            mCountMap = new SparseArray<Integer>(4);
-        }
+        this.mTagMap = new SparseArray<TagInfo>(4);
+        mCountMap = wantCount ? new SparseArray<Integer>(4) : null;
     }
 
     @Override
@@ -50,14 +51,40 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
     }
 
     @Override
-    public final LogicParam getLogicParameter(int tag) {
+    public  LogicParam getLogicParameter(int tag) {
         TagInfo info;
         synchronized (mTagMap) {
             info = mTagMap.get(tag);
         }
         return info != null ? info.mLogicParam : null;
     }
+    
+    @Override
+    public void scheduleOn(int tag, Scheduler scheduler) {
+    	
+    }
+    
+    @Override
+    public boolean isRunning(int tag) {
+        TagInfo info = mTagMap.get(tag);
+        if(info != null && !info.mCancelled.get()){
+            return true;
+        }
+        return false;
+    }
 
+    @Override
+    public boolean isRunning(){
+        final int size = mTagMap.size();
+        for(int i = 0 ; i< size ; i ++){
+            TagInfo info = mTagMap.valueAt(i);
+            if(!info.mCancelled.get()){
+                return true;
+            }
+        }
+        return false;
+    }
+    
     @Override
     public void perform(int tag, LogicParam param) {
         //put tag info
@@ -70,7 +97,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
         //COUNT tag count if need
         final int targetCount ;
         if (mCountMap != null) {
-            synchronized (AbstractLogicAction.this) {
+            synchronized (mCountMap) {
                 targetCount = mCountMap.get(tag) + 1;
                 mCountMap.put(tag, targetCount);
             }
@@ -85,7 +112,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
     public final boolean dispatchResult(int resultCode, int tag) {
         //usually callback
         final LogicParam lm = getLogicParameter(tag);
-        ArrayList<LogicCallback> callbacks = (ArrayList<LogicCallback>) mCallbacks.clone();
+        final ArrayList<LogicCallback> callbacks = (ArrayList<LogicCallback>) mCallbacks.clone();
         for (LogicCallback cl : callbacks) {
             cl.onLogicResult(this, resultCode, tag, lm);
         }
@@ -110,7 +137,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
             return;
         }
         if(!info.mCancelled.compareAndSet(false, true)){
-            System.out.println("AbstractLogicAction >>>>>> called [ cancel() ]: " + "cancel failed. tag = "
+            System.err.println("AbstractLogicAction >>>>>> called [ cancel() ]: " + "cancel failed. tag = "
                     + tag + " ,param = " + info.mLogicParam);
         }
         cancelImpl(tag, immediately);
@@ -120,10 +147,10 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
      * clear the count map or analyse .
      */
     public final void clearCount() {
-        synchronized (AbstractLogicAction.this) {
-            if (mCountMap != null) {
-                mCountMap.clear();
-            }
+        if (mCountMap != null) {
+        	synchronized (mCountMap) {
+        		mCountMap.clear();
+			}
         }
     }
 
@@ -132,10 +159,10 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
      * @param tag the tag.
      */
     public final void removeCount(int tag){
-        synchronized (AbstractLogicAction.this) {
-            if (mCountMap != null) {
-                mCountMap.delete(tag);
-            }
+    	if (mCountMap != null) {
+        	synchronized (mCountMap) {
+        		mCountMap.delete(tag);
+			}
         }
     }
 
@@ -221,8 +248,9 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
     }
 
     private static class TagInfo{
-        final AtomicBoolean mCancelled;
-        final LogicParam mLogicParam;
+        AtomicBoolean mCancelled;
+        LogicParam mLogicParam;
+        Scheduler mScheduler;
 
         public TagInfo(LogicParam mLogicParam) {
             this.mCancelled = new AtomicBoolean(false);
