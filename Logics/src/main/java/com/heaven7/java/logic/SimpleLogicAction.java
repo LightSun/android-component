@@ -6,6 +6,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.heaven7.java.logic.AbstractLogicAction.CallbackRunner;
 import com.heaven7.java.logic.AbstractLogicAction.Schedulers;
 import com.heaven7.java.logic.AbstractLogicAction.TagInfo;
+import com.heaven7.java.logic.util.SafeUtil;
+
+import static com.heaven7.java.logic.util.SafeUtil.getAndUpdate;
 
 /**
  * a simple implements of logic action. this class just ignore the logic tag.
@@ -40,20 +43,36 @@ public abstract class SimpleLogicAction extends ContextDataImpl implements Logic
 	}
 
 	@Override
-	public void scheduleOn(int tag, Scheduler scheduler) {
-		mAR_Scheduler.get().schedulerOn = scheduler;
-		/*Schedulers s = mAR_Scheduler.get();
-		mAR_Scheduler.compareAndSet(s, s);*/
+	public void scheduleOn(int tag,final Scheduler scheduler) {
+		getAndUpdate(mAR_Scheduler, new SafeUtil.SafeOperator<Schedulers>() {
+			@Override
+			public Schedulers apply(Schedulers pre) {
+				pre.schedulerOn = scheduler;
+				return pre;
+			}
+		});
 	}
 
 	@Override
-	public void setDelay(int tag, long delay) {
-		mAR_Scheduler.get().delay = delay;
+	public void setDelay(int tag,final long delay) {
+		getAndUpdate(mAR_Scheduler, new SafeUtil.SafeOperator<Schedulers>() {
+			@Override
+			public Schedulers apply(Schedulers pre) {
+				pre.delay = delay;
+				return pre;
+			}
+		});
 	}
 
 	@Override
-	public void observeOn(int tag, Scheduler scheduler) {
-		mAR_Scheduler.get().observeOn = scheduler;
+	public void observeOn(int tag, final Scheduler scheduler) {
+		getAndUpdate(mAR_Scheduler, new SafeUtil.SafeOperator<Schedulers>() {
+			@Override
+			public Schedulers apply(Schedulers pre) {
+				pre.observeOn = scheduler;
+				return pre;
+			}
+		});
 	}
 
 	@Override
@@ -64,12 +83,7 @@ public abstract class SimpleLogicAction extends ContextDataImpl implements Logic
 		//start.
 		dispatchCallbackInternal(AbstractLogicAction.OP_START, 0, tag, param);
 		//do perform
-		mAR_Scheduler.get().schedule(new Runnable() {
-			@Override
-			public void run() {
-				performImpl(param);
-			}
-		});
+		getAndUpdate(mAR_Scheduler, new SchedulerOperator(param));
 	}
 	
 	@Override
@@ -191,5 +205,27 @@ public abstract class SimpleLogicAction extends ContextDataImpl implements Logic
 	 */
 	protected abstract void performImpl(LogicParam param);
 	
+	
+	private class SchedulerOperator implements Runnable, SafeUtil.SafeOperator<Schedulers>{
+		
+		private final LogicParam param;
+		
+		public SchedulerOperator(LogicParam param) {
+			super();
+			this.param = param;
+		}
+
+		@Override
+		public Schedulers apply(Schedulers pre) {
+			pre.schedule(this);
+			return pre;
+		}
+
+		@Override
+		public void run() {
+			performImpl(param);
+		}
+		
+	}
 
 }
