@@ -53,7 +53,7 @@ public interface LogicAction extends ContextData {
      * @param tag the tag
      * @param delay the delay
      */
-    void scheduleDelay(int tag, long delay);
+    void setDelay(int tag, long delay);
     
     /**
      * make the logic action observe/callback on the target scheduler.
@@ -77,7 +77,7 @@ public interface LogicAction extends ContextData {
      * @param tag         the tag of this task.
      * @param immediately true to cancel immediately. current often is true.
      */
-    void cancel(int tag, boolean immediately);
+    void cancel(int tag);
 
     /**
      * dispatch the tag result by target code. subclass should call this in {@linkplain #perform(int, LogicParam)}

@@ -12,14 +12,29 @@ public class LogicTask {
 	private final LogicAction action;
 	private final LogicParam logicParam;
 	
-	LogicTask(int tag, LogicAction action, LogicParam logicParam) {
+	private LogicTask(int tag, LogicAction action, LogicParam logicParam) {
 		this.tag = tag;
 		this.action = action;
 		this.logicParam = logicParam;
 	}
-	
-	public static LogicTask from(int tag, LogicAction action, LogicParam logicParam){
+	/**
+	 * create logic task by target parameters.
+	 * @param tag the logic tag
+	 * @param action the logic action.
+	 * @param logicParam the logic parameter.
+	 * @return an instance of logic task
+	 */
+	public static LogicTask of(int tag, LogicAction action, LogicParam logicParam){
 		return new LogicTask(tag, action, logicParam);
+	}
+	/**
+	 * create simple logic task by target parameters.
+	 * @param action the simple logic action.
+	 * @param logicParam the logic parameter.
+	 * @return an instance of logic task
+	 */
+	public static LogicTask ofSimple(SimpleLogicAction action, LogicParam logicParam){
+		return new LogicTask(0, action, logicParam);
 	}
 	
 	public LogicTask schedulerOn(Scheduler scheduler){
@@ -30,10 +45,12 @@ public class LogicTask {
 		action.observeOn(tag, scheduler);
 		return this;
 	}
-	public LogicTask schedulerDelay(long delay){
-		action.scheduleDelay(tag, delay);
+	public LogicTask delay(long delay){
+		action.setDelay(tag, delay);
 		return this;
 	}
+	
+	//======================== private method ==================================
 	
 	void addStateCallback(LogicCallback callback) {
 		action.addStateCallback(tag, callback);
@@ -47,8 +64,8 @@ public class LogicTask {
 		action.perform(tag, logicParam);
 	}
 
-	void cancel(boolean immediately) {
-		action.cancel(tag, immediately);
+	void cancel() {
+		action.cancel(tag);
 	}
 	
 	void setContextData(Object data) {

@@ -49,31 +49,23 @@ public final class LogicManager extends ContextDataImpl {
     }
 
     /**
-     * cancel the all task immediately which is running.
-     */
-    public void cancelAllImmediately(){
-        cancelAll(true);
-    }
-    /**
      * cancel the all task which is running.
      */
     public void cancelAll(){
-        cancelAll(false);
+    	 synchronized (mLogicMap) {
+             final int size = mLogicMap.size();
+             for (int i = 0; i < size; i++) {
+                 mLogicMap.valueAt(i).cancel();
+             }
+             mLogicMap.clear();
+         }
     }
     /**
      * cancel the task which is assigned by target key.
      * @param key the key . see {@linkplain #executeParallel(List, Runnable)} or {@linkplain #executeSequence(List, Runnable)}.
      */
     public void cancel(int key) {
-        cancel(key, false);
-    }
-
-    /**
-     * cancel the task immediately which is assigned by target key.
-     * @param key the key . see {@linkplain #executeParallel(List, Runnable)} or {@linkplain #executeSequence(List, Runnable)}.
-     */
-    public void cancelImmediately(int key){
-        cancel(key, true);
+    	cancelByKey(key);
     }
 
     /**
@@ -232,23 +224,23 @@ public final class LogicManager extends ContextDataImpl {
     }
 
     //this key is blur
-    private void cancel(int key, boolean immediately) {
+    private void cancelByKey(int key) {
         final int type = (key & MASK_TYPE) >> 24;
         switch (type){
             case TYPE_PARALLEL:
                 int baseKey = key & MASK_MAIN ;
                 int count = (key & MASK_SECONDARY) >> SHIFT_SECONDARY;
                 for(int i = 0 ; i < count ; i++){
-                    cancelByRealKey(baseKey + i, immediately);
+                    cancelByRealKey(baseKey + i);
                 }
                 break;
 
             case 0:
-                cancelByRealKey(key, immediately);
+                cancelByRealKey(key);
         }
     }
 
-    private void cancelByRealKey(int realKey, boolean immediately){
+    private void cancelByRealKey(int realKey){
         LogicTask task;
         synchronized (mLogicMap) {
             task = mLogicMap.get(realKey);
@@ -257,21 +249,11 @@ public final class LogicManager extends ContextDataImpl {
             }
         }
         if(task != null){
-            task.cancel(immediately);
+            task.cancel();
         }else{
             System.err.println(TAG + " >>> called [ cancelByRealKey() ]" +
                     "cancel task .but key not exists , key = " + realKey);
            // Logger.w(TAG,"cancelByRealKey","cancel task .but key not exists , key = " + realKey);
-        }
-    }
-
-    private void cancelAll(boolean immediately) {
-        synchronized (mLogicMap) {
-            final int size = mLogicMap.size();
-            for (int i = 0; i < size; i++) {
-                mLogicMap.valueAt(i).cancel(immediately);
-            }
-            mLogicMap.clear();
         }
     }
 

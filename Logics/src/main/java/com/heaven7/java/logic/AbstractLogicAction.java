@@ -17,8 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class AbstractLogicAction extends ContextDataImpl implements LogicAction {
 
-	private static final int OP_RESULT = 1;
-	private static final int OP_START = 2;
+	/*private*/ static final int OP_RESULT = 1;
+	/*private*/ static final int OP_START = 2;
 
 	private final SparseArray<ArrayList<LogicCallback>> mCallbacks;
 
@@ -56,7 +56,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		synchronized (mCallbacks) {
 			ArrayList<LogicCallback> list = mCallbacks.get(tag);
 			if (list == null) {
-				list = new ArrayList<>();
+				list = new ArrayList<LogicCallback>();
 				mCallbacks.put(tag, list);
 			}
 			list.add(callback);
@@ -84,7 +84,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	}
 
 	@Override
-	public void scheduleDelay(int tag, long delay) {
+	public void setDelay(int tag, long delay) {
 		if (delay < 0) {
 			delay = 0;
 		}
@@ -191,9 +191,9 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 
 	@Override
 	public final boolean dispatchResult(int resultCode, int tag) {
-		// usually callback
 		final LogicParam lm = getLogicParameter(tag);
 
+		//handle callbacks
 		dispatchCallbackInternal(OP_RESULT, resultCode, tag, lm);
 		
 		boolean result;
@@ -207,14 +207,12 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 			default:
 				result = dispatchLogicResult(resultCode, tag, lm);
 		}
-		synchronized (mSchedulerMap) {
-			mSchedulerMap.remove(tag);
-		}
 		return result;
 	}
 
 	@Override
-	public final void cancel(int tag, boolean immediately) {
+	public final void cancel(int tag) {
+		//tag
 		TagInfo info;
 		synchronized (mTagMap) {
 			info = mTagMap.get(tag);
@@ -227,19 +225,14 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 					+ " ,param = " + info.mLogicParam);
 			return;
 		}
+		//cancel scheduler
 		synchronized (mSchedulerMap) {
 			Schedulers s = mSchedulerMap.get(tag);
 			if(s != null){
 				s.cancel();
 			}
 		}
-		synchronized (mCallbacks) {
-			ArrayList<LogicCallback> callbacks = mCallbacks.get(tag);
-			if (callbacks != null) {
-				callbacks.clear();
-			}
-		}
-		cancelImpl(tag, immediately);
+		cancelImpl(tag);
 	}
 
 	/**
@@ -311,14 +304,16 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	protected abstract void performImpl(int tag, int count, LogicParam param);
 
 	/**
-	 * do cancel this perform logic.
+	 * do cancel this performed logic. because sometimes we need to cancel other operation. 
 	 * 
 	 * @param tag
 	 *            the tag
 	 * @param immediately
 	 *            true if cancel immediately.
 	 */
-	protected abstract void cancelImpl(int tag, boolean immediately);
+	protected void cancelImpl(int tag){
+		
+	}
 
 	// ====================== self method ============================
 
@@ -344,7 +339,6 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		// true, means it is cancelled.
 		if (info.mCancelled.get()) {
 			onCancel(tag, info.mLogicParam);
-			return false;
 		}
 		return true;
 	}
@@ -364,7 +358,8 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 			callbacks = mCallbacks.get(tag);
 		}
 		if (callbacks != null) {
-			final CallbackRunner runner = new CallbackRunner(s, op, resultCode, tag, lm);
+			final CallbackRunner runner = new CallbackRunner(op, resultCode, tag, lm);
+			runner.s = s;
 			for (LogicCallback cl : callbacks) {
 				runner.scheduleCallback(this, cl);
 			}
@@ -380,9 +375,9 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		return info;
 	}
 
-	private static class TagInfo {
-		AtomicBoolean mCancelled;
-		LogicParam mLogicParam;
+	static class TagInfo {
+		final AtomicBoolean mCancelled;
+		final LogicParam mLogicParam;
 
 		public TagInfo(LogicParam mLogicParam) {
 			this.mCancelled = new AtomicBoolean(false);
@@ -390,7 +385,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		}
 	}
 
-	private static class Schedulers {
+	static class Schedulers {
 		long delay;
 		Scheduler schedulerOn;
 		Scheduler observeOn;
@@ -430,23 +425,22 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		}
 	}
 
-	private static class CallbackRunner {
+	static class CallbackRunner {
 		private final int op;
 		private final int resultCode;
 		private final int tag;
 		private final LogicParam lp;
-		private final Schedulers s;
+		Schedulers s;
 
-		public CallbackRunner(Schedulers s, int op, int resultCode, int tag, LogicParam lp) {
+		public CallbackRunner(int op, int resultCode, int tag, LogicParam lp) {
 			super();
 			this.op = op;
 			this.resultCode = resultCode;
 			this.tag = tag;
 			this.lp = lp;
-			this.s = s;
 		}
 
-		public void scheduleCallback(final LogicAction action, LogicCallback callback) {
+		public void scheduleCallback(final LogicAction action, final LogicCallback callback) {
 			s.scheduleCallback(new Runnable() {
 				@Override
 				public void run() {
