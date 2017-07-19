@@ -38,17 +38,6 @@ public final class LogicManager extends ContextDataImpl {
     }
 
     /**
-     * create a logic task.
-     * @param tag the tag
-     * @param action the logic action
-     * @param lp the logic parameter
-     * @return the logic task.
-     */
-    public static LogicTask createTask(int tag, LogicAction action, LogicParam lp) {
-        return new LogicTask(tag, action, lp);
-    }
-
-    /**
      * cancel the all task which is running.
      */
     public void cancelAll(){
@@ -111,7 +100,7 @@ public final class LogicManager extends ContextDataImpl {
      * executeSequence the tasks in Parallel.
      * @param parallels the all tasks.
      * @param endAction the end action , called when all task done.
-     * @return the key if this operation.
+     * @return the key of this operation.
      */
     public int executeParallel(LogicTask[] parallels, Runnable endAction) {
         return executeParallel(Arrays.asList(parallels), endAction);
@@ -121,7 +110,7 @@ public final class LogicManager extends ContextDataImpl {
      * executeSequence the tasks in Parallel.
      * @param parallels the all tasks.
      * @param endAction the end action , called when all task done.
-     * @return the key if this operation.
+     * @return the key of this operation.
      */
     public int executeParallel(List<LogicTask> parallels, Runnable endAction) {
         Throwables.checkEmpty(parallels);
@@ -150,7 +139,7 @@ public final class LogicManager extends ContextDataImpl {
      * @return the key of this operation.
      */
     public int executeSequence(int tag, LogicAction logicAction, LogicParam lp, Runnable endAction) {
-        return executeSequence(new LogicTask[] {createTask(tag, logicAction, lp)}, endAction);
+        return executeSequence(new LogicTask[] {LogicTask.of(tag, logicAction, lp)}, endAction);
     }
 
     /**
@@ -286,16 +275,17 @@ public final class LogicManager extends ContextDataImpl {
         }
         @Override
         protected void onSuccess(LogicAction action, int tag, LogicParam param) {
-            removeTask(new LogicTask(tag, action, param));
+            removeTask(LogicTask.of(tag, action, param));
             int count = finishCount.incrementAndGet();
             if(count == getTaskCount() && endAction != null){
                 endAction.run();
+                System.out.println("task ok. " + param);
             }
         }
 
         @Override
         protected void onFailed(LogicAction action, int tag, LogicParam param) {
-            removeTask(new LogicTask(tag, action, param));
+            removeTask(LogicTask.of(tag, action, param));
         }
 
         private void removeTask(LogicTask task){

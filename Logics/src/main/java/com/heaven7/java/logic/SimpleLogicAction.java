@@ -1,14 +1,14 @@
 package com.heaven7.java.logic;
 
+import static com.heaven7.java.base.util.SafeUtil.getAndUpdate;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.heaven7.java.base.util.SafeUtil;
 import com.heaven7.java.logic.AbstractLogicAction.CallbackRunner;
 import com.heaven7.java.logic.AbstractLogicAction.Schedulers;
 import com.heaven7.java.logic.AbstractLogicAction.TagInfo;
-import com.heaven7.java.logic.util.SafeUtil;
-
-import static com.heaven7.java.logic.util.SafeUtil.getAndUpdate;
 
 /**
  * a simple implements of logic action. this class just ignore the logic tag.
@@ -98,7 +98,13 @@ public abstract class SimpleLogicAction extends ContextDataImpl implements Logic
 			return;
 		}
 		//cancel scheduler
-		mAR_Scheduler.get().cancel();
+		getAndUpdate(mAR_Scheduler, new SafeUtil.SafeOperator<Schedulers>() {
+			@Override
+			public Schedulers apply(Schedulers pre) {
+				pre.cancel();
+				return pre;
+			}
+		});
 		cancelImpl();
 	}
 

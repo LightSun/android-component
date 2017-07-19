@@ -24,8 +24,9 @@ public class LogicParam{
     public Object getData() {
 		return data;
 	}
-	public void setData(Object data) {
+	public LogicParam setData(Object data) {
 		this.data = data;
+		return this;
 	}
 
 	public LogicParam setSerializableData(Serializable data){

@@ -1,5 +1,7 @@
 package com.heaven7.java.logic;
 
+import java.lang.ref.WeakReference;
+
 import com.heaven7.java.logic.LogicAction.LogicCallback;
 
 /**
@@ -11,6 +13,7 @@ public class LogicTask {
 	private final int tag;
 	private final LogicAction action;
 	private final LogicParam logicParam;
+	private WeakReference<LogicAction.LogicCallback> mInternalCallback;
 	
 	private LogicTask(int tag, LogicAction action, LogicParam logicParam) {
 		this.tag = tag;
@@ -53,6 +56,7 @@ public class LogicTask {
 	//======================== private method ==================================
 	
 	void addStateCallback(LogicCallback callback) {
+		mInternalCallback = new WeakReference<LogicAction.LogicCallback>(callback);
 		action.addStateCallback(tag, callback);
 	}
 	
@@ -65,10 +69,17 @@ public class LogicTask {
 	}
 
 	void cancel() {
+		if(mInternalCallback != null){
+            LogicAction.LogicCallback callback = mInternalCallback.get();
+            if(callback != null) {
+                action.removeStateCallback(tag, callback);
+            }
+        }
 		action.cancel(tag);
 	}
 	
 	void setContextData(Object data) {
+		//if self has context data. nothing effect.
 		if( action.getContextData() == null){
 		    action.setContextData(data);
 		}

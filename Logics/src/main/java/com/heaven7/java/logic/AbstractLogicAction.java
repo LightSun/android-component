@@ -6,6 +6,7 @@ import com.heaven7.java.base.util.Throwables;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -20,7 +21,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	/*private*/ static final int OP_RESULT = 1;
 	/*private*/ static final int OP_START = 2;
 
-	private final SparseArray<ArrayList<LogicCallback>> mCallbacks;
+	private final SparseArray<CopyOnWriteArrayList<LogicCallback>> mCallbacks;
 
 	/**
 	 * tag info map.
@@ -44,7 +45,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	 * @see #perform(int, LogicParam)
 	 */
 	public AbstractLogicAction(boolean wantCount) {
-		this.mCallbacks = new SparseArray<ArrayList<LogicCallback>>(4);
+		this.mCallbacks = new SparseArray<CopyOnWriteArrayList<LogicCallback>>(4);
 		this.mTagMap = new SparseArray<TagInfo>(4);
 		this.mCountMap = wantCount ? new SparseArray<Integer>(4) : null;
 		this.mSchedulerMap = new SparseArray<Schedulers>();
@@ -54,9 +55,9 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	public final void addStateCallback(int tag, LogicCallback callback) {
 		Throwables.checkNull(callback);
 		synchronized (mCallbacks) {
-			ArrayList<LogicCallback> list = mCallbacks.get(tag);
+			CopyOnWriteArrayList<LogicCallback> list = mCallbacks.get(tag);
 			if (list == null) {
-				list = new ArrayList<LogicCallback>();
+				list = new CopyOnWriteArrayList<LogicCallback>();
 				mCallbacks.put(tag, list);
 			}
 			list.add(callback);
@@ -67,7 +68,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	public final void removeStateCallback(int tag, LogicCallback callback) {
 		Throwables.checkNull(callback);
 		synchronized (mCallbacks) {
-			ArrayList<LogicCallback> list = mCallbacks.get(tag);
+			CopyOnWriteArrayList<LogicCallback> list = mCallbacks.get(tag);
 			if (list != null) {
 				list.remove(callback);
 			}
@@ -353,7 +354,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 			System.err.println("logic action is cancelled. tag = " + tag);
 			return;
 		}
-		ArrayList<LogicCallback> callbacks;
+		CopyOnWriteArrayList<LogicCallback> callbacks;
 		synchronized (mCallbacks) {
 			callbacks = mCallbacks.get(tag);
 		}
