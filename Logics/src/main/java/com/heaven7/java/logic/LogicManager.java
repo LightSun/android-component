@@ -31,7 +31,7 @@ public final class LogicManager extends ContextDataImpl {
     private static final int TYPE_PARALLEL   = 1;
 
     private static final int MAX_PARALLEL_COUNT  = 0xff;
-    private int mIndex;
+    private final AtomicInteger mIndex = new AtomicInteger();
 
     public LogicManager() {
         this.mLogicMap = new SparseArray<LogicTask>(3);
@@ -118,8 +118,8 @@ public final class LogicManager extends ContextDataImpl {
         if(size > MAX_PARALLEL_COUNT){
             throw new UnsupportedOperationException("max parallel count must below " + MAX_PARALLEL_COUNT);
         }
-        final int baseKey =  ++mIndex;
-        mIndex += size;
+        final int baseKey =  mIndex.incrementAndGet();
+        mIndex.addAndGet(size);
         
         //put to logic pool
         synchronized (mLogicMap) {
@@ -206,7 +206,7 @@ public final class LogicManager extends ContextDataImpl {
         if (tasks.size() == 0) {
             throw new IllegalArgumentException("must assign a logic action");
         }
-        final int key = (++mIndex);
+        final int key = mIndex.incrementAndGet();
 
         performSequenceImpl(tasks, key, 0, endAction);
         return key;

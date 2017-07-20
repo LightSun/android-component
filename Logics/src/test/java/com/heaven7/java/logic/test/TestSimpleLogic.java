@@ -45,7 +45,12 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancel() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.executeParallel(new LogicTask[]{task1, task2 }, null);
+		final int key = mLm.executeParallel(new LogicTask[]{task1, task2 }, new Runnable() {
+			@Override
+			public void run() {
+				Logger.i(TAG, "testCancel", "all Task done! thread = " + Thread.currentThread().getName());
+			}
+		});
 		Logger.i(TAG, "testCancel", "key = " + key);
 		Schedulers.newAsyncScheduler().postDelay(2400, new Runnable() {
 			@Override
@@ -65,9 +70,14 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancelSequence() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.executeSequence(new LogicTask[]{task1, task2 }, null);
+		final int key = mLm.executeSequence(new LogicTask[]{task1, task2 }, new Runnable() {
+			@Override
+			public void run() {
+				Logger.i(TAG, "testCancelSequence", "all Task done! thread = " + Thread.currentThread().getName());
+			}
+		});
 		Logger.i(TAG, "testCancel", "key = " + key);
-		Schedulers.newAsyncScheduler().postDelay(2400, new Runnable() {
+		Schedulers.newAsyncScheduler().postDelay(2600, new Runnable() {
 			@Override
 			public void run() {
 				mLm.cancel(key);
@@ -99,7 +109,7 @@ public class TestSimpleLogic extends TestCase{
 		//logic.testNormalAsync();
 		//logic.testNormal();
 		//logic.testCancel();
-		//logic.testCancelSequence();
-		logic.testScheduler();
+		logic.testCancelSequence();
+		//logic.testScheduler();
 	}
 }
