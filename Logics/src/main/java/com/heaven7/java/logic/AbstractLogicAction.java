@@ -134,7 +134,10 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 
 	@Override
 	public boolean isRunning(int tag) {
-		TagInfo info = mTagMap.get(tag);
+		TagInfo info;
+		synchronized (mTagMap) {
+			info = mTagMap.get(tag);
+		}
 		if (info != null && !info.mCancelled.get()) {
 			return true;
 		}
@@ -143,12 +146,26 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 
 	@Override
 	public boolean isRunning() {
-		final int size = mTagMap.size();
-		for (int i = 0; i < size; i++) {
-			TagInfo info = mTagMap.valueAt(i);
-			if (!info.mCancelled.get()) {
-				return true;
+		synchronized (mTagMap) {
+			final int size = mTagMap.size();
+			for (int i = 0; i < size; i++) {
+				TagInfo info = mTagMap.valueAt(i);
+				if (!info.mCancelled.get()) {
+					return true;
+				}
 			}
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean isCancelled(int tag) {
+		TagInfo info;
+		synchronized (mTagMap) {
+			info = mTagMap.get(tag);
+		}
+		if (info != null && info.mCancelled.get()) {
+			return true;
 		}
 		return false;
 	}
@@ -157,6 +174,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	public void perform(final int tag, final LogicParam param) {
 		// put tag info
 		synchronized (mTagMap) {
+			//previous: may be cancelled or done
 			mTagMap.put(tag, new TagInfo(param));
 		}
 		Schedulers s;
@@ -194,19 +212,23 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	public final boolean dispatchResult(int resultCode, int tag) {
 		final LogicParam lm = getLogicParameter(tag);
 
-		//handle callbacks
-		dispatchCallbackInternal(OP_RESULT, resultCode, tag, lm);
-		
+		//result indicate whether invoke callback or not.
 		boolean result;
 		switch (resultCode) {
 			case RESULT_SUCCESS:
-				return onLogicSuccess(tag);
+				result = onLogicSuccess(tag);
+				break;
 
 		    case RESULT_FAILED:
-			    return onLogicFailed(tag);
+		    	result = onLogicFailed(tag);
+			    break;
 			
 			default:
-				result = dispatchLogicResult(resultCode, tag, lm);
+				result = onLogicResult(resultCode, tag, lm);
+		}
+		if(result){
+			//handle callbacks
+			dispatchCallbackInternal(OP_RESULT, resultCode, tag, lm);
 		}
 		return result;
 	}
@@ -275,23 +297,6 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	}
 
 	/**
-	 * called on logic result.
-	 * 
-	 * @param resultCode
-	 *            the result code. but not {@linkplain #RESULT_SUCCESS} or
-	 *            {@linkplain #RESULT_FAILED}.
-	 * @param tag
-	 *            the tag
-	 * @param lm
-	 *            the logic parameter
-	 * @return true if dispatch success.
-	 */
-
-	protected boolean dispatchLogicResult(int resultCode, int tag, LogicParam lm) {
-		return false;
-	}
-
-	/**
 	 * do perform this logic state. also support async perform this logic state.
 	 *
 	 * @param tag
@@ -316,11 +321,36 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		
 	}
 
-	// ====================== self method ============================
+	// ====================== optional override method ============================
+	
+	/**
+	 * called on logic result.
+	 * 
+	 * @param resultCode
+	 *            the result code. but not {@linkplain #RESULT_SUCCESS} or
+	 *            {@linkplain #RESULT_FAILED}.
+	 * @param tag
+	 *            the tag
+	 * @param lm
+	 *            the logic parameter
+	 * @return true if success. default is true. this will effect the callback. 
+	 *        only true the callbacks can be invoke, false not invoke.
+	 * @see {@linkplain #dispatchResult(int, int)}
+	 */
 
+	protected boolean onLogicResult(int resultCode, int tag, LogicParam lm) {
+		return true;
+	}
+	
+	/**
+	 * called on logic result failed.
+	 * @return true if success. default is true. this will effect the callback. 
+	 *      only true the callbacks can be invoke, false not invoke.
+	 * @see {@linkplain #dispatchResult(int, int)}
+	 */
 	protected boolean onLogicFailed(int tag) {
 		getAndRemoveTagInfo(tag);
-		return false;
+		return true;
 	}
 
 	/**
@@ -328,7 +358,9 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	 * 
 	 * @param tag
 	 *            the tag
-	 * @return true .if it is started ,but not cancelled and normal success.
+	 * @return the handle result. if it is cancelled return false. this will effect the callback.
+	 *           only true the callbacks can be invoke, false not invoke.
+	 * @see #dispatchResult(int, int)          
 	 */
 	protected boolean onLogicSuccess(int tag) {
 		// get and remove tag info
@@ -340,9 +372,12 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		// true, means it is cancelled.
 		if (info.mCancelled.get()) {
 			onCancel(tag, info.mLogicParam);
+			return false;
 		}
 		return true;
 	}
+	
+	// ====================== private method ============================
 
 	private void dispatchCallbackInternal(int op, int resultCode, int tag, LogicParam lm) {
 		Schedulers s;
@@ -370,8 +405,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	private TagInfo getAndRemoveTagInfo(int tag) {
 		TagInfo info;
 		synchronized (mTagMap) {
-			info = mTagMap.get(tag);
-			mTagMap.remove(tag);
+			info = mTagMap.getAndRemove(tag);
 		}
 		return info;
 	}

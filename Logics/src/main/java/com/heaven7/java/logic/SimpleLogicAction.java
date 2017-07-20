@@ -112,18 +112,22 @@ public abstract class SimpleLogicAction extends ContextDataImpl implements Logic
 	public boolean dispatchResult(int resultCode, int tag) {
 		final LogicParam lm = getLogicParameter(tag);
 
-		dispatchCallbackInternal(AbstractLogicAction.OP_RESULT, resultCode, tag, lm);
-		
+		// result is true, means permit callback. or else not.
 		boolean result;
 		switch (resultCode) {
 			case RESULT_SUCCESS:
-				return onLogicSuccess();
+				result = onLogicSuccess();
+			    break;
 
 		    case RESULT_FAILED:
-			    return onLogicFailed();
+		    	result = onLogicFailed();
+		    	break;
 			
 			default:
-				result = dispatchLogicResult(resultCode, lm);
+				result = onLogicResult(resultCode, lm);
+		}
+		if(result){
+			dispatchCallbackInternal(AbstractLogicAction.OP_RESULT, resultCode, tag, lm);
 		}
 		return result;
 	}
@@ -139,6 +143,12 @@ public abstract class SimpleLogicAction extends ContextDataImpl implements Logic
 		return info != null && !info.mCancelled.get();
 	}
 	
+	@Override
+	public boolean isCancelled(int tag) {
+		TagInfo info = mAR_tagInfo.get();
+		return info != null && info.mCancelled.get();
+	}
+	
 	
 	private void dispatchCallbackInternal(int op, int resultCode, int tag, LogicParam lm) {
 		final CallbackRunner runner = new CallbackRunner(op, resultCode, tag, lm);
@@ -152,7 +162,9 @@ public abstract class SimpleLogicAction extends ContextDataImpl implements Logic
 	
 	/**
 	 * called on logic result success.
-	 * @return the handle result. default is true.
+	 * @return the handle result. is is cancelled return false. this will effect the callback.
+	 *        only true the callbacks can be invoke, false not invoke.
+	 * @see {@linkplain #dispatchResult(int, int)}
 	 */
 	protected boolean onLogicSuccess() {
 		TagInfo info = mAR_tagInfo.getAndSet(null);
@@ -161,16 +173,36 @@ public abstract class SimpleLogicAction extends ContextDataImpl implements Logic
 		}
 		if(info.mCancelled.get()){
 			onCancel(info.mLogicParam);
+			return false;
 		}
 		return true;
 	}
 	
 	/**
 	 * called on logic result failed.
-	 * @return the handle result. default is true.
+	 * @return true if dispatch success. default is true. this will effect the callback. 
+	 *      only true the callbacks can be invoke, false not invoke.
+	 * @see {@linkplain #dispatchResult(int, int)}
 	 */
 	protected boolean onLogicFailed() {
 		mAR_tagInfo.getAndSet(null);
+		return true;
+	}
+	
+	/**
+	 * called on logic result.
+	 * 
+	 * @param resultCode
+	 *            the result code. but not {@linkplain #RESULT_SUCCESS} or
+	 *            {@linkplain #RESULT_FAILED}.
+	 * @param lm
+	 *            the logic parameter
+	 * @return true if dispatch success. default is true. this will effect the callback. 
+	 *        only true the callbacks can be invoke, false not invoke.
+	 * @see {@linkplain #dispatchResult(int, int)}
+	 */
+
+	protected boolean onLogicResult(int resultCode, LogicParam lm) {
 		return true;
 	}
 	
@@ -190,20 +222,6 @@ public abstract class SimpleLogicAction extends ContextDataImpl implements Logic
 		
 	}
 	
-	/**
-	 * called on logic result.
-	 * 
-	 * @param resultCode
-	 *            the result code. but not {@linkplain #RESULT_SUCCESS} or
-	 *            {@linkplain #RESULT_FAILED}.
-	 * @param lm
-	 *            the logic parameter
-	 * @return true if dispatch success.
-	 */
-
-	protected boolean dispatchLogicResult(int resultCode, LogicParam lm) {
-		return false;
-	}
 	
 	/**
 	 * do perform the logic action by target logic parameter.

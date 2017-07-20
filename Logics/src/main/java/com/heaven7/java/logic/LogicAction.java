@@ -102,6 +102,14 @@ public interface LogicAction extends ContextData {
      * @return true if any tag of this logic action is running
      */
 	boolean isRunning();
+	
+	/**
+	 * indicate the logic action of target tag is cancelled or not.
+	 * @param tag  the tag of logic action. 
+	 * @return true if the logic action of target tag is cancelled. This only be true , 
+	 * if the logic action of tag is running and {@linkplain #cancel(int)} not be called. false Otherwise.
+	 */
+	boolean isCancelled(int tag);
 
     /**
      * the logic callback

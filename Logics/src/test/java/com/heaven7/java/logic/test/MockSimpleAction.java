@@ -24,6 +24,7 @@ public class MockSimpleAction extends SimpleLogicAction {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		dispatchResult(RESULT_SUCCESS, 0);
 		System.out
 				.println("MockSimpleAction_" + hashCode() + " >>> end perform: time = " + Schedulers.getCurrentTime());
 	}

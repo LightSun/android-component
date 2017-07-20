@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 
 public class TestSimpleLogic extends TestCase{
 
+	private static final String TAG = "TestSimpleLogic";
 	private final LogicManager mLm = new LogicManager();
 	private final MockSimpleAction mAction = new MockSimpleAction();
 	
@@ -40,12 +41,33 @@ public class TestSimpleLogic extends TestCase{
 				.delay(2500)
 				;
 		LogicTask task2 = LogicTask.ofSimple(mAction, new LogicParam().setData("testCancel_2"))
-				.schedulerOn(Schedulers.ASYNC)
+				.schedulerOn(Schedulers.newAsyncScheduler())
 				.delay(3000)
 				;
 		System.out.println("============ testCancel() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.executeSequence(task1, task2 , null);
-		Schedulers.ASYNC.postDelay(3000, new Runnable() {
+		final int key = mLm.executeParallel(new LogicTask[]{task1, task2 }, null);
+		Logger.i(TAG, "testCancel", "key = " + key);
+		Schedulers.newAsyncScheduler().postDelay(2400, new Runnable() {
+			@Override
+			public void run() {
+				mLm.cancel(key);
+			    assertNull(mAction.getLogicParameter(0));
+			}
+		});
+	}
+	public void testCancelSequence(){
+		LogicTask task1 = LogicTask.ofSimple(new MockSimpleAction(), new LogicParam().setData("testCancelSequence_1"))
+				.schedulerOn(Schedulers.ASYNC)
+				.delay(2500)
+				;
+		LogicTask task2 = LogicTask.ofSimple(mAction, new LogicParam().setData("testCancelSequence_2"))
+				.schedulerOn(Schedulers.newAsyncScheduler())
+				.delay(3000)
+				;
+		System.out.println("============ testCancelSequence() >>> start time = " + Schedulers.getCurrentTime());
+		final int key = mLm.executeSequence(new LogicTask[]{task1, task2 }, null);
+		Logger.i(TAG, "testCancel", "key = " + key);
+		Schedulers.newAsyncScheduler().postDelay(2400, new Runnable() {
 			@Override
 			public void run() {
 				mLm.cancel(key);
@@ -54,10 +76,30 @@ public class TestSimpleLogic extends TestCase{
 		});
 	}
 	
+	public void testScheduler(){
+		LogicTask task1 = LogicTask.ofSimple(new MockSimpleAction(), new LogicParam().setData("testScheduler_1"))
+				.schedulerOn(Schedulers.ASYNC)
+				.observeOn(Schedulers.newAsyncScheduler())
+				.delay(2500)
+				;
+		LogicTask task2 = LogicTask.ofSimple(mAction, new LogicParam().setData("testScheduler_2"))
+				.schedulerOn(Schedulers.newAsyncScheduler())
+				.delay(3000)
+				;
+		mLm.executeSequence(new LogicTask[]{task1, task2 }, new Runnable() {
+			@Override
+			public void run() {
+				Logger.i(TAG, "testScheduler", "all Task done! thread = " + Thread.currentThread().getName());
+			}
+		});
+	}
+	
 	public static void main(String[] args) {
 		TestSimpleLogic logic = new TestSimpleLogic();
 		//logic.testNormalAsync();
 		//logic.testNormal();
-		logic.testCancel();
+		//logic.testCancel();
+		//logic.testCancelSequence();
+		logic.testScheduler();
 	}
 }

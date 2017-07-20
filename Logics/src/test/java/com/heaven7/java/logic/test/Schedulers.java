@@ -18,6 +18,9 @@ public class Schedulers {
 	public static final Scheduler ASYNC = new AsyncScheduler();
 	public static final Scheduler DEFAULT = new DefaultScheduler();
 
+	public static Scheduler newAsyncScheduler(){
+		return new AsyncScheduler();
+	}
 	
 	public static String getCurrentTime(){
 		return DF.format(new Date(System.currentTimeMillis()));

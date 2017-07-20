@@ -114,20 +114,28 @@ public final class LogicManager extends ContextDataImpl {
      */
     public int executeParallel(List<LogicTask> parallels, Runnable endAction) {
         Throwables.checkEmpty(parallels);
-        if(parallels.size() > MAX_PARALLEL_COUNT){
+        final int size = parallels.size();
+        if(size > MAX_PARALLEL_COUNT){
             throw new UnsupportedOperationException("max parallel count must below " + MAX_PARALLEL_COUNT);
         }
-        final int count = parallels.size();
-        int baseKey =  ++mIndex;
-        mIndex += count;
-        final ParallelCallback callback = new ParallelCallback(baseKey, parallels, endAction);
+        final int baseKey =  ++mIndex;
+        mIndex += size;
+        
+        //put to logic pool
+        synchronized (mLogicMap) {
+            for(int i = 0 ; i < size ; i++){
+                mLogicMap.put(baseKey + i, parallels.get(i));
+            }
+        }
+        //add callback and perform
+        final ParallelCallback callback = new ParallelCallback(parallels, endAction);
         final Object data = getContextData();
         for(LogicTask task : parallels){
             task.setContextData(data);
             task.addStateCallback(callback);
             task.perform();
         }
-        return baseKey + count << SHIFT_SECONDARY + TYPE_PARALLEL << SHIFT_TYPE;
+        return baseKey + (size << SHIFT_SECONDARY) + (TYPE_PARALLEL << SHIFT_TYPE);
     }
 
     /**
@@ -189,7 +197,7 @@ public final class LogicManager extends ContextDataImpl {
     /**
      * execute the tasks in sequence with the end action.
      *
-     * @param tasks     the logic tasks
+     * @param tasks     the logic tasks, you can't modify this list outside. or else you may cause bug.
      * @param endAction the end action, called when perform the all target logic tasks done. can be null.
      * @return the key of this operation.
      */
@@ -200,15 +208,15 @@ public final class LogicManager extends ContextDataImpl {
         }
         final int key = (++mIndex);
 
-        performStateImpl(tasks, key, 0, endAction);
+        performSequenceImpl(tasks, key, 0, endAction);
         return key;
     }
 
 
-    private void performStateImpl(List<LogicTask> tasks, int key, int currentIndex, Runnable endAction) {
+    private void performSequenceImpl(List<LogicTask> tasks, int key, int currentIndex, Runnable endAction) {
         final LogicTask target = tasks.get(currentIndex);
         target.setContextData(getContextData());
-        target.addStateCallback(new InternalCallback(tasks, key, currentIndex, endAction));
+        target.addStateCallback(new SequenceCallback(tasks, key, currentIndex, endAction));
         target.perform();
     }
 
@@ -232,10 +240,7 @@ public final class LogicManager extends ContextDataImpl {
     private void cancelByRealKey(int realKey){
         LogicTask task;
         synchronized (mLogicMap) {
-            task = mLogicMap.get(realKey);
-            if (task != null) {
-                mLogicMap.remove(realKey);
-            }
+            task = mLogicMap.getAndRemove(realKey);
         }
         if(task != null){
             task.cancel();
@@ -248,13 +253,12 @@ public final class LogicManager extends ContextDataImpl {
 
     private class ParallelCallback extends SimpleLogicCallback{
 
-        final int key;
+       /* final int key;*/
         final List<LogicTask> parallelTasks;
         final Runnable endAction;
         final AtomicInteger finishCount;
 
-        public ParallelCallback(int key, List<LogicTask> parallelTasks, Runnable endAction) {
-            this.key = key;
+        public ParallelCallback(List<LogicTask> parallelTasks, Runnable endAction) {
             this.parallelTasks = parallelTasks;
             this.endAction = endAction;
             this.finishCount = new AtomicInteger(0);
@@ -266,12 +270,13 @@ public final class LogicManager extends ContextDataImpl {
 
         @Override
         public void onLogicStart(LogicAction action, int tag, LogicParam param) {
-            int count = getTaskCount();
+        	//if put parallel task in here. can cause the last Logic task may not be cancelled.
+            /*int count = getTaskCount();
             synchronized (mLogicMap) {
                 for(int i = 0 ; i < count ; i++){
                     mLogicMap.put(key + i, parallelTasks.get(i));
                 }
-            }
+            }*/
         }
         @Override
         protected void onSuccess(LogicAction action, int tag, LogicParam param) {
@@ -279,7 +284,7 @@ public final class LogicManager extends ContextDataImpl {
             int count = finishCount.incrementAndGet();
             if(count == getTaskCount() && endAction != null){
                 endAction.run();
-                System.out.println("task ok. " + param);
+                //System.out.println("task ok. " + param);
             }
         }
 
@@ -300,14 +305,14 @@ public final class LogicManager extends ContextDataImpl {
         }
     }
 
-    private class InternalCallback extends SimpleLogicCallback {
+    private class SequenceCallback extends SimpleLogicCallback {
 
         final int key;
         final int curIndex;
         final List<LogicTask> mTasks;
         final Runnable endAction;
 
-        public InternalCallback(List<LogicTask> tasks, int key, int currentIndex, Runnable endAction) {
+        public SequenceCallback(List<LogicTask> tasks, int key, int currentIndex, Runnable endAction) {
             this.key = key;
             this.curIndex = currentIndex;
             this.mTasks = tasks;
@@ -331,7 +336,7 @@ public final class LogicManager extends ContextDataImpl {
                 }
             } else {
                 //perform next
-                performStateImpl(mTasks, key, curIndex + 1, endAction);
+                performSequenceImpl(mTasks, key, curIndex + 1, endAction);
             }
         }
         @Override
