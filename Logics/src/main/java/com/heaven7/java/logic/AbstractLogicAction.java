@@ -1,13 +1,12 @@
 package com.heaven7.java.logic;
 
+import java.lang.ref.WeakReference;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.heaven7.java.base.anno.Nullable;
 import com.heaven7.java.base.util.SparseArray;
 import com.heaven7.java.base.util.Throwables;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * the logic action. support async and count analyse. default support multi tag
@@ -18,8 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class AbstractLogicAction extends ContextDataImpl implements LogicAction {
 
-	/*private*/ static final int OP_RESULT = 1;
-	/*private*/ static final int OP_START = 2;
+	/* private */ static final int OP_RESULT = 1;
+	/* private */ static final int OP_START = 2;
 
 	private final SparseArray<CopyOnWriteArrayList<LogicCallback>> mCallbacks;
 
@@ -89,46 +88,40 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		if (delay < 0) {
 			delay = 0;
 		}
+		Schedulers s;
 		synchronized (mSchedulerMap) {
-			Schedulers s = new Schedulers();
+			s = mSchedulerMap.get(tag);
+			if (s == null) {
+				s = new Schedulers();
+				mSchedulerMap.append(tag, s);
+			}
 			s.delay = delay;
-			mSchedulerMap.append(tag, s);
 		}
 	}
 
 	@Override
 	public void scheduleOn(int tag, @Nullable Scheduler scheduler) {
-		if (scheduler == null) {
-			synchronized (mSchedulerMap) {
-				Schedulers s = mSchedulerMap.get(tag);
-				if (s != null) {
-					s.schedulerOn = null;
-				}
-			}
-		} else {
-			synchronized (mSchedulerMap) {
-				Schedulers s = new Schedulers();
-				s.schedulerOn = scheduler;
+		Schedulers s;
+		synchronized (mSchedulerMap) {
+			s = mSchedulerMap.get(tag);
+			if (s == null) {
+				s = new Schedulers();
 				mSchedulerMap.append(tag, s);
 			}
+			s.schedulerOn = scheduler;
 		}
 	}
 
 	@Override
 	public void observeOn(int tag, Scheduler scheduler) {
-		if (scheduler == null) {
-			synchronized (mSchedulerMap) {
-				Schedulers s = mSchedulerMap.get(tag);
-				if (s != null) {
-					s.observeOn = null;
-				}
-			}
-		} else {
-			synchronized (mSchedulerMap) {
-				Schedulers s = new Schedulers();
-				s.observeOn = scheduler;
+		Schedulers s;
+		synchronized (mSchedulerMap) {
+			s = mSchedulerMap.get(tag);
+			if (s == null) {
+				s = new Schedulers();
 				mSchedulerMap.append(tag, s);
 			}
+			s.observeOn = scheduler;
 		}
 	}
 
@@ -157,7 +150,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean isCancelled(int tag) {
 		TagInfo info;
@@ -174,7 +167,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	public void perform(final int tag, final LogicParam param) {
 		// put tag info
 		synchronized (mTagMap) {
-			//previous: may be cancelled or done
+			// previous: may be cancelled or done
 			mTagMap.put(tag, new TagInfo(param));
 		}
 		Schedulers s;
@@ -192,7 +185,8 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		final int targetCount;
 		if (mCountMap != null) {
 			synchronized (mCountMap) {
-				targetCount = mCountMap.get(tag) + 1;
+				Integer val = mCountMap.get(tag);
+				targetCount = val != null ? val + 1 : 1;
 				mCountMap.put(tag, targetCount);
 			}
 		} else {
@@ -212,22 +206,22 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	public final boolean dispatchResult(int resultCode, int tag) {
 		final LogicParam lm = getLogicParameter(tag);
 
-		//result indicate whether invoke callback or not.
+		// result indicate whether invoke callback or not.
 		boolean result;
 		switch (resultCode) {
-			case RESULT_SUCCESS:
-				result = onLogicSuccess(tag);
-				break;
+		case RESULT_SUCCESS:
+			result = onLogicSuccess(tag);
+			break;
 
-		    case RESULT_FAILED:
-		    	result = onLogicFailed(tag);
-			    break;
-			
-			default:
-				result = onLogicResult(resultCode, tag, lm);
+		case RESULT_FAILED:
+			result = onLogicFailed(tag);
+			break;
+
+		default:
+			result = onLogicResult(resultCode, tag, lm);
 		}
-		if(result){
-			//handle callbacks
+		if (result) {
+			// handle callbacks
 			dispatchCallbackInternal(OP_RESULT, resultCode, tag, lm);
 		}
 		return result;
@@ -235,7 +229,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 
 	@Override
 	public final void cancel(int tag) {
-		//tag
+		// tag
 		TagInfo info;
 		synchronized (mTagMap) {
 			info = mTagMap.get(tag);
@@ -248,10 +242,10 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 					+ " ,param = " + info.mLogicParam);
 			return;
 		}
-		//cancel scheduler
+		// cancel scheduler
 		synchronized (mSchedulerMap) {
 			Schedulers s = mSchedulerMap.get(tag);
-			if(s != null){
+			if (s != null) {
 				s.cancel();
 			}
 		}
@@ -310,19 +304,21 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	protected abstract void performImpl(int tag, int count, LogicParam param);
 
 	/**
-	 * do cancel this performed logic. because sometimes we need to cancel other operation. 
+	 * do cancel this performed logic. because sometimes we need to cancel other
+	 * operation.
 	 * 
 	 * @param tag
 	 *            the tag
 	 * @param immediately
 	 *            true if cancel immediately.
 	 */
-	protected void cancelImpl(int tag){
-		
+	protected void cancelImpl(int tag) {
+
 	}
 
-	// ====================== optional override method ============================
-	
+	// ====================== optional override method
+	// ============================
+
 	/**
 	 * called on logic result.
 	 * 
@@ -333,19 +329,20 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	 *            the tag
 	 * @param lm
 	 *            the logic parameter
-	 * @return true if success. default is true. this will effect the callback. 
-	 *        only true the callbacks can be invoke, false not invoke.
+	 * @return true if success. default is true. this will effect the callback.
+	 *         only true the callbacks can be invoke, false not invoke.
 	 * @see {@linkplain #dispatchResult(int, int)}
 	 */
 
 	protected boolean onLogicResult(int resultCode, int tag, LogicParam lm) {
 		return true;
 	}
-	
+
 	/**
 	 * called on logic result failed.
-	 * @return true if success. default is true. this will effect the callback. 
-	 *      only true the callbacks can be invoke, false not invoke.
+	 * 
+	 * @return true if success. default is true. this will effect the callback.
+	 *         only true the callbacks can be invoke, false not invoke.
 	 * @see {@linkplain #dispatchResult(int, int)}
 	 */
 	protected boolean onLogicFailed(int tag) {
@@ -358,9 +355,10 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 	 * 
 	 * @param tag
 	 *            the tag
-	 * @return the handle result. if it is cancelled return false. this will effect the callback.
-	 *           only true the callbacks can be invoke, false not invoke.
-	 * @see #dispatchResult(int, int)          
+	 * @return the handle result. if it is cancelled return false. this will
+	 *         effect the callback. only true the callbacks can be invoke, false
+	 *         not invoke.
+	 * @see #dispatchResult(int, int)
 	 */
 	protected boolean onLogicSuccess(int tag) {
 		// get and remove tag info
@@ -376,7 +374,7 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 		}
 		return true;
 	}
-	
+
 	// ====================== private method ============================
 
 	private void dispatchCallbackInternal(int op, int resultCode, int tag, LogicParam lm) {
@@ -449,11 +447,11 @@ public abstract class AbstractLogicAction extends ContextDataImpl implements Log
 				observeOn.post(task);
 			}
 		}
-		
-		void cancel(){
-			if(mWeakScheduleTask != null){
+
+		void cancel() {
+			if (mWeakScheduleTask != null) {
 				Runnable task = mWeakScheduleTask.get();
-				if(task != null){
+				if (task != null) {
 					schedulerOn.remove(task);
 				}
 			}
