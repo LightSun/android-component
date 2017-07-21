@@ -22,24 +22,24 @@ public class MockAction extends AbstractLogicAction{
 				"MockSimpleAction_" + hashCode() + "_" + ts+ " >>> start perform: time = " + Schedulers.getCurrentTime());
 		try {
 			Thread.sleep(3000);
+			dispatchResult(RESULT_SUCCESS, tag);
+			System.out
+					.println("MockSimpleAction_" + hashCode()+ "_" + ts + " >>> end perform: time = " + Schedulers.getCurrentTime());
 		} catch (InterruptedException e) {
+			dispatchResult(RESULT_SUCCESS, tag);
 			e.printStackTrace();
 		}
-		dispatchResult(RESULT_SUCCESS, tag);
-		System.out
-				.println("MockSimpleAction_" + hashCode()+ "_" + ts + " >>> end perform: time = " + Schedulers.getCurrentTime());
 	}
 	
 	@Override
 	protected void cancelImpl(int tag) {
 		Logger.i(TAG, "cancelImpl", "tag = " + tagToString(tag));
 	}
-	
 	@Override
-	protected void onCancel(int tag, LogicParam param) {
+	protected void onCancel(int resultCode, int tag, LogicParam param) {
 		Logger.i(TAG, "onCancel", "tag = " + tagToString(tag) + " ," + param);
 	}
-
+	
 	static String tagToString(int tag){
 		switch (tag) {
 		case TAG_ERROR:
@@ -50,4 +50,5 @@ public class MockAction extends AbstractLogicAction{
 		}
 		throw new UnsupportedOperationException("wrong tag = " + tag);
 	}
+
 }

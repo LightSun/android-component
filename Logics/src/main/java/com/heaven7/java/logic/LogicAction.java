@@ -16,6 +16,12 @@ public interface LogicAction extends ContextData {
      * the result code indicate failed.
      */
     int RESULT_FAILED  = 2;
+    
+    
+    int STATE_STARTED        = 11;
+    int STATE_PERFORMING     = 12;
+    int STATE_CANCELLED      = 13;
+    //done ? removed the state.
 
     /**
      * get the logic parameter by target tag
@@ -104,20 +110,37 @@ public interface LogicAction extends ContextData {
 	boolean isRunning();
 	
 	/**
-	 * indicate the logic action of target tag is cancelled or not.
+	 * indicate the logic action of target tag is cancelled or not. if {@linkplain #cancel(int)} was called.
+	 * the same tag of call this method will return true until you call {@linkplain #reset(int)}.
 	 * @param tag  the tag of logic action. 
-	 * @return true if the logic action of target tag is cancelled. This only be true , 
-	 * if the logic action of tag is running and {@linkplain #cancel(int)} not be called. false Otherwise.
+	 * @return true if the logic action of target tag is cancelled. false otherwise.
 	 */
 	boolean isCancelled(int tag);
+	
+	/**
+	 * reset this logic action for target tag. if {@linkplain #cancel(int)} was called, 
+	 * after call this method you can perform this action again. 
+	 * but if tag of this action is running, it will never callback on success until you perform again.
+	 * <p>This method is often called after {@linkplain #cancel(int)}.</p>
+	 * @param tag the tag
+	 */
+	void reset(int tag);
 
+	/**
+	 * reset this logic action for all tag.if {@linkplain #cancel(int)} was called, 
+	 * after call this method you can perform this action again. but if someone of this action is running, 
+	 * it will never callback on success until you perform again.
+	 * @see #reset(int)
+	 */
+	void reset();
+	
     /**
      * the logic callback
      */
     abstract class LogicCallback{
 
         /**
-         * called on logic start
+         * called on logic start performing.
          * @param action the logic action
          * @param tag the tag
          * @param param the logic parameter

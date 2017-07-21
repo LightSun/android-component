@@ -1,255 +1,65 @@
 package com.heaven7.java.logic;
 
-import static com.heaven7.java.base.util.SafeUtil.getAndUpdate;
-
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.heaven7.java.base.util.SafeUtil;
-import com.heaven7.java.logic.AbstractLogicAction.CallbackRunner;
-import com.heaven7.java.logic.AbstractLogicAction.Schedulers;
-import com.heaven7.java.logic.AbstractLogicAction.TagInfo;
-
 /**
- * a simple implements of logic action. this class just ignore the logic tag.
+ * a simple implements of logic action. you should just ignore the logic tag .
  * @author heaven7
  */
-public abstract class SimpleLogicAction extends ContextDataImpl implements LogicAction{
+public abstract class SimpleLogicAction extends BaseLogicAction{
 	
-	private final AtomicReference<Schedulers> mAR_Scheduler;
+	private final AtomicReference<ScheduleHandler> mAR_Scheduler;
 	private final AtomicReference<TagInfo> mAR_tagInfo;
 	private final CopyOnWriteArrayList<LogicCallback> mCallbacks;
 	
 	public SimpleLogicAction(){
-		mAR_Scheduler = new AtomicReference<AbstractLogicAction.Schedulers>(new Schedulers());
+		mAR_Scheduler = new AtomicReference<AbstractLogicAction.ScheduleHandler>(new ScheduleHandler());
 		mAR_tagInfo = new AtomicReference<TagInfo>();
 		mCallbacks = new CopyOnWriteArrayList<LogicCallback>();
 	}
 	
 	@Override
-	public LogicParam getLogicParameter(int tag) {
-		TagInfo info = mAR_tagInfo.get();
-		return info != null ? info.mLogicParam : null;
-	}
-
-	@Override
-	public void addStateCallback(int tag, LogicCallback callback) {
+	public final void addStateCallback(int tag, LogicCallback callback) {
 		mCallbacks.add(callback);
 	}
 
 	@Override
-	public void removeStateCallback(int tag, LogicCallback callback) {
+	public final void removeStateCallback(int tag, LogicCallback callback) {
 		mCallbacks.remove(callback);
 	}
 
 	@Override
-	public void scheduleOn(int tag,final Scheduler scheduler) {
-		getAndUpdate(mAR_Scheduler, new SafeUtil.SafeOperator<Schedulers>() {
-			@Override
-			public Schedulers apply(Schedulers pre) {
-				pre.schedulerOn = scheduler;
-				return pre;
-			}
-		});
+	public final boolean isRunning() {
+		return isRunning(0);
 	}
 
 	@Override
-	public void setDelay(int tag,final long delay) {
-		getAndUpdate(mAR_Scheduler, new SafeUtil.SafeOperator<Schedulers>() {
-			@Override
-			public Schedulers apply(Schedulers pre) {
-				pre.delay = delay;
-				return pre;
-			}
-		});
-	}
-
-	@Override
-	public void observeOn(int tag, final Scheduler scheduler) {
-		getAndUpdate(mAR_Scheduler, new SafeUtil.SafeOperator<Schedulers>() {
-			@Override
-			public Schedulers apply(Schedulers pre) {
-				pre.observeOn = scheduler;
-				return pre;
-			}
-		});
-	}
-
-	@Override
-	public void perform(final int tag,final LogicParam param) {
-		if(!mAR_tagInfo.compareAndSet(null, new TagInfo(param))){
-			return;
-		}
-		//start.
-		dispatchCallbackInternal(AbstractLogicAction.OP_START, 0, tag, param);
-		//do perform
-		getAndUpdate(mAR_Scheduler, new SchedulerOperator(param));
+	public void reset() {
+		reset(0);
 	}
 	
-	@Override
-	public void cancel(int tag) {
-		//handle tag
-		TagInfo info = mAR_tagInfo.getAndSet(null);
-		if(info == null){
-			//already cancelled.
-			return;
-		}
-		if(!info.mCancelled.compareAndSet(false, true)){
-			return;
-		}
-		//cancel scheduler
-		getAndUpdate(mAR_Scheduler, new SafeUtil.SafeOperator<Schedulers>() {
-			@Override
-			public Schedulers apply(Schedulers pre) {
-				pre.cancel();
-				return pre;
-			}
-		});
-		cancelImpl();
-	}
-
-	@Override
-	public boolean dispatchResult(int resultCode, int tag) {
-		final LogicParam lm = getLogicParameter(tag);
-
-		// result is true, means permit callback. or else not.
-		boolean result;
-		switch (resultCode) {
-			case RESULT_SUCCESS:
-				result = onLogicSuccess();
-			    break;
-
-		    case RESULT_FAILED:
-		    	result = onLogicFailed();
-		    	break;
-			
-			default:
-				result = onLogicResult(resultCode, lm);
-		}
-		if(result){
-			dispatchCallbackInternal(AbstractLogicAction.OP_RESULT, resultCode, tag, lm);
-		}
-		return result;
-	}
-
-	@Override
-	public boolean isRunning(int tag) {
-        return isRunning();
-	}
-
-	@Override
-	public boolean isRunning() {
-		TagInfo info = mAR_tagInfo.get();
-		return info != null && !info.mCancelled.get();
-	}
-	
-	@Override
-	public boolean isCancelled(int tag) {
-		TagInfo info = mAR_tagInfo.get();
-		return info != null && info.mCancelled.get();
-	}
-	
-	
-	private void dispatchCallbackInternal(int op, int resultCode, int tag, LogicParam lm) {
+	protected final void dispatchCallbackInternal(int op, int resultCode, int tag, LogicParam lm) {
 		final CallbackRunner runner = new CallbackRunner(op, resultCode, tag, lm);
-		runner.s = mAR_Scheduler.get();
+		runner.s = getScheduleHandler(tag, false);
 		for (LogicCallback cl : mCallbacks) {
 			runner.scheduleCallback(this, cl);
 		}
 	}
 	
-	//========================== protected method ===============================
-	
-	/**
-	 * called on logic result success.
-	 * @return the handle result. is is cancelled return false. this will effect the callback.
-	 *        only true the callbacks can be invoke, false not invoke.
-	 * @see {@linkplain #dispatchResult(int, int)}
-	 */
-	protected boolean onLogicSuccess() {
-		TagInfo info = mAR_tagInfo.getAndSet(null);
-		if(info == null){
-			return false;
-		}
-		if(info.mCancelled.get()){
-			onCancel(info.mLogicParam);
-			return false;
-		}
-		return true;
+	@Override
+	protected ScheduleHandler getScheduleHandler(int tag, boolean cacheIfNeed) {
+		return mAR_Scheduler.get();
 	}
 	
-	/**
-	 * called on logic result failed.
-	 * @return true if dispatch success. default is true. this will effect the callback. 
-	 *      only true the callbacks can be invoke, false not invoke.
-	 * @see {@linkplain #dispatchResult(int, int)}
-	 */
-	protected boolean onLogicFailed() {
-		mAR_tagInfo.getAndSet(null);
-		return true;
+	@Override
+	protected final TagInfo getTagInfo(int tag, boolean remove) {
+		return remove ? mAR_tagInfo.getAndSet(null) : mAR_tagInfo.get();
+	}
+	@Override
+	protected void putTagInfo(int tag, TagInfo info) {
+		mAR_tagInfo.getAndSet(info);
 	}
 	
-	/**
-	 * called on logic result.
-	 * 
-	 * @param resultCode
-	 *            the result code. but not {@linkplain #RESULT_SUCCESS} or
-	 *            {@linkplain #RESULT_FAILED}.
-	 * @param lm
-	 *            the logic parameter
-	 * @return true if dispatch success. default is true. this will effect the callback. 
-	 *        only true the callbacks can be invoke, false not invoke.
-	 * @see {@linkplain #dispatchResult(int, int)}
-	 */
-
-	protected boolean onLogicResult(int resultCode, LogicParam lm) {
-		return true;
-	}
-	
-	/**
-	 * do cancel this performed logic. because sometimes we need to cancel other operation. 
-	 * called by {@linkplain #cancel(int)}.
-	 */
-	protected void cancelImpl() {
-		
-	}
-	
-	/**
-	 * called on cancel this logic action
-	 * @param lp the logic parameter
-	 */
-	protected void onCancel(LogicParam lp) {
-		
-	}
-	
-	
-	/**
-	 * do perform the logic action by target logic parameter.
-	 * @param param the target logic parameter.
-	 */
-	protected abstract void performImpl(LogicParam param);
-	
-	
-	private class SchedulerOperator implements Runnable, SafeUtil.SafeOperator<Schedulers>{
-		
-		private final LogicParam param;
-		
-		public SchedulerOperator(LogicParam param) {
-			super();
-			this.param = param;
-		}
-
-		@Override
-		public Schedulers apply(Schedulers pre) {
-			pre.schedule(this);
-			return pre;
-		}
-
-		@Override
-		public void run() {
-			performImpl(param);
-		}
-		
-	}
 
 }

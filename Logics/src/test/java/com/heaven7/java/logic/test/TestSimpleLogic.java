@@ -40,7 +40,7 @@ public class TestSimpleLogic extends TestCase{
 				.schedulerOn(Schedulers.ASYNC)
 				.delay(2500)
 				;
-		LogicTask task2 = LogicTask.ofSimple(mAction, new LogicParam().setData("testCancel_2"))
+		final LogicTask task2 = LogicTask.ofSimple(mAction, new LogicParam().setData("testCancel_2"))
 				.schedulerOn(Schedulers.newAsyncScheduler())
 				.delay(3000)
 				;
@@ -56,16 +56,16 @@ public class TestSimpleLogic extends TestCase{
 			@Override
 			public void run() {
 				mLm.cancel(key);
-			    assertNull(mAction.getLogicParameter(0));
+			    mLm.executeSequence(task2 ,null);
 			}
 		});
 	}
 	public void testCancelSequence(){
-		LogicTask task1 = LogicTask.ofSimple(new MockSimpleAction(), new LogicParam().setData("testCancelSequence_1"))
+		final LogicTask task1 = LogicTask.ofSimple(new MockSimpleAction(), new LogicParam().setData("testCancelSequence_1"))
 				.schedulerOn(Schedulers.ASYNC)
 				.delay(2500)
 				;
-		LogicTask task2 = LogicTask.ofSimple(mAction, new LogicParam().setData("testCancelSequence_2"))
+		final LogicTask task2 = LogicTask.ofSimple(mAction, new LogicParam().setData("testCancelSequence_2"))
 				.schedulerOn(Schedulers.newAsyncScheduler())
 				.delay(3000)
 				;
@@ -77,11 +77,17 @@ public class TestSimpleLogic extends TestCase{
 			}
 		});
 		Logger.i(TAG, "testCancel", "key = " + key);
-		Schedulers.newAsyncScheduler().postDelay(2600, new Runnable() {
+		
+		Schedulers.newAsyncScheduler().postDelay(2000, new Runnable() {
+			@Override
+			public void run() {
+				 mLm.executeSequence(task1 ,null);
+			}
+		});
+		Schedulers.newAsyncScheduler().postDelay(2580, new Runnable() {
 			@Override
 			public void run() {
 				mLm.cancel(key);
-			    assertNull(mAction.getLogicParameter(0));
 			}
 		});
 	}
@@ -108,8 +114,8 @@ public class TestSimpleLogic extends TestCase{
 		TestSimpleLogic logic = new TestSimpleLogic();
 		//logic.testNormalAsync();
 		//logic.testNormal();
-		//logic.testCancel();
-		logic.testCancelSequence();
+		logic.testCancel();
+		//logic.testCancelSequence();
 		//logic.testScheduler();
 	}
 }
