@@ -2,6 +2,7 @@ package com.heaven7.java.logic;
 
 import java.lang.ref.WeakReference;
 
+import com.heaven7.java.base.anno.CalledInternal;
 import com.heaven7.java.logic.LogicAction.LogicCallback;
 
 /**
@@ -39,15 +40,30 @@ public class LogicTask {
 	public static LogicTask ofSimple(SimpleLogicAction action, LogicParam logicParam){
 		return new LogicTask(0, action, logicParam);
 	}
-	
+	/**
+	 * make the logic task schedule/perform on the target scheduler.
+	 * @param scheduler the target scheduler.
+	 * @return this.
+	 */
 	public LogicTask schedulerOn(Scheduler scheduler){
 		action.scheduleOn(tag, scheduler);
 		return this;
 	}
+	/**
+	 * make the logic task observe/callback on the target scheduler.
+	 * @param scheduler the target scheduler.
+	 * @return this.
+	 */
 	public LogicTask observeOn(Scheduler scheduler){
 		action.observeOn(tag, scheduler);
 		return this;
 	}
+	/**
+	 * make the  logic task perform delay on the assigned scheduler.
+	 * @param delay the delay in millseconds
+	 * @return this
+	 * @see #schedulerOn(Scheduler)
+	 */
 	public LogicTask delay(long delay){
 		action.setDelay(tag, delay);
 		return this;
@@ -55,19 +71,20 @@ public class LogicTask {
 	
 	//======================== private method ==================================
 	
+	@CalledInternal
 	void addStateCallback(LogicCallback callback) {
 		mInternalCallback = new WeakReference<LogicAction.LogicCallback>(callback);
 		action.addStateCallback(tag, callback);
 	}
-	
+	@CalledInternal
 	void removeStateCallback(LogicCallback callback) {
 		action.removeStateCallback(tag, callback);
 	}
-	
+	@CalledInternal
 	void perform() {
 		action.perform(tag, logicParam);
 	}
-
+	@CalledInternal
 	void cancel() {
 		if(mInternalCallback != null){
             LogicAction.LogicCallback callback = mInternalCallback.get();
@@ -77,9 +94,9 @@ public class LogicTask {
         }
 		action.cancel(tag);
 	}
-	
+	@CalledInternal
 	void setContextData(Object data) {
-		//if self has context data. nothing effect.
+		//if self has context data. has nothing effect.
 		if( action.getContextData() == null){
 		    action.setContextData(data);
 		}

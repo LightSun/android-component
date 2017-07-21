@@ -12,6 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * the logic manager help we handle an order logic tasks.
  * it can run a sequence/parallel tasks, no matter sync or async.
  * @author heaven7
+ * @see LogicTask
+ * @see LogicTask#schedulerOn(Scheduler)
+ * @see LogicTask#observeOn(Scheduler)
  */
 public final class LogicManager extends ContextDataImpl {
 
@@ -251,6 +254,11 @@ public final class LogicManager extends ContextDataImpl {
         }
     }
 
+    /**
+     * the parallel callbck
+     * @author heaven7
+     *
+     */
     private class ParallelCallback extends SimpleLogicCallback{
 
        /* final int key;*/
@@ -305,6 +313,10 @@ public final class LogicManager extends ContextDataImpl {
         }
     }
 
+    /**
+     * the sequence callback
+     * @author heaven7
+     */
     private class SequenceCallback extends SimpleLogicCallback {
 
         final int key;

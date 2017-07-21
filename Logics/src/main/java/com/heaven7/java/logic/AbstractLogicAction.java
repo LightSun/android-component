@@ -71,7 +71,7 @@ public abstract class AbstractLogicAction extends BaseLogicAction {
 	}
 	
 	@Override
-	protected ScheduleHandler getScheduleHandler(int tag, boolean cacheIfNeed) {
+	protected final ScheduleHandler getScheduleHandler(int tag, boolean cacheIfNeed) {
 		ScheduleHandler s;
 		synchronized (mSchedulerMap) {
 			s = mSchedulerMap.get(tag);
@@ -105,7 +105,7 @@ public abstract class AbstractLogicAction extends BaseLogicAction {
 	}
 	
 	@Override
-	protected int computeTagCount(int tag) {
+	protected final int computeTagCount(int tag) {
 		final int targetCount;
 		if (mCountMap != null) {
 			synchronized (mCountMap) {
@@ -132,7 +132,7 @@ public abstract class AbstractLogicAction extends BaseLogicAction {
 	}
 	
 	@Override
-	protected void putTagInfo(int tag, TagInfo info) {
+	protected final void putTagInfo(int tag, TagInfo info) {
 		synchronized (mTagMap) {
 		    mTagMap.put(tag, info);
 		}
