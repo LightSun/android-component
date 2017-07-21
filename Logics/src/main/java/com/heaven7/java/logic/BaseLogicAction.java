@@ -2,6 +2,8 @@ package com.heaven7.java.logic;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.heaven7.java.base.anno.Nullable;
 import com.heaven7.java.base.util.DefaultPrinter;
@@ -160,8 +162,8 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 			//already cancelled.
 			return;
 		}
-		DefaultPrinter.getDefault().debug(TAG, "cancel", "the tag(" + tag + ") is cancelled. previous state is " 
-		      + stateToString(state));
+		DefaultPrinter.getDefault().debug(TAG, "cancel", "the tag(" + tag +
+				") is cancelled. previous state is " + stateToString(state));
 		// cancel scheduler
 		ScheduleHandler s = getScheduleHandler(tag, false);
 		if (s != null) {
@@ -335,31 +337,39 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 	}
 	
 	protected static class ScheduleHandler {
-		private long delay;
-		private Scheduler schedulerOn;
-		private Scheduler observeOn;
+		private final AtomicLong delay;
+		private final AtomicReference<Scheduler> schedulerOn;
+		private final AtomicReference<Scheduler> observeOn;
 		private WeakReference<Runnable> mWeakScheduleTask;
 		
+		public ScheduleHandler() {
+			super();
+			delay = new AtomicLong();
+			schedulerOn = new AtomicReference<Scheduler>();
+			observeOn = new AtomicReference<Scheduler>();
+		}
 		public void setPerformScheduler(Scheduler s){
-			this.schedulerOn = s;
+			this.schedulerOn.getAndSet(s);
 		}
 		public void setCallbackScheduler(Scheduler s){
-			this.observeOn = s;
+			this.observeOn.getAndSet(s);
 		}
 		public void setDelay(long delay){
-			this.delay = delay >=0 ? delay : 0;
+			this.delay.getAndSet(delay >=0 ? delay : 0);
 		}
 
 		public void schedule(Runnable task) {
+			final long delayTime = delay.get();
 			if (schedulerOn != null) {
 				mWeakScheduleTask = new WeakReference<Runnable>(task);
-				if (delay <= 0) {
-					schedulerOn.post(task);
+				final Scheduler s = schedulerOn.get();
+				if (delayTime <= 0) {
+					s.post(task);
 				} else {
-					schedulerOn.postDelay(delay, task);
+					s.postDelay(delayTime, task);
 				}
 			} else {
-				if (delay > 0) {
+				if (delayTime > 0) {
 					throw new IllegalStateException("#schedulerOn() must be called before.");
 				}
 				task.run();
@@ -367,10 +377,11 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 		}
 
 		public void scheduleCallback(Runnable task) {
-			if (observeOn == null) {
+			final Scheduler s = observeOn.get();
+			if (s == null) {
 				task.run();
 			} else {
-				observeOn.post(task);
+				s.post(task);
 			}
 		}
 
@@ -378,7 +389,7 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 			if (mWeakScheduleTask != null) {
 				Runnable task = mWeakScheduleTask.get();
 				if (task != null) {
-					schedulerOn.remove(task);
+					schedulerOn.get().remove(task);
 				}
 			}
 		}
