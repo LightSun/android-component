@@ -17,11 +17,12 @@ public interface LogicAction extends ContextData {
      */
     int RESULT_FAILED  = 2;
     
-    
+    /** the running state : started */
     int STATE_STARTED        = 11;
+    /** the running state : performing */
     int STATE_PERFORMING     = 12;
+    /** the running state : cancelled */
     int STATE_CANCELLED      = 13;
-    //done ? removed the state.
 
     /**
      * get the logic parameter by target tag
