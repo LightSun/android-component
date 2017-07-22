@@ -1,9 +1,23 @@
-group 'com.heaven7.java.logics'
-version '1.0-SNAPSHOT'
+//group 'com.heaven7.java.logics'
+//version '1.0-SNAPSHOT'
+//sourceCompatibility = 1.6
 
+apply plugin: 'com.novoda.bintray-release'
 apply plugin: 'java'
 
-sourceCompatibility = 1.6
+allprojects {
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.novoda:bintray-release:0.4.0'
+    }
+}
 
 repositories {
     mavenCentral()
@@ -14,4 +28,13 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
 
     compile 'com.heaven7.java.base:Java-base:1.0.7'
+}
+
+publish {
+    userOrg = 'lightsun' //bintray user name
+    groupId = 'com.heaven7.java.logics'
+    artifactId = 'Logics'
+    publishVersion = '1.0'
+    desc = 'this is a logic lib of java platform. '
+    website = 'https://github.com/LightSun/android-component'
 }
