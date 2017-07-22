@@ -325,9 +325,13 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 	protected boolean onLogicSuccess(int tag) {
 		return true;
 	}
-	
+	/**
+	 * the tag info class .contains the logic parameter and running state.
+	 * @author heaven7
+	 */
 	protected static class TagInfo {
 		public final LogicParam mLogicParam;
+		/** the running state */
 		public final AtomicInteger mState;
 
 		TagInfo(LogicParam mLogicParam) {
@@ -336,10 +340,20 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 		}
 	}
 	
+	/**
+	 * the schedule handler
+	 * @author heaven7
+	 */
 	protected static class ScheduleHandler {
+		/** the delay of perform */
 		private final AtomicLong delay;
+		/** the scheduler thread which the perform will run on. 
+		 * @see LogicAction#perform(int, LogicParam) */
 		private final AtomicReference<Scheduler> schedulerOn;
+		/** the scheduler thread which the callback will run on*/
 		private final AtomicReference<Scheduler> observeOn;
+		/** keep a weak reference of the perform runnable.
+		 * @see  LogicAction#perform(int, LogicParam) */
 		private WeakReference<Runnable> mWeakScheduleTask;
 		
 		public ScheduleHandler() {
@@ -348,16 +362,33 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 			schedulerOn = new AtomicReference<Scheduler>();
 			observeOn = new AtomicReference<Scheduler>();
 		}
+		/**
+		 * set the perform scheduler which the perform will run on.
+		 * @param s the scheduler.
+		 */
 		public void setPerformScheduler(Scheduler s){
 			this.schedulerOn.getAndSet(s);
 		}
+		/**
+		 * set the callback scheduler which the callback will run on.
+		 * @param s the scheduler.
+		 */
 		public void setCallbackScheduler(Scheduler s){
 			this.observeOn.getAndSet(s);
 		}
+		/**
+		 * set the delay of perform. call this must assigned the 
+		 * {@linkplain #setPerformScheduler(Scheduler)}.
+		 * @param delay the delay.
+		 */
 		public void setDelay(long delay){
 			this.delay.getAndSet(delay >=0 ? delay : 0);
 		}
 
+		/**
+		 * schedule the perform task run on the scheduler thread.
+		 * @param task the perform task
+		 */
 		public void schedule(Runnable task) {
 			final long delayTime = delay.get();
 			if (schedulerOn != null) {
@@ -376,6 +407,10 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 			}
 		}
 
+		/**
+		 * schedule the callback task run on the observe thread.
+		 * @param task the callback task
+		 */
 		public void scheduleCallback(Runnable task) {
 			final Scheduler s = observeOn.get();
 			if (s == null) {
@@ -385,6 +420,9 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 			}
 		}
 
+		/**
+		 * cancel the performing schedule task.
+		 */
 		public void cancel() {
 			if (mWeakScheduleTask != null) {
 				Runnable task = mWeakScheduleTask.get();
@@ -394,7 +432,11 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 			}
 		}
 	}
-
+    /**
+     * callback runner or executor.
+     * @author heaven7
+     *
+     */
 	protected static class CallbackRunner {
 		private final int op;
 		private final int resultCode;
@@ -410,6 +452,11 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 			this.lp = lp;
 		}
 
+		/**
+		 * schedule the callback for target action.
+		 * @param action the action.
+		 * @param callback the callback to schedule.
+		 */
 		public void scheduleCallback(final LogicAction action, final LogicCallback callback) {
 			s.scheduleCallback(new Runnable() {
 				@Override
