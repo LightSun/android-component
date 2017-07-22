@@ -8,7 +8,11 @@ import com.heaven7.java.logic.LogicAction.LogicCallback;
 /**
  * the logic task
  * @author heaven7
- *
+ * @see #of(int, LogicAction, LogicParam)
+ * @see #ofSimple(SimpleLogicAction, LogicParam)
+ * @see #delay(long)
+ * @see #schedulerOn(Scheduler)
+ * @see #observeOn(Scheduler)
  */
 public class LogicTask {
 	private final int tag;
