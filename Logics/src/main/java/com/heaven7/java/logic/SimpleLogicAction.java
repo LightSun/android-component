@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * a simple implements of logic action. you should just ignore the logic tag .
+ * <p>this class is thread safe.</p>
  * @author heaven7
  */
 public abstract class SimpleLogicAction extends BaseLogicAction{

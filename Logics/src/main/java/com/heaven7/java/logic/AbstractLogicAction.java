@@ -10,6 +10,7 @@ import com.heaven7.java.base.util.Throwables;
  * in one {@linkplain AbstractLogicAction}. you should call
  * {@link #dispatchResult(int, int)} in
  * {@linkplain #performImpl(int, int, LogicParam)} or it's relative method.
+ * <p>this class is thread safe.</p>
  * Created by heaven7 on 2017/6/17.
  */
 public abstract class AbstractLogicAction extends BaseLogicAction {

@@ -10,7 +10,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * the logic manager help we handle an order logic tasks.
- * it can run a sequence/parallel tasks, no matter sync or async.
+ * it can run a sequence/parallel tasks, support synchronous  and asynchronous .
+ * <p>this class is thread safe.</p>
  * @author heaven7
  * @see LogicTask
  * @see LogicTask#schedulerOn(Scheduler)
@@ -54,7 +55,7 @@ public final class LogicManager extends ContextDataImpl {
     }
     /**
      * cancel the task which is assigned by target key.
-     * @param key the key . see {@linkplain #executeParallel(List, Runnable)} or {@linkplain #executeSequence(List, Runnable)}.
+     * @param key the key . see {@linkplain #performParallel(List, Runnable)} or {@linkplain #performSequence(List, Runnable)}.
      */
     public void cancel(int key) {
     	cancelByKey(key);
@@ -105,8 +106,8 @@ public final class LogicManager extends ContextDataImpl {
      * @param endAction the end action , called when all task done.
      * @return the key of this operation.
      */
-    public int executeParallel(LogicTask[] parallels, Runnable endAction) {
-        return executeParallel(Arrays.asList(parallels), endAction);
+    public int performParallel(LogicTask[] parallels, Runnable endAction) {
+        return performParallel(Arrays.asList(parallels), endAction);
     }
 
     /**
@@ -115,7 +116,7 @@ public final class LogicManager extends ContextDataImpl {
      * @param endAction the end action , called when all task done.
      * @return the key of this operation.
      */
-    public int executeParallel(List<LogicTask> parallels, Runnable endAction) {
+    public int performParallel(List<LogicTask> parallels, Runnable endAction) {
         Throwables.checkEmpty(parallels);
         final int size = parallels.size();
         if(size > MAX_PARALLEL_COUNT){
@@ -142,69 +143,69 @@ public final class LogicManager extends ContextDataImpl {
     }
 
     /**
-     * execute the tasks in sequence with the end action.
+     * perform the tasks in sequence with the end action.
      * @param tag the tag
      * @param   logicAction state performer
      * @param lp the logic parameter
      * @param endAction the end action, called when perform the all target logic tasks done. can be null.
      * @return the key of this operation.
      */
-    public int executeSequence(int tag, LogicAction logicAction, LogicParam lp, Runnable endAction) {
-        return executeSequence(new LogicTask[] {LogicTask.of(tag, logicAction, lp)}, endAction);
+    public int performSequence(int tag, LogicAction logicAction, LogicParam lp, Runnable endAction) {
+        return performSequence(new LogicTask[] {LogicTask.of(tag, logicAction, lp)}, endAction);
     }
 
     /**
-     *execute the tasks in sequence with the end action.
+     *perform the tasks in sequence with the end action.
      *
      * @param task     the logic task
      * @param endAction the end action, called when perform the all target logic tasks done. can be null.
      * @return the key of this operation.
      */
-    public int executeSequence(LogicTask task, Runnable endAction) {
-        return executeSequence(new LogicTask[]{task}, endAction);
+    public int performSequence(LogicTask task, Runnable endAction) {
+        return performSequence(new LogicTask[]{task}, endAction);
     }
     /**
-     *execute the tasks in sequence with the end action.
+     *perform the tasks in sequence with the end action.
      *
-     * @param task1     the logic task1
-     * @param task2     the logic task2
+     * @param first     the first logic task
+     * @param second     the second logic task
      * @param endAction the end action, called when perform the all target logic tasks done. can be null.
      * @return the key of this operation.
      */
-    public int executeSequence(LogicTask task1, LogicTask task2, Runnable endAction) {
-        return executeSequence(new LogicTask[]{task1, task2}, endAction);
+    public int performSequence(LogicTask first, LogicTask second, Runnable endAction) {
+        return performSequence(new LogicTask[]{first, second}, endAction);
     }
     /**
-     *execute the tasks in sequence with the end action.
+     *perform the tasks in sequence with the end action.
      *
-     * @param task1     the logic task1
-     * @param task2     the logic task2
-     * @param task3     the logic task3
+     * @param first     the first logic task
+     * @param second     the second logic task
+     * @param third     the third logic task
      * @param endAction the end action, called when perform the all target logic tasks done. can be null.
      * @return the key of this operation.
      */
-    public int executeSequence(LogicTask task1, LogicTask task2, LogicTask task3, Runnable endAction) {
-        return executeSequence(new LogicTask[]{task1, task2, task3}, endAction);
+    public int performSequence(LogicTask first, LogicTask second, LogicTask third, Runnable endAction) {
+        return performSequence(new LogicTask[]{first, second, third}, endAction);
     }
 
     /**
-     *execute the tasks in sequence with the end action.
+     *perform the tasks in sequence with the end action.
      *
      * @param tasks     the logic tasks
      * @param endAction the end action, called when perform the all target logic tasks done. can be null.
      * @return the key of this operation.
      */
-    public int executeSequence(LogicTask[] tasks, Runnable endAction) {
-        return executeSequence(Arrays.asList(tasks), endAction);
+    public int performSequence(LogicTask[] tasks, Runnable endAction) {
+        return performSequence(Arrays.asList(tasks), endAction);
     }
     /**
-     * execute the tasks in sequence with the end action.
+     * perform the tasks in sequence with the end action.
      *
      * @param tasks     the logic tasks, you can't modify this list outside. or else you may cause bug.
      * @param endAction the end action, called when perform the all target logic tasks done. can be null.
      * @return the key of this operation.
      */
-    public int executeSequence(List<LogicTask> tasks, Runnable endAction) {
+    public int performSequence(List<LogicTask> tasks, Runnable endAction) {
         Throwables.checkNull(tasks);
         if (tasks.size() == 0) {
             throw new IllegalArgumentException("must assign a logic action");

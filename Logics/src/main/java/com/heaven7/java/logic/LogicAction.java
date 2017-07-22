@@ -3,7 +3,7 @@ package com.heaven7.java.logic;
 import com.heaven7.java.base.anno.Nullable;
 
 /**
- * the logic state.
+ * the logic action. 
  * @author heaven7
  */
 public interface LogicAction extends ContextData {

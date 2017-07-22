@@ -23,7 +23,7 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testNormalAsync() >>> start time = " + Schedulers.getCurrentTime());
-		mLm.executeSequence(task, null);
+		mLm.performSequence(task, null);
 	}
 	
 	public void testNormal(){
@@ -32,7 +32,7 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testNormal() >>> start time = " + Schedulers.getCurrentTime());
-		mLm.executeSequence(task, null);
+		mLm.performSequence(task, null);
 	}
 	
 	public void testCancel(){
@@ -45,7 +45,7 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancel() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.executeParallel(new LogicTask[]{task1, task2 }, new Runnable() {
+		final int key = mLm.performParallel(new LogicTask[]{task1, task2 }, new Runnable() {
 			@Override
 			public void run() {
 				Logger.i(TAG, "testCancel", "all Task done! thread = " + Thread.currentThread().getName());
@@ -56,7 +56,7 @@ public class TestSimpleLogic extends TestCase{
 			@Override
 			public void run() {
 				mLm.cancel(key);
-			    mLm.executeSequence(task2 ,null);
+			    mLm.performSequence(task2 ,null);
 			}
 		});
 	}
@@ -70,7 +70,7 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancelSequence() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.executeSequence(new LogicTask[]{task1, task2 }, new Runnable() {
+		final int key = mLm.performSequence(new LogicTask[]{task1, task2 }, new Runnable() {
 			@Override
 			public void run() {
 				Logger.i(TAG, "testCancelSequence", "all Task done! thread = " + Thread.currentThread().getName());
@@ -81,7 +81,7 @@ public class TestSimpleLogic extends TestCase{
 		Schedulers.newAsyncScheduler().postDelay(2000, new Runnable() {
 			@Override
 			public void run() {
-				 mLm.executeSequence(task1 ,null);
+				 mLm.performSequence(task1 ,null);
 			}
 		});
 		Schedulers.newAsyncScheduler().postDelay(2580, new Runnable() {
@@ -102,7 +102,7 @@ public class TestSimpleLogic extends TestCase{
 				.schedulerOn(Schedulers.newAsyncScheduler())
 				.delay(3000)
 				;
-		mLm.executeSequence(new LogicTask[]{task1, task2 }, new Runnable() {
+		mLm.performSequence(new LogicTask[]{task1, task2 }, new Runnable() {
 			@Override
 			public void run() {
 				Logger.i(TAG, "testScheduler", "all Task done! thread = " + Thread.currentThread().getName());
