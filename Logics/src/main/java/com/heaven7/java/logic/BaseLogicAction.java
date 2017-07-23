@@ -61,7 +61,7 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 	}
 	
 	@Override
-	public final void perform(final int tag, final LogicParam param) {
+	public final void perform(final int tag, final LogicParam param, int flags) {
 		TagInfo info = getTagInfo(tag, false);
 		if(info != null){
 			switch (info.mState.get()) {
@@ -78,12 +78,12 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 			}
 		}
 		//mark start.
-		putTagInfo(tag, new TagInfo(param));
+		putTagInfo(tag, new TagInfo(param, flags));
 		
 		//put schedule handler
 		ScheduleHandler s = getScheduleHandler(tag, true);
 		// dispatch start
-		dispatchCallbackInternal(OP_START, 0, tag, param);
+		dispatchCallbackInternal(OP_START, tag, param, null);
 		
 		final int targetCount = computeTagCount(tag);
 		
@@ -104,7 +104,7 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 		}else{
 			if(info.mState.get() == STATE_CANCELLED){
 				//cancelled.
-				onCancel(RESULT_FAILED, tag, param);
+				onCancel(tag, param, LogicResult.FALIED);
 			}else{
 				//can't reach here
 				throw new IllegalStateException("wrong state.");
@@ -114,7 +114,7 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 	
 
 	@Override
-	public final boolean dispatchResult(int resultCode, int tag) {
+	public final boolean dispatchResult(int tag, LogicResult lresult) {
 		final LogicParam lm = getLogicParameter(tag);
 
 		// get tag info
@@ -122,14 +122,16 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 		if (info == null) {
 			return false;
 		}
+		lresult.setFlags(info.mFlags);
+		
 		// true, means it is cancelled. wait reset called.
 		if (info.mState.get() == STATE_CANCELLED) {
-			onCancel(resultCode, tag, info.mLogicParam);
+			onCancel(tag, info.mLogicParam, lresult);
 			return false;
 		}
 		// result indicate whether invoke callback or not.
 		boolean result;
-		switch (resultCode) {
+		switch (lresult.getResultCode()) {
 		case RESULT_SUCCESS:
 			result = onLogicSuccess(tag);
 			break;
@@ -139,11 +141,11 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 			break;
 
 		default:
-			result = onLogicResult(resultCode, tag, lm);
+			result = onLogicResult(tag, lm,lresult);
 		}
 		if (result) {
 			// handle callbacks
-			dispatchCallbackInternal(OP_RESULT, resultCode, tag, lm);
+			dispatchCallbackInternal(OP_RESULT, tag, lm, lresult);
 		}
 		//clear tag info
 		getTagInfo(tag, true);
@@ -245,11 +247,11 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 	/**
 	 * dispatch callback internal.
 	 * @param op the option.
-	 * @param resultCode the result code
 	 * @param tag the tag
 	 * @param lm the logic parameter
+	 * @param result the logic result , may be null. if is result callback. can't be null.
 	 */
-	protected abstract void dispatchCallbackInternal(int op, int resultCode, int tag, LogicParam lm);
+	protected abstract void dispatchCallbackInternal(int op, int tag, LogicParam lm,LogicResult result);
 
 	// ================ optional override method =========
 	
@@ -271,14 +273,14 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 	 * called on cancel. this is only called when , often called by
 	 * {@linkplain #onLogicSuccess(int)}}.
 	 * 
-	 * @param resultCode
-	 *         the code of perform result. see {@linkplain LogicAction#RESULT_SUCCESS} / {@linkplain LogicAction#RESULT_FAILED} or others.
+	 * @param result
+	 *         the logic result.
 	 * @param tag
 	 *            the tag .
 	 * @param param
 	 *            the logic parameter.
 	 */
-	protected void onCancel(int resultCode, int tag, LogicParam param) {
+	protected void onCancel(int tag, LogicParam param, LogicResult result) {
 
 	}
 
@@ -292,12 +294,14 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 	 *            the tag
 	 * @param lm
 	 *            the logic parameter
+	 * @param  result 
+	 *             the logic result.          
 	 * @return true if success. default is true. this will effect the callback.
 	 *         only true the callbacks can be invoke, false not invoke.
 	 * @see {@linkplain #dispatchResult(int, int)}
 	 */
 
-	protected boolean onLogicResult(int resultCode, int tag, LogicParam lm) {
+	protected boolean onLogicResult(int tag, LogicParam lm, LogicResult result) {
 		return true;
 	}
 
@@ -333,8 +337,10 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 		public final LogicParam mLogicParam;
 		/** the running state */
 		public final AtomicInteger mState;
+		public int mFlags;
 
-		TagInfo(LogicParam mLogicParam) {
+		TagInfo(LogicParam mLogicParam, int shareFlags) {
+			this.mFlags = shareFlags;
 			this.mLogicParam = mLogicParam;
 			this.mState = new AtomicInteger(STATE_STARTED);
 		}
@@ -439,15 +445,15 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
      */
 	protected static class CallbackRunner {
 		private final int op;
-		private final int resultCode;
+		private final LogicResult result;
 		private final int tag;
 		private final LogicParam lp;
 		ScheduleHandler s;
 
-		public CallbackRunner(int op, int resultCode, int tag, LogicParam lp) {
+		public CallbackRunner(int op, int tag, LogicParam lp, LogicResult result) {
 			super();
 			this.op = op;
-			this.resultCode = resultCode;
+			this.result = result;
 			this.tag = tag;
 			this.lp = lp;
 		}
@@ -463,7 +469,7 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 				public void run() {
 					switch (op) {
 					case OP_RESULT:
-						callback.onLogicResult(action, resultCode, tag, lp);
+						callback.onLogicResult(action, tag, lp,result);
 						break;
 
 					case OP_START:

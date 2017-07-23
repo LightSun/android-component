@@ -17,8 +17,9 @@ import com.heaven7.java.logic.LogicAction.LogicCallback;
 public class LogicTask {
 	private final int tag;
 	private final LogicAction action;
-	private final LogicParam logicParam;
+	/*private*/ final LogicParam logicParam;
 	private WeakReference<LogicAction.LogicCallback> mInternalCallback;
+	private int mFlags;
 	
 	private LogicTask(int tag, LogicAction action, LogicParam logicParam) {
 		this.tag = tag;
@@ -44,6 +45,18 @@ public class LogicTask {
 	public static LogicTask ofSimple(SimpleLogicAction action, LogicParam logicParam){
 		return new LogicTask(0, action, logicParam);
 	}
+	/**
+	 * share result with target flags.
+	 * @param flags the share flags.
+	 * @return this.
+	 * @see LogicManager#FLAG_SHARE_TO_NEXT
+	 * @see LogicManager#FLAG_SHARE_TO_POOL
+	 */
+	public LogicTask shareResult(int flags){
+		mFlags = flags;
+		return this;
+	}
+	
 	/**
 	 * make the logic task schedule/perform on the target scheduler.
 	 * @param scheduler the target scheduler.
@@ -86,7 +99,7 @@ public class LogicTask {
 	}
 	@CalledInternal
 	void perform() {
-		action.perform(tag, logicParam);
+		action.perform(tag, logicParam, mFlags);
 	}
 	@CalledInternal
 	void cancel() {

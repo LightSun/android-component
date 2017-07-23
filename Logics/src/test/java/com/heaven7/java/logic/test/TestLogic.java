@@ -1,12 +1,13 @@
 package com.heaven7.java.logic.test;
 
+import static com.heaven7.java.logic.test.MockAction.TAG_ERROR;
+import static com.heaven7.java.logic.test.MockAction.TAG_OK;
+
 import com.heaven7.java.logic.LogicManager;
 import com.heaven7.java.logic.LogicParam;
 import com.heaven7.java.logic.LogicTask;
 
-import junit.framework.TestCase;
-import static com.heaven7.java.logic.test.MockAction.TAG_ERROR;
-import static com.heaven7.java.logic.test.MockAction.TAG_OK;;
+import junit.framework.TestCase;;
 
 public class TestLogic extends TestCase{
 
@@ -47,12 +48,8 @@ public class TestLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancel() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.performParallel(new LogicTask[]{task1, task2 }, new Runnable() {
-			@Override
-			public void run() {
-				Logger.i(TAG, "testCancel", "all Task done! thread = " + Thread.currentThread().getName());
-			}
-		});
+		final int key = mLm.performParallel(new LogicTask[]{task1, task2 }, new LogRunner("testCancel"));
+		
 		Logger.i(TAG, "testCancel", "key = " + key);
 		Schedulers.newAsyncScheduler().postDelay(2400, new Runnable() {
 			@Override
@@ -72,12 +69,7 @@ public class TestLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancelSequence() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.performSequence(new LogicTask[]{task1, task2 }, new Runnable() {
-			@Override
-			public void run() {
-				Logger.i(TAG, "testCancelSequence", "all Task done! thread = " + Thread.currentThread().getName());
-			}
-		});
+		final int key = mLm.performSequence(new LogicTask[]{task1, task2 }, new LogRunner("testCancelSequence"));
 		Logger.i(TAG, "testCancel", "key = " + key);
 		Schedulers.newAsyncScheduler().postDelay(2600, new Runnable() {
 			@Override
@@ -98,12 +90,7 @@ public class TestLogic extends TestCase{
 				.schedulerOn(Schedulers.newAsyncScheduler())
 				.delay(3000)
 				;
-		mLm.performSequence(new LogicTask[]{task1, task2 }, new Runnable() {
-			@Override
-			public void run() {
-				Logger.i(TAG, "testScheduler", "all Task done! thread = " + Thread.currentThread().getName());
-			}
-		});
+		mLm.performSequence(new LogicTask[]{task1, task2 }, new LogRunner("testScheduler"));
 	}
 	
 	public static void main(String[] args) {
@@ -111,7 +98,7 @@ public class TestLogic extends TestCase{
 		//logic.testNormalAsync();
 		//logic.testNormal();
 		//logic.testCancel();
-		logic.testCancelSequence();
+	    logic.testCancelSequence();
 		//logic.testScheduler();
 	}
 }

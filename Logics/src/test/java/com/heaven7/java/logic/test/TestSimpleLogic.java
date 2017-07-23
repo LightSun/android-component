@@ -1,7 +1,10 @@
 package com.heaven7.java.logic.test;
 
+import java.util.List;
+
 import com.heaven7.java.logic.LogicManager;
 import com.heaven7.java.logic.LogicParam;
+import com.heaven7.java.logic.LogicRunner;
 import com.heaven7.java.logic.LogicTask;
 
 import junit.framework.TestCase;
@@ -45,9 +48,9 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancel() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.performParallel(new LogicTask[]{task1, task2 }, new Runnable() {
+		final int key = mLm.performParallel(new LogicTask[]{task1, task2 }, new LogicRunner() {
 			@Override
-			public void run() {
+			public void run(int tag, Object result, List<?> results) {
 				Logger.i(TAG, "testCancel", "all Task done! thread = " + Thread.currentThread().getName());
 			}
 		});
@@ -61,6 +64,7 @@ public class TestSimpleLogic extends TestCase{
 		});
 	}
 	public void testCancelSequence(){
+		final String method = "testCancelSequence";
 		final LogicTask task1 = LogicTask.ofSimple(new MockSimpleAction(), new LogicParam().setData("testCancelSequence_1"))
 				.schedulerOn(Schedulers.ASYNC)
 				.delay(2500)
@@ -70,13 +74,8 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancelSequence() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.performSequence(new LogicTask[]{task1, task2 }, new Runnable() {
-			@Override
-			public void run() {
-				Logger.i(TAG, "testCancelSequence", "all Task done! thread = " + Thread.currentThread().getName());
-			}
-		});
-		Logger.i(TAG, "testCancel", "key = " + key);
+		final int key = mLm.performSequence(new LogicTask[]{task1, task2 }, new LogRunner(method));
+		Logger.i(TAG, "testCancelSequence", "key = " + key);
 		
 		Schedulers.newAsyncScheduler().postDelay(2000, new Runnable() {
 			@Override
@@ -102,9 +101,9 @@ public class TestSimpleLogic extends TestCase{
 				.schedulerOn(Schedulers.newAsyncScheduler())
 				.delay(3000)
 				;
-		mLm.performSequence(new LogicTask[]{task1, task2 }, new Runnable() {
+		mLm.performSequence(new LogicTask[]{task1, task2 }, new LogicRunner() {
 			@Override
-			public void run() {
+			public void run(int tag, Object result, List<?> results) {
 				Logger.i(TAG, "testScheduler", "all Task done! thread = " + Thread.currentThread().getName());
 			}
 		});

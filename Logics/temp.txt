@@ -1,0 +1,8 @@
+
+
+int resultCode -> LogicResult(int code, Object data).
+add shareResult(flags) flags = FLAG_SHARE_TO_NEXT. FLAG_SHARE_TO_POOL
+  (put result to pool ?)
+manager.getPerformResult(int key). (manage pool)
+
+resultConvertor. transform result data.

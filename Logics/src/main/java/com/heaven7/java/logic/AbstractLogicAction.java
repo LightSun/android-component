@@ -139,13 +139,13 @@ public abstract class AbstractLogicAction extends BaseLogicAction {
 		}
 	}
 
-	protected void dispatchCallbackInternal(int op, int resultCode, int tag, LogicParam lm) {
+	protected void dispatchCallbackInternal(int op, int tag, LogicParam lm, LogicResult result) {
 		CopyOnWriteArrayList<LogicCallback> callbacks;
 		synchronized (mCallbacks) {
 			callbacks = mCallbacks.get(tag);
 		}
 		if (callbacks != null) {
-			final CallbackRunner runner = new CallbackRunner(op, resultCode, tag, lm);
+			final CallbackRunner runner = new CallbackRunner(op, tag, lm, result);
 			runner.s = getScheduleHandler(tag, false);
 			for (LogicCallback cl : callbacks) {
 				runner.scheduleCallback(this, cl);

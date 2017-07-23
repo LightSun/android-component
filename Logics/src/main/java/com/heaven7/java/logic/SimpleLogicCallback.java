@@ -5,31 +5,31 @@ package com.heaven7.java.logic;
  */
 
 public abstract class SimpleLogicCallback extends LogicAction.LogicCallback {
+	
+	@Override
+	public void onLogicResult(LogicAction action, int tag, LogicParam param, LogicResult result) {
+		switch (result.getResultCode()){
+        case LogicAction.RESULT_SUCCESS:
+            onSuccess(action, tag, param, result);
+            break;
 
-    @Override
-    public final void onLogicResult(LogicAction action, int resultCode, int tag, LogicParam param) {
-        switch (resultCode){
-            case LogicAction.RESULT_SUCCESS:
-                onSuccess(action, tag, param);
-                break;
+        case LogicAction.RESULT_FAILED:
+            onFailed(action, tag, param, result);
+            break;
 
-            case LogicAction.RESULT_FAILED:
-                onFailed(action, tag, param);
-                break;
-
-            default:
-                onLogicResultIml(action, resultCode, tag, param);
-        }
+        default:
+            onLogicResultIml(action, tag, param, result);
     }
+	}
 
-    protected void onLogicResultIml(LogicAction action, int resultCode, int tag, LogicParam param) {
+    protected void onLogicResultIml(LogicAction action, int tag, LogicParam param, LogicResult result) {
+		
+	}
+
+    protected void onSuccess(LogicAction action, int tag, LogicParam param, LogicResult result) {
 
     }
-
-    protected void onSuccess(LogicAction action, int tag, LogicParam param) {
-
-    }
-    protected void onFailed(LogicAction action, int tag, LogicParam param) {
+    protected void onFailed(LogicAction action, int tag, LogicParam param, LogicResult result) {
 
     }
 }

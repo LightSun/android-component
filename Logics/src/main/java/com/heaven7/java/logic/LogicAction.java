@@ -75,8 +75,10 @@ public interface LogicAction extends ContextData {
      *
      * @param tag   the tag of this state.
      * @param param the logic parameter.
+     * @param flags the flags. see {@linkplain LogicManager#FLAG_SHARE_TO_NEXT} and 
+     * see {@linkplain LogicManager#FLAG_SHARE_TO_POOL} and etc.
      */
-    void perform(int tag, LogicParam param);
+    void perform(int tag, LogicParam param, int flags);
 
     /**
      * cancel this logic immediately or not.
@@ -85,17 +87,6 @@ public interface LogicAction extends ContextData {
      * @param immediately true to cancel immediately. current often is true.
      */
     void cancel(int tag);
-
-    /**
-     * dispatch the tag result by target code. subclass should call this in {@linkplain #perform(int, LogicParam)}
-     * or relative method.
-     *
-     * @param tag        the tag
-     * @param resultCode the result code.
-     * @return true if dispatch success, false otherwise.
-     */
-    boolean dispatchResult(int resultCode, int tag);
-    
 
     /**
      * indicate the logic action of target tag is running or not.
@@ -135,6 +126,19 @@ public interface LogicAction extends ContextData {
 	 */
 	void reset();
 	
+
+	 /**
+    * dispatch the tag resultfor target tag. subclass should call this in 
+    *    {@linkplain #perform(int, LogicParam)} or relative method.
+    *
+    * @param tag        the tag
+    * @param result the result of perform.
+    * @return true if dispatch success, false otherwise.
+    */
+	boolean dispatchResult(int tag, LogicResult result);
+	
+   // boolean dispatchResult(int resultCode, int tag);
+	
     /**
      * the logic callback
      */
@@ -146,15 +150,18 @@ public interface LogicAction extends ContextData {
          * @param tag the tag
          * @param param the logic parameter
          */
-        public abstract void onLogicStart(LogicAction action,int tag, LogicParam param);
+        public abstract void onLogicStart(LogicAction action,int tag,
+        		LogicParam param);
 
         /**
          * called on logic result
          * @param action the logic action
          * @param resultCode the result code. like {@linkplain LogicAction#RESULT_SUCCESS} and etc.
-         * @param tag the tag
+         * @param tag the logic tag
          * @param param the logic parameter
+         * @param result the logic result
          */
-        public abstract void onLogicResult(LogicAction action, int resultCode, int tag, LogicParam param);
+        public abstract void onLogicResult(LogicAction action, 
+        		int tag, LogicParam param, LogicResult result);
     }
 }

@@ -12,6 +12,8 @@ public class LogicParam{
     private int mPosition;
     private Serializable mSerData;
     private Object data;
+    /** the perform result of last logic task. */
+    private Object lastResult;
     
     public LogicParam() {
     }
@@ -85,9 +87,24 @@ public class LogicParam{
         return mSerData;
     }
 
-    @Override
+    /**
+     * get the perform result of last logic task.
+     */
+    public Object getLastResult() {
+		return lastResult;
+	}
+    /**
+     * set the perform result of last logic task.
+     * @return the perform result.
+     */
+	public void setLastResult(Object lastResult) {
+		this.lastResult = lastResult;
+	}
+
+	@Override
 	public String toString() {
-		return "LogicParam [mPosition=" + mPosition + ", mSerData=" + mSerData + ", data=" + data + "]";
+		return "LogicParam [mPosition=" + mPosition + ", mSerData=" + mSerData + ", data=" + data + ", lastResult="
+				+ lastResult + "]";
 	}
 
 	@Override

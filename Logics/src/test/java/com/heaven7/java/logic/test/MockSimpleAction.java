@@ -1,6 +1,7 @@
 package com.heaven7.java.logic.test;
 
 import com.heaven7.java.logic.LogicParam;
+import com.heaven7.java.logic.LogicResult;
 import com.heaven7.java.logic.SimpleLogicAction;
 
 public class MockSimpleAction extends SimpleLogicAction {
@@ -21,17 +22,17 @@ public class MockSimpleAction extends SimpleLogicAction {
 				"MockSimpleAction_" + hashCode() + " >>> start perform: time = " + Schedulers.getCurrentTime());
 		try {
 			Thread.sleep(3000);
-			dispatchResult(RESULT_SUCCESS, 0);
+			dispatchResult(tag, LogicResult.SUCCESS);
 			System.out
 					.println("MockSimpleAction_" + hashCode() + " >>> end perform: time = " + Schedulers.getCurrentTime());
 		} catch (InterruptedException e) {
-			dispatchResult(RESULT_SUCCESS, 0);
+			dispatchResult(tag, LogicResult.SUCCESS);
 			e.printStackTrace();
 		}
 	}
 	
 	@Override
-	protected void onCancel(int resultCode, int tag, LogicParam param) {
+	protected void onCancel(int tag, LogicParam param, LogicResult result) {
 		System.out.println("MockSimpleAction_" + hashCode() + " >>> called onCancel(): " + param);
 	}
 	

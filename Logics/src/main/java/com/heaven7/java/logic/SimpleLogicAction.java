@@ -40,8 +40,8 @@ public abstract class SimpleLogicAction extends BaseLogicAction{
 		reset(0);
 	}
 	
-	protected final void dispatchCallbackInternal(int op, int resultCode, int tag, LogicParam lm) {
-		final CallbackRunner runner = new CallbackRunner(op, resultCode, tag, lm);
+	protected final void dispatchCallbackInternal(int op, int tag, LogicParam lm, LogicResult result) {
+		final CallbackRunner runner = new CallbackRunner(op, tag, lm, result);
 		runner.s = getScheduleHandler(tag, false);
 		for (LogicCallback cl : mCallbacks) {
 			runner.scheduleCallback(this, cl);
