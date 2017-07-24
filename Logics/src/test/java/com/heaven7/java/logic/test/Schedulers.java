@@ -16,6 +16,7 @@ public class Schedulers {
 	public static final DateFormat DF = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 	public static final Scheduler ASYNC = new AsyncScheduler();
 	public static final Scheduler DEFAULT = new DefaultScheduler();
+	public static final Scheduler GROUP_ASYNC = new GroupAsyncScheduler();
 
 	public static Scheduler newAsyncScheduler(){
 		return new AsyncScheduler();
@@ -23,6 +24,30 @@ public class Schedulers {
 	
 	public static String getCurrentTime(){
 		return DF.format(new Date(System.currentTimeMillis()));
+	}
+	
+    private static class GroupAsyncScheduler implements Scheduler{
+		
+		final ScheduledExecutorService pool = Executors.newScheduledThreadPool(5);
+		final WeakHashMap<Runnable,Future<?>> map = new WeakHashMap<Runnable,Future<?>>();
+		
+		@Override
+		public void postDelay(long delay, Runnable task) {
+			map.put(task, pool.schedule(task, delay, TimeUnit.MILLISECONDS));
+		}
+
+		@Override
+		public void post(Runnable task) {
+			map.put(task, pool.submit(task));
+		}
+		@Override
+		public void remove(Runnable task) {
+			Future<?> future = map.get(task);
+			if(future != null){
+				future.cancel(true);
+			}
+		}
+		
 	}
 	
 	private static class AsyncScheduler implements Scheduler{

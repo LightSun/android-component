@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.heaven7.java.base.util.DefaultPrinter;
@@ -180,7 +181,7 @@ public final class LogicManager extends ContextDataImpl {
 		}
 		// add callback and perform
 		final ParallelCallback callback = new ParallelCallback(key, parallels, listener ,
-				(flags & FLAG_ALLOW_FAILED) == FLAG_ALLOW_FAILED);
+				flags > 0 && (flags & FLAG_ALLOW_FAILED) == FLAG_ALLOW_FAILED);
 		final Object data = getContextData();
 		for (LogicTask task : parallels) {
 			task.mergeFlags(flags);
@@ -323,35 +324,40 @@ public final class LogicManager extends ContextDataImpl {
 	}
 
 	// this key is blur
-	private void cancelByKey(int key, boolean resetAfterCancel) {
+	private void cancelByKey(int key, boolean invokeByInternal) {
 		final int type = (key & MASK_TYPE) >> 24;
 		switch (type) {
 		case TYPE_PARALLEL:
 			int baseKey = key & MASK_MAIN;
 			int count = (key & MASK_SECONDARY) >> SHIFT_SECONDARY;
 			for (int i = 0; i < count; i++) {
-				cancelByRealKey(baseKey + i, resetAfterCancel);
+				cancelByRealKey(baseKey + i, invokeByInternal);
 			}
 			break;
 
 		case 0:
-			cancelByRealKey(key, resetAfterCancel);
+			cancelByRealKey(key, invokeByInternal);
 		}
 	}
 
-	//resetAfterCancel, true reset the logic action after cancel.
-	private void cancelByRealKey(int realKey, boolean resetAfterCancel) {
+	//invokeByInternal: called by internal or not
+	private void cancelByRealKey(int realKey, boolean invokeByInternal) {
 		LogicTask task;
 		synchronized (mLogicMap) {
 			task = mLogicMap.getAndRemove(realKey);
 		}
 		if (task != null) {
 			task.cancel();
-			if(resetAfterCancel){
+			//internal should reset.
+			if(invokeByInternal){
 			    task.resetLogicAction();
 			}
 		} else {
-			DefaultPrinter.getDefault().warn(TAG, "cancelByRealKey", "cancel task .but key not exists , key = " + realKey);
+			//internal just ignore log
+			if(!invokeByInternal){
+			    DefaultPrinter.getDefault().warn(TAG, "cancelByRealKey", 
+			    		"cancel task .but key not exists , key = " + realKey);
+			}
 		}
 	}
 
@@ -428,6 +434,7 @@ public final class LogicManager extends ContextDataImpl {
 		final AtomicInteger finishCount;
 		final boolean allowFailed;
 		final Vector<LogicTask> mFailedTasks;
+		final AtomicBoolean mDisableCallback; 
 
 		public ParallelCallback(int key, List<LogicTask> parallelTasks, LogicResultListener endAction,boolean allowFailed) {
 			this.key = key;
@@ -436,6 +443,7 @@ public final class LogicManager extends ContextDataImpl {
 			this.finishCount = new AtomicInteger(0);
 			this.allowFailed = allowFailed;
 			this.mFailedTasks = new Vector<LogicTask>();
+			this.mDisableCallback = new AtomicBoolean(false);
 		}
 
 		private int getTaskCount() {
@@ -461,6 +469,7 @@ public final class LogicManager extends ContextDataImpl {
 			removeTask(task);
 			//handle perform result
 			ArrayList results = processResult(key, result, theEnd, null, true);
+			DefaultPrinter.getDefault().debug(TAG, "onSuccess", "results = " + results);
 			
 			// callback if need
 			if (theEnd && listener != null) {
@@ -476,6 +485,12 @@ public final class LogicManager extends ContextDataImpl {
 
 		@Override
 		protected void onFailed(LogicAction action, int tag, LogicParam param, LogicResult result) {
+			if(!allowFailed){
+				//may multiply thread comes into.
+				if(!mDisableCallback.compareAndSet(false, true)){
+					return;
+				}
+			}
 			final boolean theEnd = finishCount.incrementAndGet() == getTaskCount();
 			LogicTask task = LogicTask.of(tag, action, param).setFlags(result.getFlags());
 			// remove task and result
@@ -555,7 +570,10 @@ public final class LogicManager extends ContextDataImpl {
 			
 			final boolean theEnd = curIndex == mTasks.size() - 1;
 			//handle perform result.
-			ArrayList list = processResult(key, result, theEnd, mTasks.get(curIndex + 1).logicParam, false);
+			ArrayList list = processResult(key, result, theEnd, 
+					theEnd ? null : mTasks.get(curIndex + 1).logicParam, false);
+			
+			DefaultPrinter.getDefault().debug(TAG, "onSuccess", "results = " + list);
 			if (theEnd) {
 				// all end
 				if (mListener != null) {

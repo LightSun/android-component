@@ -19,6 +19,7 @@ public class LogicTask {
 	private final LogicAction action;
 	/*private*/ final LogicParam logicParam;
 	private WeakReference<LogicAction.LogicCallback> mInternalCallback;
+	/** some perform flags */
 	private int mFlags;
 	
 	private LogicTask(int tag, LogicAction action, LogicParam logicParam) {
@@ -77,7 +78,7 @@ public class LogicTask {
 	}
 	/**
 	 * make the  logic task perform delay on the assigned scheduler.
-	 * @param delay the delay in millseconds
+	 * @param delay the delay in milliseconds
 	 * @return this
 	 * @see #schedulerOn(Scheduler)
 	 */
@@ -88,10 +89,15 @@ public class LogicTask {
 	
 	//======================== private method ==================================
 	
-	//merge flag
+	/**
+	 * merge flags. if target flags <0. ignore.
+	 * @param superFlags
+	 */
 	@CalledInternal
 	void mergeFlags(int superFlags){
-		this.mFlags = mFlags & superFlags;
+		if(superFlags >= 0){
+		   this.mFlags = mFlags & superFlags;
+		}
 	}
 	
 	@CalledInternal
@@ -152,10 +158,10 @@ public class LogicTask {
 		result = 31 * result + (logicParam != null ? logicParam.hashCode() : 0);
 		return result;
 	}
-
 	@Override
 	public String toString() {
-		return "LogicTask{" + "tag=" + tag + ", action=" + action + ", logicParam=" + logicParam + '}';
+		return "LogicTask [tag=" + tag + ", action=" + action + ", logicParam=" + logicParam + ", mFlags=" + mFlags
+				+ "]";
 	}
-
+    
 }

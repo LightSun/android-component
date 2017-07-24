@@ -5,11 +5,11 @@ import java.util.List;
 import com.heaven7.java.logic.LogicResultListener;
 import com.heaven7.java.logic.LogicTask;
 
-public class LogRunner implements LogicResultListener{
+public class LogListenerImpl implements LogicResultListener{
 	
 	private final String superMethod;
 	
-	public LogRunner(String superMethod) {
+	public LogListenerImpl(String superMethod) {
 		super();
 		this.superMethod = superMethod;
 	}

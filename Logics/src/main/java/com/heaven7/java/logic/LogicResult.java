@@ -3,7 +3,7 @@ package com.heaven7.java.logic;
 import com.heaven7.java.base.anno.CalledInternal;
 
 /**
- * the result of perform logic
+ * the result of perform logic: contains result code and result data.
  * @author heaven7
  */
 public class LogicResult {
@@ -44,6 +44,11 @@ public class LogicResult {
 	@CalledInternal
 	/*public*/ void setFlags(int flags) {
 		this.flags = flags;
+	}
+
+	@Override
+	public String toString() {
+		return "LogicResult [resultCode=" + resultCode + ", data=" + data + "]";
 	}
 	
 }

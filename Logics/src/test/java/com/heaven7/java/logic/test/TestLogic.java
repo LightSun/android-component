@@ -48,7 +48,7 @@ public class TestLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancel() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.performParallel(new LogicTask[]{task1, task2 }, 0, new LogRunner("testCancel"));
+		final int key = mLm.performParallel(new LogicTask[]{task1, task2 }, 0, new LogListenerImpl("testCancel"));
 		
 		Logger.i(TAG, "testCancel", "key = " + key);
 		Schedulers.newAsyncScheduler().postDelay(2400, new Runnable() {
@@ -69,7 +69,7 @@ public class TestLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancelSequence() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.performSequence(new LogicTask[]{task1, task2 }, 0, new LogRunner("testCancelSequence"));
+		final int key = mLm.performSequence(new LogicTask[]{task1, task2 }, 0, new LogListenerImpl("testCancelSequence"));
 		Logger.i(TAG, "testCancel", "key = " + key);
 		Schedulers.newAsyncScheduler().postDelay(2600, new Runnable() {
 			@Override
@@ -90,7 +90,7 @@ public class TestLogic extends TestCase{
 				.schedulerOn(Schedulers.newAsyncScheduler())
 				.delay(3000)
 				;
-		mLm.performSequence(new LogicTask[]{task1, task2 }, 0, new LogRunner("testScheduler"));
+		mLm.performSequence(new LogicTask[]{task1, task2 }, 0, new LogListenerImpl("testScheduler"));
 	}
 	
 	public static void main(String[] args) {

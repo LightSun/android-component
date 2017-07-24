@@ -18,7 +18,7 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 	protected static final int OP_RESULT = 1;
 	protected static final int OP_START  = 2;
 	
-	protected final String TAG = getClass().getSimpleName() + "@hash("+ hashCode()+")";
+	protected final String TAG = getClass().getSimpleName() + "@" + Integer.toHexString(hashCode());
 	
     /**
      * convert integer state to string.	
@@ -397,9 +397,9 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 		 */
 		public void schedule(Runnable task) {
 			final long delayTime = delay.get();
-			if (schedulerOn != null) {
+			final Scheduler s = schedulerOn.get();
+			if (s != null) {
 				mWeakScheduleTask = new WeakReference<Runnable>(task);
-				final Scheduler s = schedulerOn.get();
 				if (delayTime <= 0) {
 					s.post(task);
 				} else {
