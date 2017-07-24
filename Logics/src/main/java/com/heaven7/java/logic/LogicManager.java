@@ -139,6 +139,19 @@ public final class LogicManager extends ContextDataImpl {
 	 * 
 	 * @param parallels
 	 *            the all tasks.
+	 * @param successAction
+	 *            the success action , called when all task done.
+	 * @return the key of this operation.
+	 * @see #performParallel(LogicTask[], int, LogicResultListener)
+	 */
+	public int performParallel(LogicTask[] parallels,  LogicResultListener successAction) {
+		return performParallel(Arrays.asList(parallels), 0,  successAction);
+	}
+	/**
+	 * executeSequence the tasks in Parallel.
+	 * 
+	 * @param parallels
+	 *            the all tasks.
 	 * @param flags 
 	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
 	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored. 
@@ -150,6 +163,19 @@ public final class LogicManager extends ContextDataImpl {
 		return performParallel(Arrays.asList(parallels), flags,  successAction);
 	}
 
+	/**
+	 * executeSequence the tasks in Parallel.
+	 * 
+	 * @param parallels
+	 *            the all tasks.
+	 * @param listener
+	 *            the logic listener, called when all task done.
+	 * @return the key of this operation.
+	 */
+	public int performParallel(List<LogicTask> parallels, LogicResultListener listener) {
+		return performParallel(parallels, 0, listener);
+	}
+	
 	/**
 	 * executeSequence the tasks in Parallel.
 	 * 
@@ -184,33 +210,12 @@ public final class LogicManager extends ContextDataImpl {
 				flags > 0 && (flags & FLAG_ALLOW_FAILED) == FLAG_ALLOW_FAILED);
 		final Object data = getContextData();
 		for (LogicTask task : parallels) {
-			task.mergeFlags(flags);
+			task.setFlags(flags);
 			task.setContextData(data);
 			task.addStateCallback(callback);
 			task.perform();
 		}
 		return key;
-	}
-
-	/**
-	 * perform the tasks in sequence with the end action.
-	 * 
-	 * @param tag
-	 *            the tag
-	 * @param logicAction
-	 *            state performer
-	 * @param lp
-	 *            the logic parameter
-	 * @param listener
-	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
-	 *            can be null.
-	 * @param flags 
-	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
-	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored. 
-	 * @return the key of this operation.
-	 */
-	public int performSequence(int tag, LogicAction logicAction, LogicParam lp, int flags, LogicResultListener listener) {
-		return performSequence(new LogicTask[] { LogicTask.of(tag, logicAction, lp) }, flags, listener);
 	}
 
 	/**
@@ -225,11 +230,50 @@ public final class LogicManager extends ContextDataImpl {
 	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
 	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored. 
 	 * @return the key of this operation.
+	 * @see #performSequence(List, int, LogicResultListener)
+	 * @see #performSequence(LogicTask[], int, LogicResultListener)
 	 */
-	public int performSequence(LogicTask task, int flags , LogicResultListener listener) {
+	public int performSequence(LogicTask task, LogicResultListener listener) {
+		return performSequence(new LogicTask[] { task }, 0, listener);
+	}
+	/**
+	 * perform the tasks in sequence with the end action.
+	 *
+	 * @param task
+	 *            the logic task
+	 * @param listener
+	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
+	 *            can be null.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored. 
+	 * @return the key of this operation.
+	 */
+	public int performSequence(LogicTask task, int flags, LogicResultListener listener) {
 		return performSequence(new LogicTask[] { task }, flags, listener);
 	}
 
+	/**
+	 * perform the tasks in sequence with the end action.
+	 *
+	 * @param first
+	 *            the first logic task
+	 * @param second
+	 *            the second logic task
+	 * @param listener
+	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
+	 *            can be null.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.  
+	 * @return the key of this operation.
+	 * @see #performSequence(LogicTask[], int, LogicResultListener)
+	 * @see #performSequence(List, int, LogicResultListener)
+	 */
+	public int performSequence(LogicTask first, LogicTask second, LogicResultListener listener) {
+		return performSequence(new LogicTask[] { first, second }, 0, listener);
+	}
+	
 	/**
 	 * perform the tasks in sequence with the end action.
 	 *
@@ -265,6 +309,28 @@ public final class LogicManager extends ContextDataImpl {
 	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
 	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.  
 	 * @return the key of this operation.
+	 * @see #performSequence(List, int, LogicResultListener)
+	 * @see #performSequence(LogicTask[], int, LogicResultListener)
+	 */
+	public int performSequence(LogicTask first, LogicTask second, LogicTask third,LogicResultListener listener) {
+		return performSequence(new LogicTask[] { first, second, third }, 0,  listener);
+	}
+	/**
+	 * perform the tasks in sequence with the end action.
+	 *
+	 * @param first
+	 *            the first logic task
+	 * @param second
+	 *            the second logic task
+	 * @param third
+	 *            the third logic task
+	 * @param listener
+	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
+	 *            can be null.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.  
+	 * @return the key of this operation.
 	 */
 	public int performSequence(LogicTask first, LogicTask second, LogicTask third, int flags ,LogicResultListener listener) {
 		return performSequence(new LogicTask[] { first, second, third }, flags,  listener);
@@ -282,11 +348,44 @@ public final class LogicManager extends ContextDataImpl {
 	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
 	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.            
 	 * @return the key of this operation.
+	 * @see #performParallel(List, int, LogicResultListener)
+	 * @see #performParallel(LogicTask[], int, LogicResultListener)
+	 */
+	public int performSequence(LogicTask[] tasks, LogicResultListener listener) {
+		return performSequence(Arrays.asList(tasks), 0, listener);
+	}
+	/**
+	 * perform the tasks in sequence with the end action.
+	 *
+	 * @param tasks
+	 *            the logic tasks
+	 * @param listener
+	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
+	 *            can be null.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.            
+	 * @return the key of this operation.
 	 */
 	public int performSequence(LogicTask[] tasks, int flags, LogicResultListener listener) {
 		return performSequence(Arrays.asList(tasks), flags, listener);
 	}
 
+	/**
+	 * perform the tasks in sequence with the end action.
+	 *
+	 * @param tasks
+	 *            the logic tasks, you can't modify this list outside. or else
+	 *            you may cause bug.
+	 * @param listener
+	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.)
+	 *            can be null.
+	 * @return the key of this operation.
+	 * @see #performSequence(List, int, LogicResultListener)
+	 */
+	public int performSequence(List<LogicTask> tasks, LogicResultListener listener) {
+		return performSequence(tasks, 0,listener);
+	}
 	/**
 	 * perform the tasks in sequence with the end action.
 	 *
@@ -316,7 +415,7 @@ public final class LogicManager extends ContextDataImpl {
 	private void performSequenceImpl(List<LogicTask> tasks, int key, int currentIndex, 
 			LogicResultListener listener, Object lastResult,int flags) {
 		final LogicTask target = tasks.get(currentIndex);
-		target.mergeFlags(flags);
+		target.setFlags(flags);
 		target.logicParam.setLastResult(lastResult);
 		target.setContextData(getContextData());
 		target.addStateCallback(new SequenceCallback(tasks, key, currentIndex, listener, flags));

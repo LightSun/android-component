@@ -48,13 +48,15 @@ public class LogicTask {
 	}
 	/**
 	 * set the flags.
-	 * @param flags the share flags.
+	 * @param flags the flags. flags <= 0 have nothing effect.
 	 * @return this.
 	 * @see LogicManager#FLAG_SHARE_TO_NEXT
 	 * @see LogicManager#FLAG_SHARE_TO_POOL
 	 */
 	public LogicTask setFlags(int flags){
-		mFlags = flags;
+		if(flags > 0){
+		    mFlags = flags;
+		}
 		return this;
 	}
 	
@@ -88,17 +90,6 @@ public class LogicTask {
 	}
 	
 	//======================== private method ==================================
-	
-	/**
-	 * merge flags. if target flags <0. ignore.
-	 * @param superFlags
-	 */
-	@CalledInternal
-	void mergeFlags(int superFlags){
-		if(superFlags >= 0){
-		   this.mFlags = mFlags & superFlags;
-		}
-	}
 	
 	@CalledInternal
 	void addStateCallback(LogicCallback callback) {

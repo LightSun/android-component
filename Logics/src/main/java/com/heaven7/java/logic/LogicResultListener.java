@@ -6,8 +6,8 @@ import java.util.List;
  * the logic runner. called on all logic action perform success.
  * 
  * @author heaven7
- * @see LogicManager#performParallel(List, LogicRunner)
- * @see LogicManager#performSequence(List, LogicRunner)
+ * @see LogicManager#performParallel(List, int, LogicResultListener)
+ * @see LogicManager#performSequence(List, int, LogicResultListener)
  */
 public interface LogicResultListener {
 
