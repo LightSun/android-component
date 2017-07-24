@@ -17,7 +17,7 @@ import com.heaven7.java.logic.LogicAction.LogicCallback;
 public class LogicTask {
 	private final int tag;
 	private final LogicAction action;
-	/*private*/ final LogicParam logicParam;
+	private final LogicParam logicParam;
 	private WeakReference<LogicAction.LogicCallback> mInternalCallback;
 	/** some perform flags */
 	private int mFlags;
@@ -124,6 +124,10 @@ public class LogicTask {
 	@CalledInternal
 	void resetLogicAction() {
 		action.reset(tag);
+	}
+	@CalledInternal
+	void setLastResult(Object resultData) {
+		logicParam.setLastResult(resultData);
 	}
 
 	@Override

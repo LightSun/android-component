@@ -416,7 +416,7 @@ public final class LogicManager extends ContextDataImpl {
 			LogicResultListener listener, Object lastResult,int flags) {
 		final LogicTask target = tasks.get(currentIndex);
 		target.setFlags(flags);
-		target.logicParam.setLastResult(lastResult);
+		target.setLastResult(lastResult);
 		target.setContextData(getContextData());
 		target.addStateCallback(new SequenceCallback(tasks, key, currentIndex, listener, flags));
 		target.perform();
@@ -471,13 +471,13 @@ public final class LogicManager extends ContextDataImpl {
 	 * @param theEnd
 	 *            true if the parallel/sequence tasks have run done. false otherwise.
 	 * @param next 
-	 *            the next logic parameter.  null when is the end.      
+	 *            the next logic task.  null when is the end.      
 	 * @param parallel
 	 *            true call this from the parallel callback.             
 	 * @return the result list of all tasks perform.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private ArrayList processResult(int key, LogicResult result, boolean theEnd, LogicParam next, boolean parallel) {
+	private ArrayList processResult(int key, LogicResult result, boolean theEnd, LogicTask next, boolean parallel) {
 		// put result to result pool if need
 		final int flags = result.getFlags();
 		final boolean shareNext = (flags & FLAG_SHARE_TO_NEXT) == FLAG_SHARE_TO_NEXT;
@@ -670,7 +670,7 @@ public final class LogicManager extends ContextDataImpl {
 			final boolean theEnd = curIndex == mTasks.size() - 1;
 			//handle perform result.
 			ArrayList list = processResult(key, result, theEnd, 
-					theEnd ? null : mTasks.get(curIndex + 1).logicParam, false);
+					theEnd ? null : mTasks.get(curIndex + 1), false);
 			
 			DefaultPrinter.getDefault().debug(TAG, "onSuccess", "results = " + list);
 			if (theEnd) {
