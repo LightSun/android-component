@@ -1,6 +1,7 @@
 package com.heaven7.java.logic;
 
 /**
+ * simple logic callback impl
  * Created by heaven7 on 2017/6/19 0019.
  */
 

@@ -46,13 +46,13 @@ public class LogicTask {
 		return new LogicTask(0, action, logicParam);
 	}
 	/**
-	 * share result with target flags.
+	 * set the flags.
 	 * @param flags the share flags.
 	 * @return this.
 	 * @see LogicManager#FLAG_SHARE_TO_NEXT
 	 * @see LogicManager#FLAG_SHARE_TO_POOL
 	 */
-	public LogicTask shareResult(int flags){
+	public LogicTask setFlags(int flags){
 		mFlags = flags;
 		return this;
 	}
@@ -88,6 +88,12 @@ public class LogicTask {
 	
 	//======================== private method ==================================
 	
+	//merge flag
+	@CalledInternal
+	void mergeFlags(int superFlags){
+		this.mFlags = mFlags & superFlags;
+	}
+	
 	@CalledInternal
 	void addStateCallback(LogicCallback callback) {
 		mInternalCallback = new WeakReference<LogicAction.LogicCallback>(callback);
@@ -117,6 +123,10 @@ public class LogicTask {
 		if( action.getContextData() == null){
 		    action.setContextData(data);
 		}
+	}
+	@CalledInternal
+	void resetLogicAction() {
+		action.reset(tag);
 	}
 
 	@Override

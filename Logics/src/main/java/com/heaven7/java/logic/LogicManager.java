@@ -1,12 +1,14 @@
 package com.heaven7.java.logic;
 
-import com.heaven7.java.base.util.SparseArray;
-import com.heaven7.java.base.util.Throwables;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.heaven7.java.base.util.DefaultPrinter;
+import com.heaven7.java.base.util.SparseArray;
+import com.heaven7.java.base.util.Throwables;
 
 /**
  * the logic manager help we handle an order logic tasks. it can run a
@@ -26,13 +28,18 @@ public final class LogicManager extends ContextDataImpl {
 	 * the flag indicate logic task perform result will share to next logic
 	 * task. this flags can only used to sequence tasks.
 	 */
-	public static final int FLAG_SHARE_TO_NEXT = 0x1;
+	public static final int FLAG_SHARE_TO_NEXT = 0x0001;
 	/** the flag indicate logic task perform result will share to pool. */
-	public static final int FLAG_SHARE_TO_POOL = 0x2;
+	public static final int FLAG_SHARE_TO_POOL = 0x0002;
+	/** this flag indicate the tasks perform allow failed. that means. all left tasks will not be auto cancel/remove. */
+	public static final int FLAG_ALLOW_FAILED = 0x0004;
 
 	private static final String TAG = "LogicManager";
+	
 	private final SparseArray<LogicTask> mLogicMap;
+	@SuppressWarnings("rawtypes")
 	private final SparseArray<ArrayList> mResultMap;
+	private final AtomicInteger mIndex = new AtomicInteger();
 
 	/*
 	 * type secondary index 0x ff ff ffff
@@ -46,8 +53,8 @@ public final class LogicManager extends ContextDataImpl {
 	private static final int TYPE_PARALLEL = 1;
 
 	private static final int MAX_PARALLEL_COUNT = 0xff;
-	private final AtomicInteger mIndex = new AtomicInteger();
-
+	
+	@SuppressWarnings("rawtypes")
 	public LogicManager() {
 		this.mLogicMap = new SparseArray<LogicTask>(3);
 		this.mResultMap = new SparseArray<ArrayList>();
@@ -77,7 +84,10 @@ public final class LogicManager extends ContextDataImpl {
 	 *            {@linkplain #performSequence(List, Runnable)}.
 	 */
 	public void cancel(int key) {
-		cancelByKey(key);
+		cancelByKey(key, false);
+		synchronized (mResultMap) {
+			mResultMap.remove(key);
+		}
 	}
 
 	/**
@@ -128,12 +138,15 @@ public final class LogicManager extends ContextDataImpl {
 	 * 
 	 * @param parallels
 	 *            the all tasks.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored. 
 	 * @param successAction
 	 *            the success action , called when all task done.
 	 * @return the key of this operation.
 	 */
-	public int performParallel(LogicTask[] parallels, LogicRunner successAction) {
-		return performParallel(Arrays.asList(parallels), successAction);
+	public int performParallel(LogicTask[] parallels, int flags, LogicResultListener successAction) {
+		return performParallel(Arrays.asList(parallels), flags,  successAction);
 	}
 
 	/**
@@ -141,11 +154,14 @@ public final class LogicManager extends ContextDataImpl {
 	 * 
 	 * @param parallels
 	 *            the all tasks.
-	 * @param successAction
-	 *            the success action , called when all task done.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.         
+	 * @param listener
+	 *            the logic listener, called when all task done.
 	 * @return the key of this operation.
 	 */
-	public int performParallel(List<LogicTask> parallels, LogicRunner successAction) {
+	public int performParallel(List<LogicTask> parallels, int flags, LogicResultListener listener) {
 		Throwables.checkEmpty(parallels);
 		final int size = parallels.size();
 		if (size > MAX_PARALLEL_COUNT) {
@@ -163,9 +179,11 @@ public final class LogicManager extends ContextDataImpl {
 			}
 		}
 		// add callback and perform
-		final ParallelCallback callback = new ParallelCallback(key, parallels, successAction);
+		final ParallelCallback callback = new ParallelCallback(key, parallels, listener ,
+				(flags & FLAG_ALLOW_FAILED) == FLAG_ALLOW_FAILED);
 		final Object data = getContextData();
 		for (LogicTask task : parallels) {
+			task.mergeFlags(flags);
 			task.setContextData(data);
 			task.addStateCallback(callback);
 			task.perform();
@@ -182,13 +200,16 @@ public final class LogicManager extends ContextDataImpl {
 	 *            state performer
 	 * @param lp
 	 *            the logic parameter
-	 * @param endAction
-	 *            the end action, called when perform the all target logic tasks
-	 *            done. can be null.
+	 * @param listener
+	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
+	 *            can be null.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored. 
 	 * @return the key of this operation.
 	 */
-	public int performSequence(int tag, LogicAction logicAction, LogicParam lp, LogicRunner endAction) {
-		return performSequence(new LogicTask[] { LogicTask.of(tag, logicAction, lp) }, endAction);
+	public int performSequence(int tag, LogicAction logicAction, LogicParam lp, int flags, LogicResultListener listener) {
+		return performSequence(new LogicTask[] { LogicTask.of(tag, logicAction, lp) }, flags, listener);
 	}
 
 	/**
@@ -196,13 +217,16 @@ public final class LogicManager extends ContextDataImpl {
 	 *
 	 * @param task
 	 *            the logic task
-	 * @param endAction
-	 *            the end action, called when perform the all target logic tasks
-	 *            done. can be null.
+	 * @param listener
+	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
+	 *            can be null.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored. 
 	 * @return the key of this operation.
 	 */
-	public int performSequence(LogicTask task, LogicRunner endAction) {
-		return performSequence(new LogicTask[] { task }, endAction);
+	public int performSequence(LogicTask task, int flags , LogicResultListener listener) {
+		return performSequence(new LogicTask[] { task }, flags, listener);
 	}
 
 	/**
@@ -212,13 +236,16 @@ public final class LogicManager extends ContextDataImpl {
 	 *            the first logic task
 	 * @param second
 	 *            the second logic task
-	 * @param endAction
-	 *            the end action, called when perform the all target logic tasks
-	 *            done. can be null.
+	 * @param listener
+	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
+	 *            can be null.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.  
 	 * @return the key of this operation.
 	 */
-	public int performSequence(LogicTask first, LogicTask second, LogicRunner endAction) {
-		return performSequence(new LogicTask[] { first, second }, endAction);
+	public int performSequence(LogicTask first, LogicTask second, int flags ,LogicResultListener listener) {
+		return performSequence(new LogicTask[] { first, second }, flags, listener);
 	}
 
 	/**
@@ -230,13 +257,16 @@ public final class LogicManager extends ContextDataImpl {
 	 *            the second logic task
 	 * @param third
 	 *            the third logic task
-	 * @param endAction
-	 *            the end action, called when perform the all target logic tasks
-	 *            done. can be null.
+	 * @param listener
+	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
+	 *            can be null.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.  
 	 * @return the key of this operation.
 	 */
-	public int performSequence(LogicTask first, LogicTask second, LogicTask third, LogicRunner endAction) {
-		return performSequence(new LogicTask[] { first, second, third }, endAction);
+	public int performSequence(LogicTask first, LogicTask second, LogicTask third, int flags ,LogicResultListener listener) {
+		return performSequence(new LogicTask[] { first, second, third }, flags,  listener);
 	}
 
 	/**
@@ -244,13 +274,16 @@ public final class LogicManager extends ContextDataImpl {
 	 *
 	 * @param tasks
 	 *            the logic tasks
-	 * @param endAction
-	 *            the end action, called when perform the all target logic tasks
-	 *            done. can be null.
+	 * @param listener
+	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
+	 *            can be null.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.            
 	 * @return the key of this operation.
 	 */
-	public int performSequence(LogicTask[] tasks, LogicRunner endAction) {
-		return performSequence(Arrays.asList(tasks), endAction);
+	public int performSequence(LogicTask[] tasks, int flags, LogicResultListener listener) {
+		return performSequence(Arrays.asList(tasks), flags, listener);
 	}
 
 	/**
@@ -259,69 +292,71 @@ public final class LogicManager extends ContextDataImpl {
 	 * @param tasks
 	 *            the logic tasks, you can't modify this list outside. or else
 	 *            you may cause bug.
-	 * @param endAction
-	 *            the end action, called when perform the all target logic tasks
-	 *            done. can be null.
+	 * @param listener
+	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.)
+	 *            can be null.
+	 * @param flags 
+	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
+	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.           
 	 * @return the key of this operation.
 	 */
-	public int performSequence(List<LogicTask> tasks, LogicRunner endAction) {
+	public int performSequence(List<LogicTask> tasks, int flags, LogicResultListener listener) {
 		Throwables.checkNull(tasks);
 		if (tasks.size() == 0) {
 			throw new IllegalArgumentException("must assign a logic action");
 		}
 		final int key = mIndex.incrementAndGet();
 
-		performSequenceImpl(tasks, key, 0, endAction, null);
+		performSequenceImpl(tasks, key, 0, listener, null, flags);
 		return key;
 	}
 
 	//lastResult the perform result of last logic task.
 	private void performSequenceImpl(List<LogicTask> tasks, int key, int currentIndex, 
-			LogicRunner endAction, Object lastResult) {
+			LogicResultListener listener, Object lastResult,int flags) {
 		final LogicTask target = tasks.get(currentIndex);
+		target.mergeFlags(flags);
 		target.logicParam.setLastResult(lastResult);
 		target.setContextData(getContextData());
-		target.addStateCallback(new SequenceCallback(tasks, key, currentIndex, endAction));
+		target.addStateCallback(new SequenceCallback(tasks, key, currentIndex, listener, flags));
 		target.perform();
 	}
 
 	// this key is blur
-	private void cancelByKey(int key) {
+	private void cancelByKey(int key, boolean resetAfterCancel) {
 		final int type = (key & MASK_TYPE) >> 24;
 		switch (type) {
 		case TYPE_PARALLEL:
 			int baseKey = key & MASK_MAIN;
 			int count = (key & MASK_SECONDARY) >> SHIFT_SECONDARY;
 			for (int i = 0; i < count; i++) {
-				cancelByRealKey(baseKey + i);
+				cancelByRealKey(baseKey + i, resetAfterCancel);
 			}
 			break;
 
 		case 0:
-			cancelByRealKey(key);
-		}
-		synchronized (mResultMap) {
-			mResultMap.remove(key);
+			cancelByRealKey(key, resetAfterCancel);
 		}
 	}
 
-	private void cancelByRealKey(int realKey) {
+	//resetAfterCancel, true reset the logic action after cancel.
+	private void cancelByRealKey(int realKey, boolean resetAfterCancel) {
 		LogicTask task;
 		synchronized (mLogicMap) {
 			task = mLogicMap.getAndRemove(realKey);
 		}
 		if (task != null) {
 			task.cancel();
+			if(resetAfterCancel){
+			    task.resetLogicAction();
+			}
 		} else {
-			System.err.println(
-					TAG + " >>> called [ cancelByRealKey() ]" + "cancel task .but key not exists , key = " + realKey);
-			// Logger.w(TAG,"cancelByRealKey","cancel task .but key not exists ,
-			// key = " + realKey);
+			DefaultPrinter.getDefault().warn(TAG, "cancelByRealKey", "cancel task .but key not exists , key = " + realKey);
 		}
 	}
 
 	/**
-	 * process the result . if is end .remove mapping from the result map.
+	 * process the result . if is end remove mapping from the result map. this is only called on success.
 	 * 
 	 * @param key
 	 *            the unique key of parallel/sequence tasks.
@@ -331,15 +366,17 @@ public final class LogicManager extends ContextDataImpl {
 	 * @param theEnd
 	 *            true if the parallel/sequence tasks have run done. false otherwise.
 	 * @param next 
-	 *            the next logic parameter.  null when in parallel tasks.        
+	 *            the next logic parameter.  null when is the end.      
+	 * @param parallel
+	 *            true call this from the parallel callback.             
 	 * @return the result list of all tasks perform.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private ArrayList processResult(int key, LogicResult result, boolean theEnd, LogicParam next) {
+	private ArrayList processResult(int key, LogicResult result, boolean theEnd, LogicParam next, boolean parallel) {
 		// put result to result pool if need
 		final int flags = result.getFlags();
 		final boolean shareNext = (flags & FLAG_SHARE_TO_NEXT) == FLAG_SHARE_TO_NEXT;
-		if (next == null && shareNext) {
+		if (parallel && shareNext) {
 			// parallel tasks may be async. so can't make sure the order of run.
 			throw new UnsupportedOperationException("flag SHARE_TO_NEXT only support sequence tasks.");
 		}
@@ -348,7 +385,7 @@ public final class LogicManager extends ContextDataImpl {
 		
 		ArrayList results = null;
 		if (resultData != null) {
-			if (shareNext) {
+			if (shareNext && next != null ) {
 				next.setLastResult(resultData);
 			}
 			if(sharePool){
@@ -357,7 +394,7 @@ public final class LogicManager extends ContextDataImpl {
 						results = mResultMap.getAndRemove(key);
 					}
 					if (results == null) {
-						results = new ArrayList<>();
+						results = new ArrayList();
 					}
 					results.add(resultData);
 				} else {
@@ -376,23 +413,29 @@ public final class LogicManager extends ContextDataImpl {
 	}
 
 	/**
-	 * the internal parallel callback
+	 * the internal parallel callback. if any task perform failed . mark failed. later {@linkplain LogicResultListener#onFailed(List, Object, List)}
+	 * will be called.
 	 * 
 	 * @author heaven7
 	 *
 	 */
+	@SuppressWarnings("rawtypes")
 	private class ParallelCallback extends SimpleLogicCallback {
 		/** the key of this parallel tasks. */
 		final int key;
 		final List<LogicTask> parallelTasks;
-		final LogicRunner mEnd;
+		final LogicResultListener listener;
 		final AtomicInteger finishCount;
+		final boolean allowFailed;
+		final Vector<LogicTask> mFailedTasks;
 
-		public ParallelCallback(int key, List<LogicTask> parallelTasks, LogicRunner endAction) {
+		public ParallelCallback(int key, List<LogicTask> parallelTasks, LogicResultListener endAction,boolean allowFailed) {
 			this.key = key;
 			this.parallelTasks = parallelTasks;
-			this.mEnd = endAction;
+			this.listener = endAction;
 			this.finishCount = new AtomicInteger(0);
+			this.allowFailed = allowFailed;
+			this.mFailedTasks = new Vector<LogicTask>();
 		}
 
 		private int getTaskCount() {
@@ -412,42 +455,72 @@ public final class LogicManager extends ContextDataImpl {
 
 		@Override
 		protected void onSuccess(LogicAction action, int tag, LogicParam param, LogicResult result) {
-
-			// remove from task pool 
-			removeTask(LogicTask.of(tag, action, param));
 			final boolean theEnd = finishCount.incrementAndGet() == getTaskCount();
+			// remove from task pool 
+			LogicTask task = LogicTask.of(tag, action, param).setFlags(result.getFlags());
+			removeTask(task);
 			//handle perform result
-			ArrayList results = processResult(key, result, theEnd, null);
+			ArrayList results = processResult(key, result, theEnd, null, true);
 			
 			// callback if need
-			if (theEnd && mEnd != null) {
-				mEnd.run(tag, result.getData(), results);
-				// System.out.println("task ok. " + param);
+			if (theEnd && listener != null) {
+				//no failed tasks.
+				if(mFailedTasks.size() == 0){
+				   listener.onSuccess(task, result.getData(), results);
+				   // System.out.println("task ok. " + param);
+				}else{
+					listener.onFailed(mFailedTasks, result.getData(), results);
+				}
 			}
 		}
 
 		@Override
 		protected void onFailed(LogicAction action, int tag, LogicParam param, LogicResult result) {
+			final boolean theEnd = finishCount.incrementAndGet() == getTaskCount();
+			LogicTask task = LogicTask.of(tag, action, param).setFlags(result.getFlags());
 			// remove task and result
-			removeTask(LogicTask.of(tag, action, param));
-			//TODO cancel(key); //one failed cancel all ?
+			removeTask(task);
+			
+			if(allowFailed){
+				mFailedTasks.add(task);
+				//allow failed. only callback when is the last task
+				if (theEnd) {
+					callbackOnFailed(result, mFailedTasks);
+				}
+			}else{
+				//cancel left tasks.
+				cancelByKey(key, true);
+				//not allow failed. direct callback onFailed.
+				callbackOnFailed(result, Arrays.asList(task));
+			}
+			
+		}
+
+		private void callbackOnFailed(LogicResult result, List<LogicTask> failedTasks) {
+			ArrayList results = null;
+			synchronized (mResultMap) {
+				results = mResultMap.getAndRemove(key);
+			}
+			if(listener != null){
+			    listener.onFailed(failedTasks, result.getData(), results);
+			}
 		}
 
 		private void removeTask(LogicTask task) {
 			synchronized (mLogicMap) {
 				int index = mLogicMap.indexOfValue(task, false);
 				if (index >= 0) {
-					mLogicMap.removeAt(index);
+					LogicTask actualTask = mLogicMap.getAndRemove(mLogicMap.keyAt(index));
+					actualTask.removeStateCallback(this);
 					// Logger.i(TAG,"removeTask","task is removed . task = " +
 					// task);
 				}
 			}
-			task.removeStateCallback(this);
 		}
 	}
 
 	/**
-	 * the sequence callback
+	 * the sequence callback, if any task perform failed . mark failed. call {@linkplain LogicResultListener#onFailed(List, Object, List)} immediately.
 	 * 
 	 * @author heaven7
 	 */
@@ -456,13 +529,16 @@ public final class LogicManager extends ContextDataImpl {
 		final int key;
 		final int curIndex;
 		final List<LogicTask> mTasks;
-		final LogicRunner endAction;
+		final LogicResultListener mListener;
+		final int flags;
 
-		public SequenceCallback(List<LogicTask> tasks, int key, int currentIndex, LogicRunner endAction) {
+		public SequenceCallback(List<LogicTask> tasks, int key, int currentIndex,
+				LogicResultListener listener, int flags) {
 			this.key = key;
 			this.curIndex = currentIndex;
 			this.mTasks = tasks;
-			this.endAction = endAction;
+			this.mListener = listener;
+			this.flags = flags;
 		}
 
 		@Override
@@ -471,41 +547,47 @@ public final class LogicManager extends ContextDataImpl {
 				mLogicMap.put(key, mTasks.get(curIndex));
 			}
 		}
-
+		@SuppressWarnings("rawtypes")
 		@Override
 		protected void onSuccess(LogicAction action, int tag, LogicParam param, LogicResult result) {
 			//remove task
-			removeTask();
+			final LogicTask task = removeTask();
+			
 			final boolean theEnd = curIndex == mTasks.size() - 1;
 			//handle perform result.
-			LogicTask task = mTasks.get(curIndex + 1);
-			ArrayList list = processResult(key, result, theEnd, task.logicParam);
+			ArrayList list = processResult(key, result, theEnd, mTasks.get(curIndex + 1).logicParam, false);
 			if (theEnd) {
 				// all end
-				if (endAction != null) {
-					endAction.run(tag, result.getData(), list);
+				if (mListener != null) {
+					mListener.onSuccess(task, result.getData(), list);
 				}
 			} else {
 				// perform next
-				performSequenceImpl(mTasks, key, curIndex + 1, endAction, result.getData());
+				performSequenceImpl(mTasks, key, curIndex + 1, mListener, result.getData(), flags);
 			}
 		}
 
+		@SuppressWarnings("rawtypes")
 		@Override
 		protected void onFailed(LogicAction action, int tag, LogicParam param, LogicResult result) {
-			removeTask();
-			//TODO one failed cancel all ?
-			synchronized (mResultMap) {
-				mResultMap.remove(key);
+			final LogicTask failedTask = removeTask();
+			if (mListener != null) {
+				ArrayList results = null;
+				synchronized (mResultMap) {
+					results = mResultMap.getAndRemove(key);
+				}
+				mListener.onFailed(Arrays.asList(failedTask), result.getData(), results);
 			}
 		}
 
-		private void removeTask() {
+		private LogicTask removeTask() {
 			synchronized (mLogicMap) {
 				mLogicMap.remove(key);
 			}
 			// unregister.
-			mTasks.get(curIndex).removeStateCallback(this);
+			LogicTask task = mTasks.get(curIndex);
+			task.removeStateCallback(this);
+			return task;
 		}
 	}
 

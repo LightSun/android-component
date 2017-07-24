@@ -143,12 +143,12 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 		default:
 			result = onLogicResult(tag, lm,lresult);
 		}
+		//clear tag info before callback
+		getTagInfo(tag, true);
 		if (result) {
 			// handle callbacks
 			dispatchCallbackInternal(OP_RESULT, tag, lm, lresult);
 		}
-		//clear tag info
-		getTagInfo(tag, true);
 		return result;
 	}
 	
@@ -469,7 +469,7 @@ public abstract class BaseLogicAction extends ContextDataImpl implements LogicAc
 				public void run() {
 					switch (op) {
 					case OP_RESULT:
-						callback.onLogicResult(action, tag, lp,result);
+						callback.onLogicResult(action, tag, lp, result);
 						break;
 
 					case OP_START:

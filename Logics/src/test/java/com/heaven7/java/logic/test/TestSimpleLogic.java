@@ -1,10 +1,7 @@
 package com.heaven7.java.logic.test;
 
-import java.util.List;
-
 import com.heaven7.java.logic.LogicManager;
 import com.heaven7.java.logic.LogicParam;
-import com.heaven7.java.logic.LogicRunner;
 import com.heaven7.java.logic.LogicTask;
 
 import junit.framework.TestCase;
@@ -26,7 +23,7 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testNormalAsync() >>> start time = " + Schedulers.getCurrentTime());
-		mLm.performSequence(task, null);
+		mLm.performSequence(task, 0,null);
 	}
 	
 	public void testNormal(){
@@ -35,7 +32,7 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testNormal() >>> start time = " + Schedulers.getCurrentTime());
-		mLm.performSequence(task, null);
+		mLm.performSequence(task, 0, null);
 	}
 	
 	public void testCancel(){
@@ -48,18 +45,13 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancel() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.performParallel(new LogicTask[]{task1, task2 }, new LogicRunner() {
-			@Override
-			public void run(int tag, Object result, List<?> results) {
-				Logger.i(TAG, "testCancel", "all Task done! thread = " + Thread.currentThread().getName());
-			}
-		});
+		final int key = mLm.performParallel(new LogicTask[]{task1, task2 }, 0, new LogRunner("testCancel"));
 		Logger.i(TAG, "testCancel", "key = " + key);
 		Schedulers.newAsyncScheduler().postDelay(2400, new Runnable() {
 			@Override
 			public void run() {
 				mLm.cancel(key);
-			    mLm.performSequence(task2 ,null);
+			    mLm.performSequence(task2 ,0, null); //must cause WARN
 			}
 		});
 	}
@@ -74,13 +66,13 @@ public class TestSimpleLogic extends TestCase{
 				.delay(3000)
 				;
 		System.out.println("============ testCancelSequence() >>> start time = " + Schedulers.getCurrentTime());
-		final int key = mLm.performSequence(new LogicTask[]{task1, task2 }, new LogRunner(method));
+		final int key = mLm.performSequence(new LogicTask[]{task1, task2 }, 0, new LogRunner(method));
 		Logger.i(TAG, "testCancelSequence", "key = " + key);
 		
 		Schedulers.newAsyncScheduler().postDelay(2000, new Runnable() {
 			@Override
 			public void run() {
-				 mLm.performSequence(task1 ,null);
+				 mLm.performSequence(task1 ,0, null);
 			}
 		});
 		Schedulers.newAsyncScheduler().postDelay(2580, new Runnable() {
@@ -101,20 +93,15 @@ public class TestSimpleLogic extends TestCase{
 				.schedulerOn(Schedulers.newAsyncScheduler())
 				.delay(3000)
 				;
-		mLm.performSequence(new LogicTask[]{task1, task2 }, new LogicRunner() {
-			@Override
-			public void run(int tag, Object result, List<?> results) {
-				Logger.i(TAG, "testScheduler", "all Task done! thread = " + Thread.currentThread().getName());
-			}
-		});
+		mLm.performSequence(new LogicTask[]{task1, task2 }, 0, new LogRunner("testScheduler"));
 	}
 	
 	public static void main(String[] args) {
 		TestSimpleLogic logic = new TestSimpleLogic();
 		//logic.testNormalAsync();
 		//logic.testNormal();
-		logic.testCancel();
-		//logic.testCancelSequence();
+		//logic.testCancel();
+		logic.testCancelSequence();
 		//logic.testScheduler();
 	}
 }

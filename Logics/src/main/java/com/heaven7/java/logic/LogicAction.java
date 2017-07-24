@@ -128,7 +128,7 @@ public interface LogicAction extends ContextData {
 	
 
 	 /**
-    * dispatch the tag resultfor target tag. subclass should call this in 
+    * dispatch the tag result for target tag. subclass should call this in 
     *    {@linkplain #perform(int, LogicParam)} or relative method.
     *
     * @param tag        the tag
@@ -156,7 +156,6 @@ public interface LogicAction extends ContextData {
         /**
          * called on logic result
          * @param action the logic action
-         * @param resultCode the result code. like {@linkplain LogicAction#RESULT_SUCCESS} and etc.
          * @param tag the logic tag
          * @param param the logic parameter
          * @param result the logic result
