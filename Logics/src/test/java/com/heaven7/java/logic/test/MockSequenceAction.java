@@ -8,8 +8,11 @@ import com.heaven7.java.logic.test.MockLogicAction2.FromTo;
 
 public class MockSequenceAction extends AbstractLogicAction {
 	
-	public MockSequenceAction() {
+	private final boolean mockFailed ;
+	
+	public MockSequenceAction(boolean mockFailed ) {
 		super(false);
+		this.mockFailed = mockFailed;
 	}
 
 	@Override
@@ -23,12 +26,14 @@ public class MockSequenceAction extends AbstractLogicAction {
 		for(int i = data.from ; i <= data.to ; i++){
 			sum += i;
 		}
-		
-		dispatchResult(tag, new LogicResult(RESULT_SUCCESS, sum + lastVal));
-		/*if(sum > 5000000){
-			dispatchResult(tag, new LogicResult(RESULT_FAILED, 0));
+		if(mockFailed){
+			if(sum > 5000000){
+				dispatchResult(tag, new LogicResult(RESULT_FAILED, 0));
+			}else{
+			    dispatchResult(tag, new LogicResult(RESULT_SUCCESS, sum + lastVal));
+			}
 		}else{
-		    dispatchResult(tag, new LogicResult(RESULT_SUCCESS, sum + lastVal));
-		}*/
+			dispatchResult(tag, new LogicResult(RESULT_SUCCESS, sum + lastVal));
+		}
 	}
 }

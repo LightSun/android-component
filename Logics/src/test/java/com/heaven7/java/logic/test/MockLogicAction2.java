@@ -6,9 +6,12 @@ import com.heaven7.java.logic.LogicParam;
 import com.heaven7.java.logic.LogicResult;
 
 public class MockLogicAction2 extends AbstractLogicAction {
+	
+	private final boolean mockFailed ;
 
-	public MockLogicAction2() {
+	public MockLogicAction2(boolean mockFailed) {
 		super(false);
+		this.mockFailed = mockFailed;
 	}
 
 	@Override
@@ -22,11 +25,14 @@ public class MockLogicAction2 extends AbstractLogicAction {
 		for(int i = data.from ; i <= data.to ; i++){
 			sum += i;
 		}
-		//dispatchResult(tag, new LogicResult(RESULT_SUCCESS, sum));
-		if(sum > 5000000){
-			dispatchResult(tag, new LogicResult(RESULT_FAILED, 0));
+		if(mockFailed){
+			if(sum > 5000000){
+				dispatchResult(tag, new LogicResult(RESULT_FAILED, 0));
+			}else{
+			    dispatchResult(tag, new LogicResult(RESULT_SUCCESS, sum));
+			}
 		}else{
-		    dispatchResult(tag, new LogicResult(RESULT_SUCCESS, sum));
+			dispatchResult(tag, new LogicResult(RESULT_SUCCESS, sum));
 		}
 	}
 

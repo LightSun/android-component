@@ -13,7 +13,7 @@ import com.heaven7.java.base.util.DefaultPrinter;
  * @author heaven7
  *
  */
-public abstract class BaseLogicAction extends ContextDataImpl implements LogicAction{
+/*public*/ abstract class BaseLogicAction extends ContextDataImpl implements LogicAction{
 	
 	protected static final int OP_RESULT = 1;
 	protected static final int OP_START  = 2;

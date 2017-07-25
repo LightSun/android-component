@@ -3,7 +3,7 @@ package com.heaven7.java.logic;
 import java.util.List;
 
 /**
- * the logic runner. called on all logic action perform success.
+ * the logic runner. called on all logic action perform done(success or failed).
  * 
  * @author heaven7
  * @see LogicManager#performParallel(List, int, LogicResultListener)

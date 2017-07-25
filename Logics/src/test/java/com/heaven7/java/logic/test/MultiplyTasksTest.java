@@ -13,15 +13,14 @@ public class MultiplyTasksTest {
 	private static final String TAG = "MultiplyTasksTest";
 	
 	private final LogicManager mLm = new LogicManager();
-	private final MockLogicAction2 mAction = new MockLogicAction2();
 	
 	public static void main(String[] args) {
 		MultiplyTasksTest test = new MultiplyTasksTest();
-		test.testDistributed();
-		//test.testShareToNext();
+		test.testDistributed(false);
+		//test.testShareToNext(true);
 	}
 	
-	public void testShareToNext(){
+	public void testShareToNext(boolean mockFailed){
 		
 		final String method = "testShareToNext";
 		int sum = 0;
@@ -31,7 +30,7 @@ public class MultiplyTasksTest {
 		Logger.i(TAG, method, "Normal Sum = " + sum);
 		
 		
-		final MockSequenceAction action = new MockSequenceAction();
+		final MockSequenceAction action = new MockSequenceAction(mockFailed);
 		Logger.i(TAG, method, "start time = " + Schedulers.getCurrentTime());
 		List<LogicTask> tasks = new ArrayList<LogicTask>();
 		final int step = 999;
@@ -65,7 +64,8 @@ public class MultiplyTasksTest {
 		});
 	}
 	
-	public void testDistributed(){
+	public void testDistributed(boolean mockFailed){
+		final MockLogicAction2 mAction = new MockLogicAction2(mockFailed);
 		final String method = "testDistributed";
 		int sum = 0;
 		for(int i = 1; i <= 10000 ; i++){ //1-10000
