@@ -690,11 +690,11 @@ public final class LogicManager extends ContextDataImpl {
 		@Override
 		protected void onFailed(LogicAction action, int tag, LogicParam param, LogicResult result) {
 			final LogicTask failedTask = removeTask();
+			ArrayList results = null;
+			synchronized (mResultMap) {
+				results = mResultMap.getAndRemove(key);
+			}
 			if (mListener != null) {
-				ArrayList results = null;
-				synchronized (mResultMap) {
-					results = mResultMap.getAndRemove(key);
-				}
 				mListener.onFailed(LogicManager.this, Arrays.asList(failedTask), 
 						result.getData(), results);
 			}
