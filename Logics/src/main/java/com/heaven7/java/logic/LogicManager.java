@@ -591,7 +591,9 @@ public final class LogicManager extends ContextDataImpl {
 				}
 			}
 			final boolean theEnd = finishCount.incrementAndGet() == getTaskCount();
-			LogicTask task = LogicTask.of(tag, action, param).setFlags(result.getFlags());
+			LogicTask task = LogicTask.of(tag, action, param)
+					.setFlags(result.getFlags());
+					
 			// remove task and result
 			removeTask(task);
 			
