@@ -210,7 +210,7 @@ public final class LogicManager extends ContextDataImpl {
 				flags > 0 && (flags & FLAG_ALLOW_FAILED) == FLAG_ALLOW_FAILED);
 		final Object data = getContextData();
 		for (LogicTask task : parallels) {
-			task.setFlags(flags);
+			task.mergeFlags(flags);
 			task.setContextData(data);
 			task.addStateCallback(callback);
 			task.perform();
@@ -415,7 +415,7 @@ public final class LogicManager extends ContextDataImpl {
 	private void performSequenceImpl(List<LogicTask> tasks, int key, int currentIndex, 
 			LogicResultListener listener, Object lastResult,int flags) {
 		final LogicTask target = tasks.get(currentIndex);
-		target.setFlags(flags);
+		target.mergeFlags(flags);
 		target.setLastResult(lastResult);
 		target.setContextData(getContextData());
 		target.addStateCallback(new SequenceCallback(tasks, key, currentIndex, listener, flags));
@@ -574,10 +574,10 @@ public final class LogicManager extends ContextDataImpl {
 			if (theEnd && listener != null) {
 				//no failed tasks.
 				if(mFailedTasks.size() == 0){
-				   listener.onSuccess(task, result.getData(), results);
+				   listener.onSuccess(LogicManager.this, task, result.getData(), results);
 				   // System.out.println("task ok. " + param);
 				}else{
-					listener.onFailed(mFailedTasks, result.getData(), results);
+					listener.onFailed(LogicManager.this, mFailedTasks, result.getData(), results);
 				}
 			}
 		}
@@ -618,7 +618,7 @@ public final class LogicManager extends ContextDataImpl {
 				results = mResultMap.getAndRemove(key);
 			}
 			if(listener != null){
-			    listener.onFailed(failedTasks, result.getData(), results);
+			    listener.onFailed(LogicManager.this, failedTasks, result.getData(), results);
 			}
 		}
 
@@ -678,7 +678,7 @@ public final class LogicManager extends ContextDataImpl {
 			if (theEnd) {
 				// all end
 				if (mListener != null) {
-					mListener.onSuccess(task, result.getData(), list);
+					mListener.onSuccess(LogicManager.this, task, result.getData(), list);
 				}
 			} else {
 				// perform next
@@ -695,7 +695,8 @@ public final class LogicManager extends ContextDataImpl {
 				synchronized (mResultMap) {
 					results = mResultMap.getAndRemove(key);
 				}
-				mListener.onFailed(Arrays.asList(failedTask), result.getData(), results);
+				mListener.onFailed(LogicManager.this, Arrays.asList(failedTask), 
+						result.getData(), results);
 			}
 		}
 

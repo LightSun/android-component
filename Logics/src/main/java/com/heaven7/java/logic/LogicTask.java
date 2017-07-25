@@ -129,6 +129,13 @@ public class LogicTask {
 	void setLastResult(Object resultData) {
 		logicParam.setLastResult(resultData);
 	}
+	//flags the context flags.
+	@CalledInternal
+	void mergeFlags(int flags){
+		if(flags > 0){
+			mFlags |= flags;
+		}
+	}
 
 	@Override
 	public boolean equals(Object o) {

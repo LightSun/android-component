@@ -13,7 +13,8 @@ public interface LogicResultListener {
 
 	/**
 	 * called on all logic tasks perform success.
-	 * 
+	 * @param lm
+	 *          the logic manager
 	 * @param failedTask
 	 *            the all failed tasks. may be null or length = 0, if all tasks
 	 *            performed success. for example: in parallel , this list can be
@@ -28,17 +29,18 @@ public interface LogicResultListener {
 	 *            the pool results of all logic-action performed. may be null.
 	 *            this results is determined by
 	 *            {@linkplain LogicManager#FLAG_SHARE_TO_POOL} and performed
-	 *            state(success or failed), perform success result can share to
+	 *            state(success or failed), only perform success result can share to
 	 *            pool.
 	 * @see LogicTask#setFlags(int)
 	 * @see LogicManager#performParallel(List, int, LogicResultListener)
 	 * @see LogicManager#performSequence(List, int, LogicResultListener)
 	 */
-	void onFailed(List<LogicTask> failedTask, Object lastResult, List<?> results);
+	void onFailed(LogicManager lm ,List<LogicTask> failedTask, Object lastResult, List<?> results);
 
 	/**
 	 * called on perform the all logic tasks success.
-	 * 
+	 * @param lm
+	 *          the logic manager
 	 * @param lastTask
 	 *            the last logic task.
 	 * @param lastResult
@@ -49,6 +51,6 @@ public interface LogicResultListener {
 	 *            and must performed success. That means only flag of {@linkplain LogicManager#FLAG_SHARE_TO_POOL} is assigned 
 	 *            and performed success, the perform result will put to this results(pool). 
 	 */
-	void onSuccess(LogicTask lastTask, Object lastResult, List<?> results);
+	void onSuccess(LogicManager lm ,LogicTask lastTask, Object lastResult, List<?> results);
 
 }
