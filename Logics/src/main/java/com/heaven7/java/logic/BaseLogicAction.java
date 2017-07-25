@@ -118,7 +118,7 @@ import com.heaven7.java.base.util.DefaultPrinter;
 		final LogicParam lm = getLogicParameter(tag);
 
 		// get tag info
-		TagInfo info = getTagInfo(tag, false);
+		final TagInfo info = getTagInfo(tag, false);
 		if (info == null) {
 			return false;
 		}
@@ -129,22 +129,11 @@ import com.heaven7.java.base.util.DefaultPrinter;
 			onCancel(tag, info.mLogicParam, lresult);
 			return false;
 		}
-		// result indicate whether invoke callback or not.
-		boolean result;
-		switch (lresult.getResultCode()) {
-		case RESULT_SUCCESS:
-			result = onLogicSuccess(tag);
-			break;
-
-		case RESULT_FAILED:
-			result = onLogicFailed(tag);
-			break;
-
-		default:
-			result = onLogicResult(tag, lm,lresult);
-		}
 		//clear tag info before callback
 		getTagInfo(tag, true);
+		
+		// result indicate whether invoke callback or not.
+		boolean result = onLogicResult(tag, lm, lresult);
 		if (result) {
 			// handle callbacks
 			dispatchCallbackInternal(OP_RESULT, tag, lm, lresult);
@@ -273,23 +262,20 @@ import com.heaven7.java.base.util.DefaultPrinter;
 	 * called on cancel. this is only called when , often called by
 	 * {@linkplain #onLogicSuccess(int)}}.
 	 * 
-	 * @param result
-	 *         the logic result.
 	 * @param tag
 	 *            the tag .
 	 * @param param
 	 *            the logic parameter.
+	 * @param result
+	 *         the logic result.
 	 */
 	protected void onCancel(int tag, LogicParam param, LogicResult result) {
 
 	}
 
 	/**
-	 * called on logic result.
+	 * called on logic result. 
 	 * 
-	 * @param resultCode
-	 *            the result code. but not {@linkplain #RESULT_SUCCESS} or
-	 *            {@linkplain #RESULT_FAILED}.
 	 * @param tag
 	 *            the tag
 	 * @param lm
@@ -306,30 +292,6 @@ import com.heaven7.java.base.util.DefaultPrinter;
 	}
 
 	/**
-	 * called on logic result failed.
-	 * 
-	 * @return true if success. default is true. this will effect the callback.
-	 *         only true the callbacks can be invoke, false not invoke.
-	 * @see {@linkplain #dispatchResult(int, int)}
-	 */
-	protected boolean onLogicFailed(int tag) {
-		return true;
-	}
-
-	/**
-	 * called on logic success.
-	 * 
-	 * @param tag
-	 *            the tag
-	 * @return the handle result. if it is cancelled return false. this will
-	 *         effect the callback. only true the callbacks can be invoke, false
-	 *         not invoke.
-	 * @see #dispatchResult(int, int)
-	 */
-	protected boolean onLogicSuccess(int tag) {
-		return true;
-	}
-	/**
 	 * the tag info class .contains the logic parameter and running state.
 	 * @author heaven7
 	 */
@@ -337,10 +299,11 @@ import com.heaven7.java.base.util.DefaultPrinter;
 		public final LogicParam mLogicParam;
 		/** the running state */
 		public final AtomicInteger mState;
+		/** the flags of logic task */
 		public int mFlags;
 
-		TagInfo(LogicParam mLogicParam, int shareFlags) {
-			this.mFlags = shareFlags;
+		TagInfo(LogicParam mLogicParam, int flags) {
+			this.mFlags = flags;
 			this.mLogicParam = mLogicParam;
 			this.mState = new AtomicInteger(STATE_STARTED);
 		}
