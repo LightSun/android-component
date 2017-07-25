@@ -3,7 +3,7 @@ package com.heaven7.java.logic;
 import com.heaven7.java.base.anno.CalledInternal;
 
 /**
- * the result of perform logic: contains result code and result data.
+ * the result of perform a logic task: contains result code and result data.
  * @author heaven7
  */
 public class LogicResult {
