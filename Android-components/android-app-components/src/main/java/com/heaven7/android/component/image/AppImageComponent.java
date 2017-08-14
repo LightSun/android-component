@@ -147,12 +147,18 @@ public interface AppImageComponent {
     AppImageComponent transform(BitmapTransformer... transformers);
 
     /**
-     * set the bitmap transform to circle.
+     * set the image to circle.
      * @param borderWidth the border width in pixes. or 0 if not need.
      * @param borderColor the border color.
      * @return this.
      */
     AppImageComponent circle(float borderWidth, int borderColor);
+
+    /**
+     * set the image to circle
+     * @return this.
+     */
+    AppImageComponent circle();
 
     /**
      * set round size
