@@ -155,7 +155,7 @@ public interface AppImageComponent {
     AppImageComponent circle(float borderWidth, int borderColor);
 
     /**
-     * set the image to circle
+     * set the image to circle with no border.
      * @return this.
      */
     AppImageComponent circle();
@@ -174,7 +174,7 @@ public interface AppImageComponent {
     void into(ImageView view);
 
     /**
-     * load immediately
+     * load image immediately
      * @throws IllegalStateException if state error.
      */
     void load() throws IllegalStateException;

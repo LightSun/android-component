@@ -8,7 +8,7 @@ import static com.heaven7.android.component.guide.AppGuideComponent.*;
  * the relative location of guide.
  * @author heaven7
  */
-public class RelativeLocation {
+public final class RelativeLocation {
     private final byte alignType;
     private final int margin; //align margin
 
