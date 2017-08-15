@@ -6,12 +6,14 @@ import android.graphics.Bitmap;
  * multi bitmap transformation
  * @author heaven7
  */
-public class MultiBitmapTransformation implements AppImageComponent.BitmapTransformer {
+public class MultiBitmapTransformation implements BitmapTransformer {
 
-    final AppImageComponent.BitmapTransformer[] mTransformers;
+    private final BitmapTransformer[] mTransformers;
 
-    @SafeVarargs
-    public MultiBitmapTransformation(AppImageComponent.BitmapTransformer... transformations) {
+    public MultiBitmapTransformation(BitmapTransformer[] transformations) {
+        if(transformations == null){
+            throw new NullPointerException();
+        }
         if (transformations.length < 1) {
             throw new IllegalArgumentException("MultiTransformation must contain at least one Transformation");
         }
@@ -19,11 +21,11 @@ public class MultiBitmapTransformation implements AppImageComponent.BitmapTransf
     }
 
     @Override
-    public Bitmap transform(Bitmap source, int outWidth, int outHeight) {
+    public Bitmap transform(BitmapPool pool,Bitmap source, int outWidth, int outHeight) {
 
         Bitmap previous = source;
-        for (AppImageComponent.BitmapTransformer transformation : mTransformers) {
-            previous = transformation.transform(previous, outWidth, outHeight);
+        for (BitmapTransformer transformation : mTransformers) {
+            previous = transformation.transform(pool, previous, outWidth, outHeight);
         }
         return previous;
     }
