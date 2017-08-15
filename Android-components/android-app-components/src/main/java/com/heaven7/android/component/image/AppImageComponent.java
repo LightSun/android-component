@@ -23,8 +23,8 @@ public interface AppImageComponent {
      * get the bitmap pool
      * @param context the context.
      * @return the bitmap pool.
-     * @see BitmapPool
+     * @see ImageCachePool
      */
-    BitmapPool getBitmapPool(Context context);
+    ImageCachePool getBitmapPool(Context context);
 
 }

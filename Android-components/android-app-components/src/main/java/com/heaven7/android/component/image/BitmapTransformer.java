@@ -18,7 +18,7 @@ public interface BitmapTransformer {
      * @param outHeight the out/expect height.
      * @return a new bitmap
      */
-    Bitmap transform(String key, BitmapPool pool, Bitmap source, int outWidth, int outHeight);
+    Bitmap transform(String key, ImageCachePool pool, Bitmap source, int outWidth, int outHeight);
 
     /**
      * get the id of this transformer.

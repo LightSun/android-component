@@ -2,15 +2,18 @@ package com.heaven7.android.components.demo.imageimpl;
 
 import android.graphics.Bitmap;
 
+import com.bumptech.glide.Glide;
+import com.heaven7.android.component.image.ImageCachePool;
+
 /**
  * Created by heaven7 on 2017/8/15 0015.
  */
 
-public class GlideBitmapPool implements com.heaven7.android.component.image.BitmapPool{
+public class GlideCachePool implements ImageCachePool {
 
     private final com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool mImpl;
 
-    public GlideBitmapPool(com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool mImpl) {
+    public GlideCachePool(com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool mImpl) {
         this.mImpl = mImpl;
     }
 
@@ -32,5 +35,10 @@ public class GlideBitmapPool implements com.heaven7.android.component.image.Bitm
     @Override
     public void trimMemory(int level) {
         mImpl.trimMemory(level);
+    }
+
+    @Override
+    public void clearDiskCache() {
+        //TODO
     }
 }

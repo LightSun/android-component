@@ -1,13 +1,12 @@
 package com.heaven7.android.components.demo.imageimpl;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import com.heaven7.android.component.image.BitmapPool;
+import com.heaven7.android.component.image.ImageCachePool;
 import com.heaven7.android.component.image.BitmapTransformer;
 
 /**
@@ -40,7 +39,7 @@ public class CircleTransformer implements BitmapTransformer{
     }
 
     @Override
-    public Bitmap transform(String key ,BitmapPool pool, Bitmap source, int outWidth, int outHeight) {
+    public Bitmap transform(String key , ImageCachePool pool, Bitmap source, int outWidth, int outHeight) {
         if (source == null) return null;
 
         int size = (int) (Math.min(source.getWidth(), source.getHeight()) - (mBorderWidth / 2));

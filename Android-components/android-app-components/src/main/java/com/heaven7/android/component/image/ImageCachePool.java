@@ -3,12 +3,12 @@ package com.heaven7.android.component.image;
 import android.graphics.Bitmap;
 
 /**
- * the bitmap pool.
+ * the image(bitmap) pool contains:  memory cache and disk cache.
  * Created by heaven7 on 2017/8/15 0015.
  * @since 1.0.1
  */
 
-public interface BitmapPool {
+public interface ImageCachePool {
 
 
     /**
@@ -44,4 +44,9 @@ public interface BitmapPool {
      * {@link android.graphics.Bitmap}s to evict.
      */
     void trimMemory(int level);
+
+    /**
+     * clear the disk cache.
+     */
+    void clearDiskCache();
 }

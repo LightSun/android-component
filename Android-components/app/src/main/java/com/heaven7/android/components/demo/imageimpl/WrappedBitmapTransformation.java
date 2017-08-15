@@ -37,7 +37,7 @@ public class WrappedBitmapTransformation extends BitmapTransformation {
     @Override
     protected Bitmap transform(com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool pool,
                                Bitmap toTransform, int outWidth, int outHeight) {
-        final GlideBitmapPool poolWrapper = new GlideBitmapPool(pool);
+        final GlideCachePool poolWrapper = new GlideCachePool(pool);
         Bitmap previous = toTransform;
         for (BitmapTransformer transformer : mTransformers) {
             previous = transformer.transform(key, poolWrapper, previous, outWidth, outHeight);

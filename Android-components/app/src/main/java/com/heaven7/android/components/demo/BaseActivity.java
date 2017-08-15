@@ -43,6 +43,18 @@ public abstract class BaseActivity extends AppCompatActivity implements AppCompo
         }*/
     }
 
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        getAppImageComponent().getBitmapPool(this).clearMemory();
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        getAppImageComponent().getBitmapPool(this).trimMemory(level);
+    }
+
     protected void onPreSetContentView() {
 
     }

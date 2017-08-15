@@ -3,7 +3,7 @@ package com.heaven7.android.components.demo.imageimpl;
 import android.graphics.Bitmap;
 
 import com.bumptech.glide.load.resource.bitmap.TransformationUtils;
-import com.heaven7.android.component.image.BitmapPool;
+import com.heaven7.android.component.image.ImageCachePool;
 import com.heaven7.android.component.image.BitmapTransformer;
 
 /**
@@ -13,7 +13,7 @@ import com.heaven7.android.component.image.BitmapTransformer;
 public class CenterCropTransformer implements BitmapTransformer{
 
     @Override
-    public Bitmap transform(String key, BitmapPool pool, Bitmap source, int outWidth, int outHeight) {
+    public Bitmap transform(String key, ImageCachePool pool, Bitmap source, int outWidth, int outHeight) {
         final Bitmap toReuse = pool.get(key, outWidth, outHeight, (source.getConfig() != null
                 ? source.getConfig() : Bitmap.Config.ARGB_8888));
         Bitmap transformed = TransformationUtils.centerCrop(toReuse, source, outWidth, outHeight);

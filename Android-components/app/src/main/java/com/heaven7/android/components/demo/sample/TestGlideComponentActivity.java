@@ -24,6 +24,8 @@ import butterknife.BindView;
 import butterknife.OnClick;
 
 /**
+ * this is a demo that use glide implements AppImageComponent.
+ * Picasso is the same.
  * Created by heaven7 on 2017/8/15 0015.
  */
 

@@ -6,7 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
-import com.heaven7.android.component.image.BitmapPool;
+import com.heaven7.android.component.image.ImageCachePool;
 import com.heaven7.android.component.image.BitmapTransformer;
 
 /**
@@ -22,7 +22,7 @@ public class RoundTransformer implements BitmapTransformer {
     }
 
     @Override
-    public Bitmap transform(String key, BitmapPool pool, Bitmap source, int outWidth, int outHeight) {
+    public Bitmap transform(String key, ImageCachePool pool, Bitmap source, int outWidth, int outHeight) {
         if (source == null) return null;
 
         Bitmap result = pool.get(key, source.getWidth(), source.getHeight(), Bitmap.Config.ARGB_8888);

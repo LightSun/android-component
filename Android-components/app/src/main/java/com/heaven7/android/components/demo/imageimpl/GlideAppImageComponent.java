@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.bumptech.glide.Glide;
 import com.heaven7.android.component.image.AppImageComponent;
-import com.heaven7.android.component.image.BitmapPool;
+import com.heaven7.android.component.image.ImageCachePool;
 import com.heaven7.android.component.image.ImageRequestEditor;
 
 /**
@@ -19,8 +19,8 @@ public class GlideAppImageComponent implements AppImageComponent {
     }
 
     @Override
-    public BitmapPool getBitmapPool(Context context) {
-        return new GlideBitmapPool(Glide.get(context).getBitmapPool());
+    public ImageCachePool getBitmapPool(Context context) {
+        return new GlideCachePool(Glide.get(context).getBitmapPool());
     }
 
 }
