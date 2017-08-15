@@ -1,5 +1,6 @@
 package com.heaven7.android.components.demo.imageimpl;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.bumptech.glide.Glide;
@@ -38,7 +39,7 @@ public class GlideCachePool implements ImageCachePool {
     }
 
     @Override
-    public void clearDiskCache() {
-        //TODO
+    public void clearDiskCache(Context context) {
+        Glide.get(context).clearDiskCache();
     }
 }

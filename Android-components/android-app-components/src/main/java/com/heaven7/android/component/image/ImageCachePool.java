@@ -1,5 +1,6 @@
 package com.heaven7.android.component.image;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
 /**
@@ -47,6 +48,7 @@ public interface ImageCachePool {
 
     /**
      * clear the disk cache.
+     * @param context the context
      */
-    void clearDiskCache();
+    void clearDiskCache(Context context);
 }
