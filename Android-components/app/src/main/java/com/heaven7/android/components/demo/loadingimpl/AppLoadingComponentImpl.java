@@ -128,16 +128,19 @@ public class AppLoadingComponentImpl implements AppLoadingComponent{
 
     @Override
     public void showTips(int code) {
+        //here not impl. if you want just impl
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void showError(int code) {
+        //here not impl. if you want just impl
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void showEmpty(int code) {
+        //here not impl. if you want just impl
         throw new UnsupportedOperationException();
     }
 }
