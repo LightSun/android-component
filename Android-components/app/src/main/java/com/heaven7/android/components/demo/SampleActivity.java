@@ -1,6 +1,7 @@
 package com.heaven7.android.components.demo;
 
 import com.heaven7.android.components.demo.sample.TestGlideComponentActivity;
+import com.heaven7.android.components.demo.sample.TestLoadingComponentActivity;
 
 import java.util.List;
 
@@ -12,5 +13,6 @@ public class SampleActivity extends AbsMainActivity {
     @Override
     protected void addDemos(List<ActivityInfo> list) {
         list.add(new ActivityInfo(TestGlideComponentActivity.class));
+        list.add(new ActivityInfo(TestLoadingComponentActivity.class));
     }
 }

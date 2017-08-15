@@ -128,6 +128,12 @@ public interface AppLoadingComponent {
      */
     void setAdapter(RecyclerView.Adapter adapter);
 
+    /**
+     * set the loading callback.
+     * @param callback the loading callback.
+     */
+    void setCallback(Callback callback);
+
     //==========================================================
 
     /**

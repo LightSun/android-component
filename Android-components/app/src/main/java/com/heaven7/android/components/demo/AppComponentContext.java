@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.heaven7.android.component.image.AppImageComponent;
+import com.heaven7.android.component.loading.AppLoadingComponent;
 import com.heaven7.android.component.toast.AppToastComponent;
 import com.heaven7.core.util.Toaster;
 
@@ -16,6 +17,7 @@ public interface AppComponentContext {
 
 
     AppImageComponent getAppImageComponent();
+    AppLoadingComponent getAppLoadingComponent();
 
     /**
      * get the layout id.

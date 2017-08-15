@@ -37,6 +37,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".sample.TestGlideComponentActivity"/>
+        <activity android:name=".sample.TestLoadingComponentActivity"/>
     </application>
 
 </manifest>

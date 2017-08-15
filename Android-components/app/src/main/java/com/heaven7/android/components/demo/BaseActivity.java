@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.heaven7.android.component.image.AppImageComponent;
+import com.heaven7.android.component.loading.AppLoadingComponent;
 import com.heaven7.android.component.toast.AppToastComponent;
 import com.heaven7.android.components.demo.imageimpl.GlideAppImageComponent;
 
@@ -65,6 +66,10 @@ public abstract class BaseActivity extends AppCompatActivity implements AppCompo
     }
     @Override
     public AppToastComponent getToastWindow() {
+        return null;
+    }
+    @Override
+    public AppLoadingComponent getAppLoadingComponent() {
         return null;
     }
 }
