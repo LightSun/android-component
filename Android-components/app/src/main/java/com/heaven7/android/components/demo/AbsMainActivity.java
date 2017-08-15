@@ -55,6 +55,9 @@ public abstract class AbsMainActivity extends ListActivity {
             this.clazz = clazz;
             this.desc = desc;
         }
+        public ActivityInfo(Class<? extends Activity> clazz) {
+           this(clazz, clazz.getSimpleName());
+        }
 
         public ActivityInfo(Context context, Class<? extends Activity> clazz, int stringResId) {
             this.clazz = clazz;

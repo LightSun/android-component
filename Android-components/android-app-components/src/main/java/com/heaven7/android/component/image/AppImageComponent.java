@@ -12,10 +12,11 @@ public interface AppImageComponent {
 
     /**
      * new a image request editor.
+     * @param context  the context
      * @return the image request editor.
      * @see ImageRequestEditor
      */
-    ImageRequestEditor newEditor();
+    ImageRequestEditor newEditor(Context context);
 
     /**
      * get the bitmap pool
