@@ -1,7 +1,6 @@
 package com.heaven7.android.components.demo.imageimpl;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.widget.ImageView;
@@ -9,20 +8,19 @@ import android.widget.ImageView;
 import com.bumptech.glide.DrawableTypeRequest;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
-import com.heaven7.android.component.image.BitmapPool;
 import com.heaven7.android.component.image.BitmapTransformer;
 import com.heaven7.android.component.image.ImageLoadCallback;
 import com.heaven7.android.component.image.ImageRequestEditor;
 import com.heaven7.core.util.Logger;
 import com.heaven7.java.base.util.Throwables;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,22 +55,29 @@ public class GlideRequestEditor implements ImageRequestEditor {
     }
 
     @Override
-    public ImageRequestEditor fromUrl(String url) {
-        return fromUri(Uri.parse(url));
+    public ImageRequestEditor load(String url) {
+        return load(Uri.parse(url));
     }
 
     @Override
-    public ImageRequestEditor fromUri(Uri uri) {
+    public ImageRequestEditor load(Uri uri) {
         mKey = uri.toString();
         mRequest = Glide.with(mContext).load(uri);
         return this;
     }
 
     @Override
-    public ImageRequestEditor fromLocal(int resId) {
+    public ImageRequestEditor load(int resId) {
         mKey = KEY_PREFIX + resId;
         mRequest = Glide.with(mContext).load(resId);
-        return null;
+        return this;
+    }
+
+    @Override
+    public ImageRequestEditor load(File image) {
+        mKey = image.getAbsolutePath();
+        mRequest = Glide.with(mContext).load(image);
+        return this;
     }
 
     @Override
@@ -233,6 +238,7 @@ public class GlideRequestEditor implements ImageRequestEditor {
         @Override
         public boolean onException(Exception e, Object model, Target<GlideDrawable> target,
                                    boolean isFirstResource) {
+            Logger.i("InternalListener","onException","key = " + mKey);
             mCallback.onLoadFailed(mKey, e, mErrorDrawable);
             return false;
         }
@@ -241,13 +247,14 @@ public class GlideRequestEditor implements ImageRequestEditor {
         public boolean onResourceReady(GlideDrawable resource, Object model,
                                        Target<GlideDrawable> target,
                                        boolean isFromMemoryCache, boolean isFirstResource) {
-            //Logger.i("","onResourceReady","model = " + model); //if load url. is url.
+            Logger.i("InternalListener","onResourceReady","model = " + model); //if load url. is url.
             GlideBitmapDrawable gbd = (GlideBitmapDrawable) resource;
             mCallback.onLoadComplete(mKey, gbd.getBitmap());
             return false;
         }
 
         public void onStart(String key, Drawable placeHolder){
+            Logger.i("InternalListener","onStart","key = " + key);
             mCallback.onLoadStarted(key, placeHolder);
         }
     }

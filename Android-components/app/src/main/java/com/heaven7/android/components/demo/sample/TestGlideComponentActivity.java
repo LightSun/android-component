@@ -3,7 +3,9 @@ package com.heaven7.android.components.demo.sample;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Button;
@@ -12,8 +14,11 @@ import android.widget.ImageView;
 import com.heaven7.android.component.image.ImageRequestEditor;
 import com.heaven7.android.components.demo.BaseActivity;
 import com.heaven7.android.components.demo.R;
+import com.heaven7.android.components.demo.imageimpl.CenterCropTransformer;
 import com.heaven7.android.components.demo.util.LogImageLoadCallback;
 import com.heaven7.android.components.demo.util.TestUtil;
+
+import java.io.File;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -45,15 +50,29 @@ public class TestGlideComponentActivity extends BaseActivity{
     @OnClick(R.id.bt1)
     public void onClickBt1(View v){
         //showByCallback();
-        showByInto();
+        showByIntoFromFile();
     }
 
     private void showByInto() {
         getAppImageComponent().newEditor(this)
-                .fromUrl(TestUtil.TEST_IMAGE)
+                .load(TestUtil.TEST_IMAGE)
                 .placeholder(R.mipmap.ic_launcher)
                 .override(450, 300)
                 .diskCacheFlags(ImageRequestEditor.FLAG_CACHE_SOURCE)
+               // .transform(new CenterCropTransformer())
+                .round(30)
+               // .callback()
+                .into(mIv1);
+    }
+    private void showByIntoFromFile() {
+        String path = Environment.getExternalStorageDirectory() + "/tencent/MicroMsg/WeiXin/wx_camera_1492674450967.jpg";
+        getAppImageComponent().newEditor(this)
+                .load(new File(path))
+                .placeholder(R.mipmap.ic_launcher)
+                .override(450, 300)
+                .diskCacheFlags(ImageRequestEditor.FLAG_CACHE_SOURCE)
+               // .transform(new CenterCropTransformer())
+                .callback(new LogImageLoadCallback())
                 .round(30)
                // .callback()
                 .into(mIv1);
@@ -61,7 +80,7 @@ public class TestGlideComponentActivity extends BaseActivity{
 
     private void showByCallback() {
         getAppImageComponent().newEditor(this)
-                .fromUrl(TestUtil.TEST_IMAGE)
+                .load(TestUtil.TEST_IMAGE)
                 .placeholder(R.mipmap.ic_launcher)
                 .override(450, 300)
                 .diskCacheFlags(ImageRequestEditor.FLAG_CACHE_SOURCE)

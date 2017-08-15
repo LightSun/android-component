@@ -4,9 +4,12 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.widget.ImageView;
 
+import java.io.File;
+
 /**
  * the image request editor, used by {@linkplain AppImageComponent}.
  * Created by heaven7 on 2017/8/15 0015.
+ * @since 1.0.1
  */
 
 public interface ImageRequestEditor {
@@ -22,23 +25,31 @@ public interface ImageRequestEditor {
 
 
     /**
-     * assigned the image url
+     * load the image from url
      * @param url the image url
      * @return this.
      */
-    ImageRequestEditor fromUrl(String url);
+    ImageRequestEditor load(String url);
     /**
-     * assigned the image uri
+     * load the image from uri
      * @param uri the image uri
      * @return this.
      */
-    ImageRequestEditor fromUri(Uri uri);
+    ImageRequestEditor load(Uri uri);
     /**
-     * assigned the local image resource.
+     * load the image from local resource.
      * @param resId the local image res id
      * @return this.
      */
-    ImageRequestEditor fromLocal(int resId);
+    ImageRequestEditor load(int resId);
+
+
+    /**
+     * load the image from file
+     * @param image the image file
+     * @return this
+     */
+    ImageRequestEditor load(File image);
 
     /**
      * assigned the expect image width and height.

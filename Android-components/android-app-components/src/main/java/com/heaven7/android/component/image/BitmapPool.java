@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 /**
  * the bitmap pool.
  * Created by heaven7 on 2017/8/15 0015.
+ * @since 1.0.1
  */
 
 public interface BitmapPool {

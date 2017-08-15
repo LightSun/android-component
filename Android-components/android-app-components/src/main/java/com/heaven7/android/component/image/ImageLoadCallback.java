@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 /**
  * the image load callback
  * Created by heaven7 on 2017/8/15 0015.
+ * @since 1.0.1
  */
 
 public interface ImageLoadCallback {

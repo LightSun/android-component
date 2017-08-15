@@ -5,6 +5,7 @@ import android.content.Context;
 /**
  * image component of android application
  * Created by heaven7 on 2017/8/14 0014.
+ * @since 1.0.1
  */
 
 public interface AppImageComponent {

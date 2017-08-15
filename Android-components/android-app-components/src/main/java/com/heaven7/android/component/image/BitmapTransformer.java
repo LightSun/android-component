@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 
 /**
  * the bitmap transformer
+ * @author heaven7
+ * @since 1.0.1
  */
 public interface BitmapTransformer {
 
