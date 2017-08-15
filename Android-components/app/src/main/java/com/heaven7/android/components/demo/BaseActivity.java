@@ -1,15 +1,19 @@
 package com.heaven7.android.components.demo;
 
+import android.content.pm.ProviderInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.heaven7.android.component.guide.AppGuideComponent;
 import com.heaven7.android.component.image.AppImageComponent;
 import com.heaven7.android.component.loading.AppLoadingComponent;
 import com.heaven7.android.component.toast.AppToastComponent;
 import com.heaven7.android.components.demo.imageimpl.GlideAppImageComponent;
+import com.heaven7.android.components.demo.toastimpl.AppToastComponentImpl;
+import com.heaven7.android.util2.GuideHelper;
 
 import butterknife.ButterKnife;
 
@@ -19,8 +23,8 @@ import butterknife.ButterKnife;
 
 public abstract class BaseActivity extends AppCompatActivity implements AppComponentContext{
 
-
     private final GlideAppImageComponent mGaic = new GlideAppImageComponent();
+    private AppGuideComponent mGuideCP;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,9 +68,17 @@ public abstract class BaseActivity extends AppCompatActivity implements AppCompo
     public AppImageComponent getAppImageComponent() {
         return mGaic;
     }
+
     @Override
-    public AppToastComponent getToastWindow() {
-        return null;
+    public AppGuideComponent getAppGuideComponent() {
+        if(mGuideCP == null){
+            mGuideCP = new GuideHelper(this, getLayoutId());
+        }
+        return mGuideCP ;
+    }
+    @Override
+    public AppToastComponent getAppToastComponent() {
+        return AppToastComponentImpl.create(this);
     }
     @Override
     public AppLoadingComponent getAppLoadingComponent() {

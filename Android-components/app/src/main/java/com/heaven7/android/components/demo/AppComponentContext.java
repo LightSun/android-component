@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import com.heaven7.android.component.guide.AppGuideComponent;
 import com.heaven7.android.component.image.AppImageComponent;
 import com.heaven7.android.component.loading.AppLoadingComponent;
 import com.heaven7.android.component.toast.AppToastComponent;
@@ -18,18 +19,13 @@ public interface AppComponentContext {
 
     AppImageComponent getAppImageComponent();
     AppLoadingComponent getAppLoadingComponent();
-
+    AppGuideComponent getAppGuideComponent();
+    AppToastComponent getAppToastComponent();
     /**
      * get the layout id.
      * @return the layout id
      */
     int getLayoutId();
-
-    /**
-     * get the toaster.
-     * @return  the {@link Toaster}
-     */
-    AppToastComponent getToastWindow();
 
     /**
      * on initialize

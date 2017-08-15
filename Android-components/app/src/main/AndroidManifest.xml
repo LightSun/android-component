@@ -38,6 +38,8 @@
         </activity>
         <activity android:name=".sample.TestGlideComponentActivity"/>
         <activity android:name=".sample.TestLoadingComponentActivity"/>
+        <activity android:name=".sample.TestGuideActivity"/>
+        <activity android:name=".sample.TestToastActivity"/>
     </application>
 
 </manifest>
