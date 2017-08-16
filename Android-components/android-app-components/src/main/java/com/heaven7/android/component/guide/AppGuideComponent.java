@@ -3,7 +3,52 @@ package com.heaven7.android.component.guide;
 import android.view.View;
 
 /**
- * the guide component
+ * the guide component.
+ * here is a demo:
+ * <pre><code>
+ private void showTip() {
+     mIndex ++ ;
+     final GuideComponent gc = new GuideComponent.Builder()
+     .anchor(mTb_1)
+     .tip(mTip)
+     .location(new RelativeLocation(
+     (byte) ((mIndex % 4) + 1), 40,
+     GuideHelper.RELATIVE_ANCHOR, 0.5f))
+     .build();
+     MainWorker.postDelay(20, new Runnable() {
+            //@Override
+            public void run() {
+                getAppGuideComponent().show(gc, new AppGuideComponent.GuideCallback() {
+                    //@Override
+                    public boolean handleClickRoot(View root) {
+                    Logger.i("TestUiActivity","handleClickRoot","");
+                    return super.handleClickRoot(root);
+                    }
+                    //@Override
+                    public boolean handleClickTip(View tip) {
+                    Logger.i("TestUiActivity","handleClickTip","");
+                    return super.handleClickTip(tip);
+                    }
+                    //@Override
+                    public boolean handleClickAnchor(View copyOfAnchor) {
+                    Logger.i("TestUiActivity","handleClickAnchor","");
+                    return super.handleClickAnchor(copyOfAnchor);
+                    }
+                    //@Override
+                    public void onShow() {
+                    Logger.i("TestUiActivity","onShow","");
+                    super.onShow();
+                    }
+                    //@Override
+                    public void onDismiss() {
+                    Logger.i("TestUiActivity","onDismiss","");
+                    super.onDismiss();
+                    }
+               });
+            }
+    });
+ }
+ * </code></pre>
  * Created by heaven7 on 2017/8/14 0014.
  */
 

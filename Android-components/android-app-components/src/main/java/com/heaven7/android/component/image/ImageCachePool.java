@@ -5,6 +5,42 @@ import android.graphics.Bitmap;
 
 /**
  * the image(bitmap) pool contains:  memory cache and disk cache.
+ * <p><h2>Here is a sample implements of Glide.</h2></p>
+ * <pre><code>
+ public class GlideCachePool implements ImageCachePool {
+
+     private final com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool mImpl;
+
+     public GlideCachePool(com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool mImpl) {
+         this.mImpl = mImpl;
+     }
+
+     //@Override
+     public boolean put(String key, Bitmap bitmap) {
+         return mImpl.put(bitmap);
+     }
+
+     //@Override
+     public Bitmap get(String key, int width, int height, Bitmap.Config config) {
+         return mImpl.get(width, height, config);
+     }
+
+     //@Override
+     public void clearMemory() {
+         mImpl.clearMemory();
+     }
+
+     //@Override
+     public void trimMemory(int level) {
+         mImpl.trimMemory(level);
+     }
+
+     //@Override
+     public void clearDiskCache(Context context) {
+         Glide.get(context).clearDiskCache();
+     }
+ }
+ * </code></pre>
  * Created by heaven7 on 2017/8/15 0015.
  * @since 1.0.1
  */

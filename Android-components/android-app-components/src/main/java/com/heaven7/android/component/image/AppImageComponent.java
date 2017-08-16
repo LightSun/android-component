@@ -4,6 +4,29 @@ import android.content.Context;
 
 /**
  * image component of android application
+ * here is the Editor demo.<pre><code>
+getAppImageComponent().newEditor(this)
+     .load(TestUtil.TEST_IMAGE)
+     .placeholder(R.mipmap.ic_launcher)
+     .override(450, 300)
+     .diskCacheFlags(ImageRequestEditor.FLAG_CACHE_SOURCE)
+     // .transform(new CenterCropTransformer())
+     .round(30)
+     // .callback()
+     .into(mIv1);
+ * </code></pre>
+ * And here is the memory manage demo. In Activity.
+ * <pre><code>
+public void onLowMemory() {
+super.onLowMemory();
+getAppImageComponent().getBitmapPool(this).clearMemory();
+}
+
+ public void onTrimMemory(int level) {
+ super.onTrimMemory(level);
+ getAppImageComponent().getBitmapPool(this).trimMemory(level);
+ }
+ * </code></pre>
  * Created by heaven7 on 2017/8/14 0014.
  * @since 1.0.1
  */
