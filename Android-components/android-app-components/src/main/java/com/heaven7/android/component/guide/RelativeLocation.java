@@ -14,8 +14,8 @@ public final class RelativeLocation {
 
     private final byte relativeType;
     /**
-     * offset of center, top and left is positive, right bottom is negative.
-     * may be percent of sth.
+     * offset of center, top and left is positive, right and bottom is negative.
+     * may be percent of sth(such as anchor width or tip width).
      *
      * @see AppGuideComponent#ABSOLUTE
      * @see AppGuideComponent#RELATIVE_ANCHOR
@@ -44,7 +44,8 @@ public final class RelativeLocation {
      * @param alignType        the align type. see {@linkplain AppGuideComponent#ALIGN_BOTTOM} and etc.
      * @param margin       the margin of align
      * @param relativeType the relative type . see {@link AppGuideComponent#ABSOLUTE} and etc.
-     * @param offsetValue  the offset value. may be absolute value of relative value.
+     * @param offsetValue  the base offset value. may be multiply by relative.
+     *                     see {@linkplain AppGuideComponent#RELATIVE_ANCHOR}, {@linkplain AppGuideComponent#RELATIVE_TIP}.
      * @see AppGuideComponent#ABSOLUTE
      * @see AppGuideComponent#RELATIVE_TIP
      * @see AppGuideComponent#RELATIVE_ANCHOR
