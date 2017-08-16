@@ -5,7 +5,16 @@ import android.view.View;
 /**
  * the guide component indicate a component of guide.
  * that means a guide may contains multi components of guide.
- *
+ * <p><h2>Here is a demo create guide Component.</h2></p>
+ * <pre><code>
+ final GuideComponent gc = new GuideComponent.Builder()
+     .anchor(mTb_1)
+     .tip(mTip)
+     .location(new RelativeLocation(
+     (byte) ((mIndex % 4) + 1), 40,
+     GuideHelper.RELATIVE_ANCHOR, 0.5f))
+     .build();
+ * </code></pre>
  * @author heaven7
  */
 public final class GuideComponent {
