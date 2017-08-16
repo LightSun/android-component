@@ -35,7 +35,7 @@ dependencies {
     compile 'com.heaven7.core.adapter:adapter:1.8.8'
     compile 'com.heaven7.java.base:Java-base:1.0.9'
     compile 'com.heaven7.core.util:util-v1:1.1.2'
-    compile 'com.heaven7.android.util2:android-util2:1.0.7'
+    compile 'com.heaven7.android.util2:android-util2:1.0.8'
     compile 'com.heaven7.android.pullrefresh2:android-pullrefreshview2:1.0'
 
     compile 'com.jakewharton:butterknife:8.4.0'
@@ -44,5 +44,5 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
 
     //compile project(':android-app-components')
-    compile 'com.heaven7.android.component:android-app-components:1.0.2'
+    compile 'com.heaven7.android.component:android-app-components:1.0.4'
 }

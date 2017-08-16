@@ -13,6 +13,7 @@ import com.heaven7.android.component.loading.AppLoadingComponent;
 import com.heaven7.android.component.toast.AppToastComponent;
 import com.heaven7.android.components.demo.imageimpl.GlideAppImageComponent;
 import com.heaven7.android.components.demo.toastimpl.AppToastComponentImpl;
+import com.heaven7.android.util2.BackKeyListener;
 import com.heaven7.android.util2.GuideHelper;
 
 import butterknife.ButterKnife;
@@ -46,6 +47,13 @@ public abstract class BaseActivity extends AppCompatActivity implements AppCompo
                 contentView.addView(statusBarView, lp);
             }
         }*/
+        //register back key listener of guide.
+        getAppGuideComponent().setOnKeyListener(new BackKeyListener() {
+            @Override
+            protected void onBackPressed() {
+                getAppGuideComponent().dismiss();
+            }
+        });
     }
 
     @Override
@@ -60,9 +68,7 @@ public abstract class BaseActivity extends AppCompatActivity implements AppCompo
         getAppImageComponent().getBitmapPool(this).trimMemory(level);
     }
 
-    protected void onPreSetContentView() {
-
-    }
+    //======================================================================
 
     @Override
     public AppImageComponent getAppImageComponent() {
@@ -76,6 +82,7 @@ public abstract class BaseActivity extends AppCompatActivity implements AppCompo
         }
         return mGuideCP ;
     }
+
     @Override
     public AppToastComponent getAppToastComponent() {
         return AppToastComponentImpl.create(this);
@@ -83,5 +90,9 @@ public abstract class BaseActivity extends AppCompatActivity implements AppCompo
     @Override
     public AppLoadingComponent getAppLoadingComponent() {
         return null;
+    }
+
+    protected void onPreSetContentView() {
+
     }
 }
