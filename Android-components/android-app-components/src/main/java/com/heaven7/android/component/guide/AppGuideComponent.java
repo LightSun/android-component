@@ -123,6 +123,7 @@ public interface AppGuideComponent {
      * Key presses in software input methods will generally not trigger the methods of
      * this listener.
      * @param l the key listener to attach to this view(root of this guide)
+     * @since 1.0.4
      */
     void setOnKeyListener(View.OnKeyListener l);
 
