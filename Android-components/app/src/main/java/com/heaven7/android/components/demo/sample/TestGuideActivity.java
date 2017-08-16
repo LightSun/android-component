@@ -16,7 +16,6 @@ import com.heaven7.android.components.demo.R;
 import com.heaven7.android.util2.GuideHelper;
 import com.heaven7.core.util.Logger;
 import com.heaven7.core.util.MainWorker;
-import com.heaven7.java.base.util.ArrayUtils;
 
 import butterknife.BindView;
 import butterknife.OnClick;

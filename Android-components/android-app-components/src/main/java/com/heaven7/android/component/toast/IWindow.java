@@ -5,6 +5,7 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -122,6 +123,19 @@ public interface IWindow {
      * @return this.
      */
     IWindow position(int x, int y);
+
+
+    /**
+     * set key listener . The key listener only works when {@linkplain android.view.WindowManager.LayoutParams#flags}
+     * has flag of {@linkplain android.view.WindowManager.LayoutParams#FLAG_KEEP_SCREEN_ON} and
+     * exclude {@linkplain android.view.WindowManager.LayoutParams#FLAG_NOT_FOCUSABLE} with
+     * {@linkplain android.view.WindowManager.LayoutParams#FLAG_NOT_TOUCHABLE}.
+     * So if you want to enable this listener. you can just call {@link #enableClick(boolean)} with true.
+     * @param l the key listener.
+     * @return this.
+     * @since 1.0.3
+     */
+    IWindow setOnKeyListener(View.OnKeyListener l);
 
     /**
      * show the window.
