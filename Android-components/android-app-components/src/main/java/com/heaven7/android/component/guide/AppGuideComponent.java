@@ -118,4 +118,12 @@ public interface AppGuideComponent {
      */
     void dismiss();
 
+    /**
+     * Register a callback to be invoked when a hardware key is pressed in this view.
+     * Key presses in software input methods will generally not trigger the methods of
+     * this listener.
+     * @param l the key listener to attach to this view(root of this guide)
+     */
+    void setOnKeyListener(View.OnKeyListener l);
+
 }
