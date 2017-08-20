@@ -1,15 +1,15 @@
 package com.heaven7.java.logic;
 
+import com.heaven7.java.base.util.DefaultPrinter;
+import com.heaven7.java.base.util.SparseArray;
+import com.heaven7.java.base.util.Throwables;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.heaven7.java.base.util.DefaultPrinter;
-import com.heaven7.java.base.util.SparseArray;
-import com.heaven7.java.base.util.Throwables;
 
 /**
  * the logic manager help we handle an order logic tasks. it can run a
@@ -81,8 +81,8 @@ public final class LogicManager extends ContextDataImpl {
 	 * cancel the task which is assigned by target key.
 	 * 
 	 * @param key
-	 *            the key . see {@linkplain #performParallel(List, Runnable)} or
-	 *            {@linkplain #performSequence(List, Runnable)}.
+	 *            the key . see {@linkplain #performParallel(List, LogicResultListener)} or
+	 *            {@linkplain #performParallel(List, int, LogicResultListener)} .
 	 */
 	public void cancel(int key) {
 		cancelByKey(key, false);
@@ -226,9 +226,6 @@ public final class LogicManager extends ContextDataImpl {
 	 * @param listener
 	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
 	 *            can be null.
-	 * @param flags 
-	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
-	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored. 
 	 * @return the key of this operation.
 	 * @see #performSequence(List, int, LogicResultListener)
 	 * @see #performSequence(LogicTask[], int, LogicResultListener)
@@ -263,9 +260,6 @@ public final class LogicManager extends ContextDataImpl {
 	 * @param listener
 	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
 	 *            can be null.
-	 * @param flags 
-	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
-	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.  
 	 * @return the key of this operation.
 	 * @see #performSequence(LogicTask[], int, LogicResultListener)
 	 * @see #performSequence(List, int, LogicResultListener)
@@ -305,9 +299,6 @@ public final class LogicManager extends ContextDataImpl {
 	 * @param listener
 	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
 	 *            can be null.
-	 * @param flags 
-	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
-	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.  
 	 * @return the key of this operation.
 	 * @see #performSequence(List, int, LogicResultListener)
 	 * @see #performSequence(LogicTask[], int, LogicResultListener)
@@ -344,9 +335,6 @@ public final class LogicManager extends ContextDataImpl {
 	 * @param listener
 	 *            the logic tasks perform result listener. called on all tasks perform done.(may success or failed.
 	 *            can be null.
-	 * @param flags 
-	 *            the flags of all tasks. see {@linkplain #FLAG_SHARE_TO_NEXT} /{@linkplain #FLAG_SHARE_TO_POOL}. 
-	 *            in sequence task, flag of {@linkplain #FLAG_ALLOW_FAILED} is ignored.            
 	 * @return the key of this operation.
 	 * @see #performParallel(List, int, LogicResultListener)
 	 * @see #performParallel(LogicTask[], int, LogicResultListener)
@@ -518,7 +506,7 @@ public final class LogicManager extends ContextDataImpl {
 	}
 
 	/**
-	 * the internal parallel callback. if any task perform failed . mark failed. later {@linkplain LogicResultListener#onFailed(List, Object, List)}
+	 * the internal parallel callback. if any task perform failed . mark failed. later {@linkplain LogicResultListener#onFailed(LogicManager, List, Object, List)}.
 	 * will be called.
 	 * 
 	 * @author heaven7
@@ -636,7 +624,8 @@ public final class LogicManager extends ContextDataImpl {
 	}
 
 	/**
-	 * the sequence callback, if any task perform failed . mark failed. call {@linkplain LogicResultListener#onFailed(List, Object, List)} immediately.
+	 * the sequence callback, if any task perform failed . mark failed. call
+	 * {@linkplain LogicResultListener#onFailed(LogicManager, List, Object, List)}  immediately.
 	 * 
 	 * @author heaven7
 	 */

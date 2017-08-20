@@ -1,12 +1,12 @@
 package com.heaven7.java.logic;
 
+import com.heaven7.java.base.anno.Nullable;
+import com.heaven7.java.base.util.DefaultPrinter;
+
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-
-import com.heaven7.java.base.anno.Nullable;
-import com.heaven7.java.base.util.DefaultPrinter;
 
 /**
  * the base logic action. define common method.
@@ -250,8 +250,6 @@ import com.heaven7.java.base.util.DefaultPrinter;
 	 * 
 	 * @param tag
 	 *            the tag
-	 * @param immediately
-	 *            true if cancel immediately.
 	 */
 	protected void cancelImpl(int tag) {
 
@@ -259,8 +257,7 @@ import com.heaven7.java.base.util.DefaultPrinter;
 	
 
 	/**
-	 * called on cancel. this is only called when , often called by
-	 * {@linkplain #onLogicSuccess(int)}}.
+	 * called on cancel. this is only called when logic is cancelled.,
 	 * 
 	 * @param tag
 	 *            the tag .
@@ -284,7 +281,7 @@ import com.heaven7.java.base.util.DefaultPrinter;
 	 *             the logic result.          
 	 * @return true if success. default is true. this will effect the callback.
 	 *         only true the callbacks can be invoke, false not invoke.
-	 * @see {@linkplain #dispatchResult(int, int)}
+	 * @see {@linkplain #dispatchResult(int, LogicResult)}
 	 */
 
 	protected boolean onLogicResult(int tag, LogicParam lm, LogicResult result) {
@@ -317,12 +314,12 @@ import com.heaven7.java.base.util.DefaultPrinter;
 		/** the delay of perform */
 		private final AtomicLong delay;
 		/** the scheduler thread which the perform will run on. 
-		 * @see LogicAction#perform(int, LogicParam) */
+		 * @see LogicAction#perform(int, LogicParam, int) */
 		private final AtomicReference<Scheduler> schedulerOn;
 		/** the scheduler thread which the callback will run on*/
 		private final AtomicReference<Scheduler> observeOn;
 		/** keep a weak reference of the perform runnable.
-		 * @see  LogicAction#perform(int, LogicParam) */
+		 * @see  LogicAction#perform(int, LogicParam, int) */
 		private WeakReference<Runnable> mWeakScheduleTask;
 		
 		public ScheduleHandler() {
