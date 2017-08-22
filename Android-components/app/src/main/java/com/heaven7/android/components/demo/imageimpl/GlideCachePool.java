@@ -40,6 +40,12 @@ public class GlideCachePool implements ImageCachePool {
 
     @Override
     public void clearDiskCache(Context context) {
-        Glide.get(context).clearDiskCache();
+        final Glide glide = Glide.get(context.getApplicationContext());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                glide.clearDiskCache();
+            }
+        }).start();
     }
 }
