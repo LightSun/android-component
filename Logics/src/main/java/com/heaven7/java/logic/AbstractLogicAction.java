@@ -1,14 +1,14 @@
 package com.heaven7.java.logic;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import com.heaven7.java.base.util.SparseArray;
 import com.heaven7.java.base.util.Throwables;
+
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * the logic action. support async and count analyse. default support multi tag
  * in one {@linkplain AbstractLogicAction}. you should call
- * {@link #dispatchResult(int, int)} in
+ * {@link #dispatchResult(int, LogicResult)} in
  * {@linkplain #performImpl(int, int, LogicParam)} or it's relative method.
  * <p>this class is thread safe.</p>
  * Created by heaven7 on 2017/6/17.
@@ -38,7 +38,7 @@ public abstract class AbstractLogicAction extends BaseLogicAction {
 	 * 
 	 * @param wantCount
 	 *            true if you want to COUNT the count of perform assigned tag.
-	 * @see #perform(int, LogicParam)
+	 * @see #perform(int, LogicParam, int)
 	 */
 	public AbstractLogicAction(boolean wantCount) {
 		this.mCallbacks = new SparseArray<CopyOnWriteArrayList<LogicCallback>>(4);

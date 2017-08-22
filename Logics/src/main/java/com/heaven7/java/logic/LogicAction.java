@@ -51,7 +51,7 @@ public interface LogicAction extends ContextData {
      * make the logic action schedule/perform on the target scheduler.
      * @param scheduler the target scheduler. if null means clear scheduler.
      * @param tag the tag which scheduler apply to. 
-     * @see #perform(int, LogicParam)
+     * @see #perform(int, LogicParam, int)
      */
     void scheduleOn(int tag, @Nullable Scheduler scheduler);
     
@@ -66,7 +66,7 @@ public interface LogicAction extends ContextData {
      * make the logic action observe/callback on the target scheduler.
      * @param scheduler the target scheduler. if null means clear scheduler.
      * @param tag the tag which scheduler apply to.
-     * @see #perform(int, LogicParam)
+     * @see #perform(int, LogicParam, int)
      */
     void observeOn(int tag, @Nullable Scheduler scheduler);
 
@@ -84,7 +84,6 @@ public interface LogicAction extends ContextData {
      * cancel this logic immediately or not.
      *
      * @param tag         the tag of this task.
-     * @param immediately true to cancel immediately. current often is true.
      */
     void cancel(int tag);
 
@@ -96,7 +95,6 @@ public interface LogicAction extends ContextData {
 	boolean isRunning(int tag);
 	 /**
      * indicate  any tag of this logic action is running or not.
-     * @param tag  the tag
      * @return true if any tag of this logic action is running
      */
 	boolean isRunning();
@@ -129,7 +127,7 @@ public interface LogicAction extends ContextData {
 
 	 /**
     * dispatch the tag result for target tag. subclass should call this in 
-    *    {@linkplain #perform(int, LogicParam)} or relative method.
+    *    {@linkplain #perform(int, LogicParam, int)}  or its' relative method.
     *
     * @param tag        the tag
     * @param result the result of perform.

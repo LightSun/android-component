@@ -23,7 +23,7 @@ public interface LogicResultListener {
 	 * @param lastResult
 	 *            the last task performed result. if tasks is run asynchronous
 	 *            and
-	 *            {@linkplain LogicManager#performParallel(List, LogicRunner)}
+	 *            {@linkplain LogicManager#performParallel(List, int, LogicResultListener)} or relative method
 	 *            is called. this result can't be sure to a fixed type.
 	 * @param results
 	 *            the pool results of all logic-action performed. may be null.
