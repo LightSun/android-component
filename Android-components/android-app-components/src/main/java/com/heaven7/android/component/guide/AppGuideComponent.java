@@ -1,6 +1,7 @@
 package com.heaven7.android.component.guide;
 
 import android.view.View;
+import android.widget.FrameLayout;
 
 /**
  * the guide component.
@@ -134,6 +135,24 @@ public interface AppGuideComponent {
         public void onDismiss() {
 
         }
+
+        /*
+         * called on adjust anchor layout params which is a copy of anchor view .
+         * @param mlp the layout params of the copy view of anchor.
+         * @since 1.0.5
+         */
+        /*public void onAdjustLayoutParamsForAnchor(FrameLayout.MarginLayoutParams mlp){
+
+        }*/
+        /*
+         * called on adjust tip view layout params.
+         * @param mlp the layout params of the copy view of anchor.
+         * @since 1.0.5
+         */
+       /* public void onAdjustLayoutParamsForTip(FrameLayout.MarginLayoutParams mlp){
+
+        }*/
+
     }
 
     /**
