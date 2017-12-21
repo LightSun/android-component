@@ -1,12 +1,10 @@
 package com.heaven7.android.components.demo;
 
-import android.content.pm.ProviderInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.view.ViewGroup;
 
+import com.heaven7.android.component.AppComponentFactory;
+import com.heaven7.android.component.AppComponentOwner;
 import com.heaven7.android.component.guide.AppGuideComponent;
 import com.heaven7.android.component.image.AppImageComponent;
 import com.heaven7.android.component.loading.AppLoadingComponent;
@@ -22,15 +20,40 @@ import butterknife.ButterKnife;
  * Created by heaven7 on 2017/8/15 0015.
  */
 
-public abstract class BaseActivity extends AppCompatActivity implements AppComponentContext{
+public abstract class BaseActivity extends AppCompatActivity implements AppContext{
 
-    private final GlideAppImageComponent mGaic = new GlideAppImageComponent();
-    private AppGuideComponent mGuideCP;
+    private AppComponentOwner mAppComponentOwner;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        mAppComponentOwner = new AppComponentOwner(this, new AppComponentFactory() {
+            @Override
+            public AppImageComponent onCreateAppImageComponent(AppCompatActivity activity) {
+                return new GlideAppImageComponent();
+            }
+            @Override
+            public AppLoadingComponent onCreateAppLoadingComponent(AppCompatActivity activity) {
+                return BaseActivity.this.onCreateAppLoadingComponent();
+            }
+            @Override
+            public AppGuideComponent onCreateAppGuideComponent(AppCompatActivity activity) {
+                final GuideHelper helper = new GuideHelper(activity, getLayoutId());
+                //register back key listener of guide.
+                helper.setOnKeyListener(new BackKeyListener() {
+                    @Override
+                    protected void onBackPressed() {
+                        getAppGuideComponent().dismiss();
+                    }
+                });
+                return helper;
+            }
+            @Override
+            public AppToastComponent onCreateAppToastComponent(AppCompatActivity activity) {
+                return AppToastComponentImpl.create(activity);
+            }
+        });
+
         super.onCreate(savedInstanceState);
-        onPreSetContentView();
 
         setContentView(getLayoutId());
         ButterKnife.bind(this);
@@ -47,40 +70,29 @@ public abstract class BaseActivity extends AppCompatActivity implements AppCompo
                 contentView.addView(statusBarView, lp);
             }
         }*/
-        //register back key listener of guide.
-        getAppGuideComponent().setOnKeyListener(new BackKeyListener() {
-            @Override
-            protected void onBackPressed() {
-                getAppGuideComponent().dismiss();
-            }
-        });
+    }
+
+    protected AppLoadingComponent onCreateAppLoadingComponent() {
+        return null;
     }
 
     //======================================================================
-
     @Override
     public AppImageComponent getAppImageComponent() {
-        return mGaic;
+        return mAppComponentOwner.getAppImageComponent();
     }
 
     @Override
     public AppGuideComponent getAppGuideComponent() {
-        if(mGuideCP == null){
-            mGuideCP = new GuideHelper(this, getLayoutId());
-        }
-        return mGuideCP ;
+        return mAppComponentOwner.getAppGuideComponent() ;
     }
 
     @Override
     public AppToastComponent getAppToastComponent() {
-        return AppToastComponentImpl.create(this);
+        return mAppComponentOwner.getAppToastComponent();
     }
     @Override
     public AppLoadingComponent getAppLoadingComponent() {
-        return null;
-    }
-
-    protected void onPreSetContentView() {
-
+        return mAppComponentOwner.getAppLoadingComponent();
     }
 }

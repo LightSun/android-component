@@ -1,7 +1,6 @@
 package com.heaven7.android.component.guide;
 
 import android.view.View;
-import android.widget.FrameLayout;
 
 /**
  * the guide component.

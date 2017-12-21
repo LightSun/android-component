@@ -3,7 +3,7 @@ package com.heaven7.android.components.demo.sample;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import com.heaven7.android.component.image.ImageRequestEditor;
 import com.heaven7.android.components.demo.BaseActivity;
 import com.heaven7.android.components.demo.R;
-import com.heaven7.android.components.demo.imageimpl.CenterCropTransformer;
 import com.heaven7.android.components.demo.util.LogImageLoadCallback;
 import com.heaven7.android.components.demo.util.TestUtil;
 
@@ -51,8 +50,9 @@ public class TestGlideComponentActivity extends BaseActivity{
 
     @OnClick(R.id.bt1)
     public void onClickBt1(View v){
-        //showByCallback();
-        showByIntoFromFile();
+
+        showByCallback();
+        //showByIntoFromFile();
     }
 
     private void showByInto() {
@@ -90,6 +90,11 @@ public class TestGlideComponentActivity extends BaseActivity{
                 //.round(30)      //ok
                 .circle(10, Color.RED)
                 .callback(new LogImageLoadCallback(){
+                    @Override
+                    public void onLoadStarted(String key, Drawable placeholder) {
+                        super.onLoadStarted(key, placeholder);
+                        mIv1.setImageDrawable(placeholder);
+                    }
                     @Override
                     public void onLoadComplete(String key, Bitmap result) {
                         super.onLoadComplete(key, result);

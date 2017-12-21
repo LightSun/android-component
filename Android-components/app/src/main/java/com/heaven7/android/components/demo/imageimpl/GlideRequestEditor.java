@@ -21,7 +21,6 @@ import com.heaven7.core.util.Logger;
 import com.heaven7.java.base.util.Throwables;
 
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -225,14 +224,9 @@ public class GlideRequestEditor implements ImageRequestEditor {
     private class InternalListener implements RequestListener<Object, GlideDrawable> {
 
         final ImageLoadCallback mCallback;
-        WeakReference<ImageView> mWeakRef;
 
         public InternalListener(ImageLoadCallback mCallback) {
             this.mCallback = mCallback;
-        }
-
-        public void attachImageView(ImageView view){
-            mWeakRef = new WeakReference<ImageView>(view);
         }
 
         @Override

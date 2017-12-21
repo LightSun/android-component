@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
-import android.widget.Toast;
 
 import com.heaven7.adapter.BaseSelector;
 import com.heaven7.adapter.QuickRecycleViewAdapter;
@@ -13,7 +12,6 @@ import com.heaven7.android.component.loading.AppLoadingComponent;
 import com.heaven7.android.components.demo.BaseActivity;
 import com.heaven7.android.components.demo.R;
 import com.heaven7.android.components.demo.loadingimpl.AppLoadingComponentImpl;
-import com.heaven7.android.pullrefresh.LoadingFooterView;
 import com.heaven7.android.pullrefresh.PullToRefreshLayout;
 import com.heaven7.core.util.Logger;
 import com.heaven7.core.util.MainWorker;
@@ -39,7 +37,6 @@ public class TestLoadingComponentActivity extends BaseActivity{
     PullToRefreshLayout mPullView;
 
     private QuickRecycleViewAdapter<TestBean> mAdapter;
-    private AppLoadingComponent mAIC;
 
     @Override
     public int getLayoutId() {
@@ -47,13 +44,9 @@ public class TestLoadingComponentActivity extends BaseActivity{
     }
 
     @Override
-    public AppLoadingComponent getAppLoadingComponent() {
-        if(mAIC == null){
-            mAIC = new AppLoadingComponentImpl(mPullView);
-        }
-        return mAIC;
+    protected AppLoadingComponent onCreateAppLoadingComponent() {
+        return new AppLoadingComponentImpl(mPullView);
     }
-
     @Override
     public void onInitialize(Context context, @Nullable Bundle savedInstanceState) {
         getAppLoadingComponent().setLayoutManager(new LinearLayoutManager(context));
