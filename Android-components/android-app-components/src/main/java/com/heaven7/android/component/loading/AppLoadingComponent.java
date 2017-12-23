@@ -4,6 +4,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.heaven7.android.component.AppComponentContext;
+
 /**
  * this is a specification of android application loading component.
  * <p>here is a demo(from sample code). </p>
@@ -114,7 +116,7 @@ public class TestLoadingComponentActivity extends BaseActivity{
   * </code></pre>
  * Created by heaven7 on 2017/7/10 0010.
  */
-public interface AppLoadingComponent {
+public interface AppLoadingComponent extends AppComponentContext{
 
     /**
      * the loading state: normal.

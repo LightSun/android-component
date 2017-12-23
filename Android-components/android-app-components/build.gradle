@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 26
@@ -7,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 105
-        versionName "1.0.5"
+        versionCode 106
+        versionName "1.0.6"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -22,12 +23,13 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    //compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile "com.android.support:recyclerview-v7:26.1.0"
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation "com.android.support:recyclerview-v7:26.1.0"
+    implementation 'com.heaven7.java.base:Java-base:1.1.0'
 
     //compile 'com.heaven7.java.base:Java-base:1.0.9'
     //compile 'com.heaven7.core.util:util-v1:1.1.2'
@@ -61,6 +63,15 @@ ext {
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
     allLicenses = ["Apache-2.0"]
 }
+publish {
+    userOrg = 'lightsun'
+    groupId = 'com.heaven7.android.component'
+    artifactId = 'android-app-components'
+    publishVersion = android.defaultConfig.versionName
+    desc = 'Android Library of some app components'
+    website = 'https://github.com/LightSun/android-component'
+}
+//gradlew clean build bintrayUpload -PbintrayUser=BINTRAY_USERNAME -PbintrayKey=BINTRAY_KEY -PdryRun=false
 
 //apply from: 'https://raw.githubusercontent.com/nisrulz/JCenter/master/installv1.gradle'
 //apply from: 'https://raw.githubusercontent.com/nisrulz/JCenter/master/bintrayv1.gradle'

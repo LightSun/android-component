@@ -1,5 +1,7 @@
 package com.heaven7.android.component.toast;
 
+import com.heaven7.android.component.AppComponentContext;
+
 /**
  * the toast component.
  * <p>Here is some test code.</p>
@@ -49,6 +51,6 @@ package com.heaven7.android.component.toast;
  * Created by heaven7 on 2017/8/14 0014.
  */
 
-public interface AppToastComponent extends IWindow {
+public interface AppToastComponent extends IWindow, AppComponentContext {
 
 }

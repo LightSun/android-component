@@ -2,6 +2,8 @@ package com.heaven7.android.component.image;
 
 import android.content.Context;
 
+import com.heaven7.android.component.AppComponentContext;
+
 /**
  * image component of android application
  * here is the Editor demo.<pre><code>
@@ -31,7 +33,7 @@ getAppImageComponent().getBitmapPool(this).clearMemory();
  * @since 1.0.1
  */
 
-public interface AppImageComponent {
+public interface AppImageComponent extends AppComponentContext{
 
 
     /**

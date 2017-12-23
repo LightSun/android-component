@@ -7,7 +7,7 @@ import android.content.Context;
  * Created by heaven7 on 2017/12/20.
  * @since 1.0.5
  */
-public interface LifeCycleContext {
+public interface LifeCycleComponent {
 
     int ON_CREATE  = 0x00000001;
     int ON_START   = 0x00000002;

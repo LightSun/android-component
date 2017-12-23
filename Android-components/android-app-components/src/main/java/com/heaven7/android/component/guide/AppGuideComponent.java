@@ -2,6 +2,8 @@ package com.heaven7.android.component.guide;
 
 import android.view.View;
 
+import com.heaven7.android.component.AppComponentContext;
+
 /**
  * the guide component.
  * here is a demo:
@@ -52,7 +54,7 @@ import android.view.View;
  * Created by heaven7 on 2017/8/14 0014.
  */
 
-public interface AppGuideComponent {
+public interface AppGuideComponent extends AppComponentContext{
 
     /**
      * align direction: left
