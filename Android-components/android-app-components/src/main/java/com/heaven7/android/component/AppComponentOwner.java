@@ -34,6 +34,10 @@ import static com.heaven7.android.component.lifecycle.LifeCycleComponent.ON_STOP
 /**
  * the app component owner.
  * Created by heaven7 on 2017/8/15 0015.
+ * @see AppImageComponent
+ * @see AppLoadingComponent
+ * @see AppToastComponent
+ * @see AppGuideComponent
  *
  * @since 1.0.5
  */
@@ -51,17 +55,22 @@ public class AppComponentOwner implements LifecycleObserver {
     /**
      * create app-component context. this should be called before 'super.onCreate(saveInstanceState)'
      *
-     * @param activity         the activity context
-     * @param componentFactory the component factory
+     * @param activity  the activity context
+     * @param factory   the component factory
      */
-    public AppComponentOwner(@NonNull AppCompatActivity activity, AppComponentFactory componentFactory) {
+    public AppComponentOwner(@NonNull AppCompatActivity activity, @NonNull AppComponentFactory factory) {
         this.mContext = activity;
-        this.mFactory = componentFactory;
+        this.mFactory = factory;
         this.mWeakLives = new ArrayList<>(8);
         activity.getLifecycle().addObserver(this);
         // ReportFragment.injectIfNeededIn(activity);
     }
 
+    /**
+     * get the activity.
+     * @param <T> the activity type
+     * @return the activity
+     */
     @SuppressWarnings("unchecked")
     public final <T extends AppCompatActivity> T getActivity() {
         return (T) mContext;
@@ -74,6 +83,17 @@ public class AppComponentOwner implements LifecycleObserver {
      */
     public final void registerLifeCycleComponent(LifeCycleComponent component) {
         mWeakLives.add(new SmartReference0(component));
+    }
+
+    /**
+     * register the life cycle component as weakly..
+     * @param component  the life cycle component which will be weak reference
+     * @since 1.0.7
+     */
+    public final void registerLifeCycleComponentWeakly(LifeCycleComponent component) {
+        final SmartReference0 srf = new SmartReference0(component);
+        srf.tryWeakReference();
+        mWeakLives.add(srf);
     }
 
     /**
