@@ -1,6 +1,7 @@
 package com.heaven7.android.component;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
@@ -86,6 +87,15 @@ public class AppComponentOwner implements LifecycleObserver {
     }
 
     /**
+     * unregister the life cycle component
+     * @param component the life cycle component
+     * @since 1.0.6
+     */
+    public final void unregisterLifeCycleComponent(LifeCycleComponent component) {
+        findLifeCycleComponent(component, true);
+    }
+
+    /**
      * register the life cycle component as weakly..
      * @param component  the life cycle component which will be weak reference
      * @since 1.0.7
@@ -94,15 +104,6 @@ public class AppComponentOwner implements LifecycleObserver {
         final SmartReference0 srf = new SmartReference0(component);
         srf.tryWeakReference();
         mWeakLives.add(srf);
-    }
-
-    /**
-     * unregister the life cycle component
-     * @param component the life cycle component
-     * @since 1.0.6
-     */
-    public final void unregisterLifeCycleComponent(LifeCycleComponent component) {
-        findLifeCycleComponent(component, true);
     }
 
     /**
@@ -247,7 +248,8 @@ public class AppComponentOwner implements LifecycleObserver {
                     || t instanceof Context
                     || t instanceof Fragment
                     || t instanceof android.support.v4.app.Fragment
-                    || t instanceof View;
+                    || t instanceof View
+                    || t instanceof Dialog;
         }
 
         @Override

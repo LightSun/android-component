@@ -40,13 +40,25 @@ public interface AppComponentFactory {
     /**
      * called on create app image component.
      * @param activity the activity
-     * @return
+     * @return the app image component
      */
     AppImageComponent onCreateAppImageComponent(AppCompatActivity activity);
-
+    /**
+     * called on create app loading component.
+     * @param activity the activity
+     * @return the app loading component
+     */
     AppLoadingComponent onCreateAppLoadingComponent(AppCompatActivity activity);
-
+    /**
+     * called on create app guide component.
+     * @param activity the activity
+     * @return the app guide component
+     */
     AppGuideComponent onCreateAppGuideComponent(AppCompatActivity activity);
-
+    /**
+     * called on create app toast component.
+     * @param activity the activity
+     * @return the app toast component
+     */
     AppToastComponent onCreateAppToastComponent(AppCompatActivity activity);
 }
