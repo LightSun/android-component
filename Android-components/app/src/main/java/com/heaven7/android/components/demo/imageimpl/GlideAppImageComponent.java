@@ -25,6 +25,11 @@ public class GlideAppImageComponent implements AppImageComponent {
     }
 
     @Override
+    public void setPauseWork(boolean paused) {
+
+    }
+
+    @Override
     public void setLoadingImage(int resId) {
 
     }
