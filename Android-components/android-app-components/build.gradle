@@ -8,8 +8,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 107
-        versionName "1.0.7"
+        versionCode 108
+        versionName "1.0.8"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -38,7 +38,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-ext {
+/*ext {
     bintrayRepo = 'maven'
     bintrayName = 'android-app-components'   // Has to be same as your library module name
 
@@ -62,7 +62,7 @@ ext {
     licenseName = 'The Apache Software License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
     allLicenses = ["Apache-2.0"]
-}
+}*/
 publish {
     userOrg = 'lightsun'
     groupId = 'com.heaven7.android.component'

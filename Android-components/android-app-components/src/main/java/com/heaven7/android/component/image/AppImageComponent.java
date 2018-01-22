@@ -1,6 +1,8 @@
 package com.heaven7.android.component.image;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.annotation.IdRes;
 
 import com.heaven7.android.component.AppComponentContext;
 
@@ -35,7 +37,6 @@ getAppImageComponent().getBitmapPool(this).clearMemory();
 
 public interface AppImageComponent extends AppComponentContext{
 
-
     /**
      * new a image request editor.
      * @param context  the context
@@ -52,4 +53,16 @@ public interface AppImageComponent extends AppComponentContext{
      */
     ImageCachePool getBitmapPool(Context context);
 
+    /**
+     * set the loading image to apply to the all image request.
+     * @param resId the image resource id
+     * @since 1.0.8
+     */
+    void setLoadingImage(int resId);
+    /**
+     * set the loading image to apply to the all image request.
+     * @param bitmap the loading bitmap
+     * @since 1.0.8
+     */
+    void setLoadingImage(Bitmap bitmap);
 }

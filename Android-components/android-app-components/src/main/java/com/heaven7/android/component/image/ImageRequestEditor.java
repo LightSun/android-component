@@ -139,6 +139,7 @@ public interface ImageRequestEditor {
      */
     ImageRequestEditor round(float roundSize);
 
+
     /**
      * make the setting of load image apply to the image view.
      * @param view the image view
@@ -146,7 +147,32 @@ public interface ImageRequestEditor {
     void into(ImageView view);
 
     /**
+     * <p>Use {@linkplain #startLoad()} instead.</p>
      * load image immediately
      */
+    @Deprecated
     void load();
+
+    /**
+     * start to load the image immediately.
+     * @since 1.0.8
+     */
+    void startLoad();
+
+    /**
+     * mark the request resource is from local file/uri or not.
+     * @param isLocal true is from local
+     * @return this
+     * @since 1.0.8
+     */
+    ImageRequestEditor markLocal(boolean isLocal);
+
+    /**
+     * mark some video info .
+     * @param fromVideo is from video or not.
+     * @param frameTime the frame time of video. if fromVideo is true.
+     * @return this
+     * @since 1.0.8
+     */
+    ImageRequestEditor markVideo(boolean fromVideo, long frameTime);
 }
