@@ -54,6 +54,13 @@ public interface AppImageComponent extends AppComponentContext{
     ImageCachePool getBitmapPool(Context context);
 
     /**
+     * set the image load paused.
+     * @param paused true to pause .
+     * @since 1.0.9
+     */
+    void setPauseWork(boolean paused);
+
+    /**
      * set the loading image to apply to the all image request.
      * @param resId the image resource id
      * @since 1.0.8

@@ -208,6 +208,22 @@ public class GlideRequestEditor implements ImageRequestEditor {
         mListener = null;
         mRequest.into(sDefault_Target);
     }
+
+    @Override
+    public void startLoad() {
+
+    }
+
+    @Override
+    public ImageRequestEditor markLocal(boolean isLocal) {
+        return null;
+    }
+
+    @Override
+    public ImageRequestEditor markVideo(boolean fromVideo, long frameTime) {
+        return null;
+    }
+
     private void onPreStart() {
         if (mTransformers != null) {
             WrappedBitmapTransformation transformation = new WrappedBitmapTransformation(mContext);

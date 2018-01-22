@@ -1,6 +1,7 @@
 package com.heaven7.android.components.demo.imageimpl;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import com.bumptech.glide.Glide;
 import com.heaven7.android.component.image.AppImageComponent;
@@ -21,6 +22,16 @@ public class GlideAppImageComponent implements AppImageComponent {
     @Override
     public ImageCachePool getBitmapPool(Context context) {
         return new GlideCachePool(Glide.get(context).getBitmapPool());
+    }
+
+    @Override
+    public void setLoadingImage(int resId) {
+
+    }
+
+    @Override
+    public void setLoadingImage(Bitmap bitmap) {
+
     }
 
 }
