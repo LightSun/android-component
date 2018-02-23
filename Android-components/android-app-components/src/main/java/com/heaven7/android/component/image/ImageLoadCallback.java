@@ -32,4 +32,13 @@ public interface ImageLoadCallback {
      * @param result the bitmap.
      */
     void onLoadComplete(String key, Bitmap result);
+
+
+    /**
+     * called on load gif complete
+     * @param key the key of this image request.
+     * @param gif the gif drawable.
+     * @since 1.1.0
+     */
+    void onLoadGifComplete(String key,  Drawable gif);
 }

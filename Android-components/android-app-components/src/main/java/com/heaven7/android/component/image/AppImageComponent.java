@@ -72,4 +72,5 @@ public interface AppImageComponent extends AppComponentContext{
      * @since 1.0.8
      */
     void setLoadingImage(Bitmap bitmap);
+
 }

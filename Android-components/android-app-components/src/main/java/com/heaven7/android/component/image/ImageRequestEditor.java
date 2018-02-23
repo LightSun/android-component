@@ -175,4 +175,13 @@ public interface ImageRequestEditor {
      * @since 1.0.8
      */
     ImageRequestEditor markVideo(boolean fromVideo, long frameTime);
+
+    /**
+     * apply the option for this request.
+     * @param <Option> the option type
+     * @param option the option
+     * @return this
+     * @since 1.1.0
+     */
+    <Option>ImageRequestEditor applyOption(Option option);
 }

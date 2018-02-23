@@ -28,4 +28,9 @@ public class LogImageLoadCallback implements ImageLoadCallback {
     public void onLoadComplete(String key, Bitmap result) {
         Logger.i(TAG,"onLoadComplete","key = " + key);
     }
+
+    @Override
+    public void onLoadGifComplete(String key, Drawable gif) {
+        Logger.i(TAG,"onLoadGifComplete","key = " + key);
+    }
 }

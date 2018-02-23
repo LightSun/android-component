@@ -224,6 +224,12 @@ public class GlideRequestEditor implements ImageRequestEditor {
         return null;
     }
 
+    @Override
+    public <Option> ImageRequestEditor applyOption(Option option) {
+        //ignored
+        return this;
+    }
+
     private void onPreStart() {
         if (mTransformers != null) {
             WrappedBitmapTransformation transformation = new WrappedBitmapTransformation(mContext);
