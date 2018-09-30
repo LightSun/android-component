@@ -55,6 +55,28 @@ public class TestSimpleLogic extends TestCase{
 			}
 		});
 	}
+	public void testCancelAndReset(){
+		LogicTask task1 = LogicTask.ofSimple(new MockSimpleAction(), new LogicParam().setData("testCancel_1"))
+				.schedulerOn(Schedulers.ASYNC)
+				.delay(2500)
+				;
+		final LogicTask task2 = LogicTask.ofSimple(mAction, new LogicParam().setData("testCancel_2"))
+				.schedulerOn(Schedulers.newAsyncScheduler())
+				.delay(3000)
+				;
+		System.out.println("============ testCancel() >>> start time = " + Schedulers.getCurrentTime());
+		final int key = mLm.performParallel(new LogicTask[]{task1, task2 }, 0, new LogListenerImpl("testCancel"));
+		Logger.i(TAG, "testCancel", "key = " + key);
+		Schedulers.newAsyncScheduler().postDelay(2400, new Runnable() {
+			@Override
+			public void run() {
+				mLm.cancel(key);
+				task2.reset();
+				mLm.performSequence(task2 ,0,  new LogListenerImpl("cancel and rerun ok"));
+			}
+		});
+	}
+
 	public void testCancelSequence(){
 		final String method = "testCancelSequence";
 		final LogicTask task1 = LogicTask.ofSimple(new MockSimpleAction(), new LogicParam().setData("testCancelSequence_1"))
@@ -101,7 +123,8 @@ public class TestSimpleLogic extends TestCase{
 		//logic.testNormalAsync();
 		//logic.testNormal();
 		//logic.testCancel();
-		logic.testCancelSequence();
+		logic.testCancelAndReset();
+		//logic.testCancelSequence();
 		//logic.testScheduler();
 	}
 }

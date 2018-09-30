@@ -17,8 +17,8 @@ public class MultiplyTasksTest {
 	public static void main(String[] args) {
 		MultiplyTasksTest test = new MultiplyTasksTest();
 		//test.testShareToPoolWithParallel(false);
-		//test.testShareToNext(true);
-		test.testAllowFailedWithParallel();
+		test.testShareToNextWithSequence(false);
+		//test.testAllowFailedWithParallel();
 	}
 	//sequence tasks
 	public void testShareToNextWithSequence(boolean mockFailed){

@@ -88,6 +88,14 @@ public class LogicTask {
 		action.setDelay(tag, delay);
 		return this;
 	}
+
+	/**
+	 * reset the logic task. this often called after cancel for next run.
+	 * @since 1.0.1
+	 */
+	public void reset(){
+		action.reset(tag);
+	}
 	
 	//======================== private method ==================================
 	
