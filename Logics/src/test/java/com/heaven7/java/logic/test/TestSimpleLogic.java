@@ -4,7 +4,10 @@ import com.heaven7.java.logic.LogicManager;
 import com.heaven7.java.logic.LogicParam;
 import com.heaven7.java.logic.LogicTask;
 
+import com.heaven7.java.logic.LogicTaskGroup;
 import junit.framework.TestCase;
+
+import java.util.Arrays;
 
 public class TestSimpleLogic extends TestCase{
 
@@ -117,14 +120,31 @@ public class TestSimpleLogic extends TestCase{
 				;
 		mLm.performSequence(new LogicTask[]{task1, task2 }, 0, new LogListenerImpl("testScheduler"));
 	}
+
+	public void testTaskGroupSequence(){
+		testTaskGroupSequence(LogicManager.FLAG_SHARE_TO_NEXT | LogicManager.FLAG_SHARE_TO_POOL);
+	}
+	private void testTaskGroupSequence(int performFlags){
+		LogicTask task1 = LogicTask.ofSimple(new MockSimpleAction(), new LogicParam().setData("testScheduler_1"))
+				.schedulerOn(Schedulers.ASYNC)
+				.observeOn(Schedulers.newAsyncScheduler())
+				.delay(2500)
+				;
+		LogicTask task2 = LogicTask.ofSimple(mAction, new LogicParam().setData("testScheduler_2"))
+				.schedulerOn(Schedulers.newAsyncScheduler())
+				.delay(3000);
+		mLm.performSequence(LogicTaskGroup.of(Arrays.asList(task1, task2), performFlags, true),
+				0, new LogListenerImpl("testTaskGroupSequence"));
+	}
 	
 	public static void main(String[] args) {
 		TestSimpleLogic logic = new TestSimpleLogic();
 		//logic.testNormalAsync();
 		//logic.testNormal();
 		//logic.testCancel();
-		logic.testCancelAndReset();
+		//logic.testCancelAndReset();
 		//logic.testCancelSequence();
 		//logic.testScheduler();
+		logic.testTaskGroupSequence();
 	}
 }

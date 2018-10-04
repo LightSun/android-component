@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.heaven7.java.base.util.threadpool.Executors2;
 import com.heaven7.java.logic.Scheduler;
 
 public class Schedulers {
@@ -28,7 +29,7 @@ public class Schedulers {
 	
     private static class GroupAsyncScheduler implements Scheduler{
 		
-		final ScheduledExecutorService pool = Executors.newScheduledThreadPool(5);
+		final ScheduledExecutorService pool = Executors2.newScheduledThreadPool(5);
 		final WeakHashMap<Runnable,Future<?>> map = new WeakHashMap<Runnable,Future<?>>();
 		
 		@Override

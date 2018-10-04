@@ -3,6 +3,9 @@ package com.heaven7.java.logic;
 import java.lang.ref.WeakReference;
 
 import com.heaven7.java.base.anno.CalledInternal;
+import com.heaven7.java.base.anno.NonNull;
+import com.heaven7.java.base.anno.Nullable;
+import com.heaven7.java.base.util.Throwables;
 import com.heaven7.java.logic.LogicAction.LogicCallback;
 
 /**
@@ -21,29 +24,33 @@ public class LogicTask {
 	private WeakReference<LogicAction.LogicCallback> mInternalCallback;
 	/** some perform flags */
 	private int mFlags;
-	
-	private LogicTask(int tag, LogicAction action, LogicParam logicParam) {
+
+	LogicTask(LogicAction action, LogicParam logicParam){
+		this(0, action, logicParam);
+	}
+	private LogicTask(int tag, @NonNull LogicAction action, @Nullable LogicParam logicParam) {
+		Throwables.checkNull(action);
 		this.tag = tag;
 		this.action = action;
-		this.logicParam = logicParam;
+		this.logicParam = logicParam != null ? logicParam : new LogicParam();
 	}
 	/**
 	 * create logic task by target parameters.
 	 * @param tag the logic tag
-	 * @param action the logic action.
-	 * @param logicParam the logic parameter.
+	 * @param action the logic action. can't be null.
+	 * @param logicParam the logic parameter. can be null.
 	 * @return an instance of logic task
 	 */
-	public static LogicTask of(int tag, LogicAction action, LogicParam logicParam){
+	public static LogicTask of(int tag,  @NonNull  LogicAction action, @Nullable LogicParam logicParam){
 		return new LogicTask(tag, action, logicParam);
 	}
 	/**
 	 * create simple logic task by target parameters.
-	 * @param action the simple logic action.
-	 * @param logicParam the logic parameter.
+	 * @param action the simple logic action. can't be null.
+	 * @param logicParam the logic parameter. can be null.
 	 * @return an instance of logic task
 	 */
-	public static LogicTask ofSimple(SimpleLogicAction action, LogicParam logicParam){
+	public static LogicTask ofSimple( @NonNull SimpleLogicAction action, @Nullable LogicParam logicParam){
 		return new LogicTask(0, action, logicParam);
 	}
 	/**
@@ -139,9 +146,13 @@ public class LogicTask {
 	}
 	//flags the context flags.
 	@CalledInternal
-	void mergeFlags(int flags){
+	void mergeFlags(int flags, boolean sequence){
 		if(flags > 0){
 			mFlags |= flags;
+		}
+		//remove share to next flag for parallel.
+		if(!sequence){
+			mFlags &= ~LogicManager.FLAG_SHARE_TO_NEXT;
 		}
 	}
 

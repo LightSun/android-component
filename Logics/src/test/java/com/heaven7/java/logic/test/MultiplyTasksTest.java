@@ -3,11 +3,12 @@ package com.heaven7.java.logic.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.heaven7.java.logic.LogicManager;
-import com.heaven7.java.logic.LogicParam;
-import com.heaven7.java.logic.LogicResultListener;
-import com.heaven7.java.logic.LogicTask;
+import com.heaven7.java.logic.*;
 import com.heaven7.java.logic.test.MockLogicAction2.FromTo;
+
+import static com.heaven7.java.logic.LogicManager.FLAG_ALLOW_FAILED;
+import static com.heaven7.java.logic.LogicManager.FLAG_SHARE_TO_NEXT;
+import static com.heaven7.java.logic.LogicManager.FLAG_SHARE_TO_POOL;
 
 public class MultiplyTasksTest {
 	private static final String TAG = "MultiplyTasksTest";
@@ -17,8 +18,51 @@ public class MultiplyTasksTest {
 	public static void main(String[] args) {
 		MultiplyTasksTest test = new MultiplyTasksTest();
 		//test.testShareToPoolWithParallel(false);
-		test.testShareToNextWithSequence(false);
+		//test.testShareToNextWithSequence(false);
 		//test.testAllowFailedWithParallel();
+		test.testGroupTaskSequence(false);
+	}
+	public void testGroupTaskSequence(boolean mockFailed){
+
+		final String method = "testGroupTaskSequence";
+		int sum = 0;
+		for(int i = 1; i <= 10000 ; i++){ //1-10000
+			sum += i;
+		}
+		Logger.i(TAG, method, "Normal Sum = " + sum);
+
+
+		final MockSequenceAction action = new MockSequenceAction(mockFailed);
+		Logger.i(TAG, method, "start time = " + Schedulers.getCurrentTime());
+		List<LogicTask> tasks = new ArrayList<LogicTask>();
+		final int step = 999;
+		int last = 0;
+		for(int i = 0 ; i < 10 ; i++){
+			//1-10000
+			//1-1000, 1001-2000,2001-3000...
+			final int from = last + 1;
+			final int to = from + step;
+			last = to;
+			LogicTask task = LogicTask.of(i, action, LogicParam.create(new FromTo(from, to)))
+					.setFlags(FLAG_SHARE_TO_NEXT)
+					.schedulerOn(Schedulers.GROUP_ASYNC)
+					;
+			tasks.add(task);
+		}
+
+		mLm.performSequence(LogicTaskGroup.of(tasks, FLAG_SHARE_TO_POOL,
+				true), 0, new LogicResultListener() {
+			@Override
+			public void onSuccess(LogicManager lm,LogicTask lastTask, Object lastResult, List<?> results) {
+				Logger.i(TAG, method + "_onSuccess", "end time = " + Schedulers.getCurrentTime());
+				Logger.i(TAG, method + "_onSuccess", "lastResult = " + lastResult);
+			}
+			@Override
+			public void onFailed(LogicManager lm,List<LogicTask> failedTask, Object lastResult, List<?> results) {
+				Logger.w(TAG, method + "_onFailed", "end time = " + Schedulers.getCurrentTime() + " ,failed size = " + failedTask.size());
+				Logger.w(TAG, method + "_onFailed", "failedTask = " + failedTask);
+			}
+		});
 	}
 	//sequence tasks
 	public void testShareToNextWithSequence(boolean mockFailed){
@@ -43,7 +87,7 @@ public class MultiplyTasksTest {
 			final int to = from + step;
 			last = to;
 			LogicTask task = LogicTask.of(i, action, LogicParam.create(new FromTo(from, to)))
-					.setFlags(LogicManager.FLAG_SHARE_TO_NEXT)
+					.setFlags(FLAG_SHARE_TO_NEXT)
 					.schedulerOn(Schedulers.GROUP_ASYNC)
 					;
 			tasks.add(task);

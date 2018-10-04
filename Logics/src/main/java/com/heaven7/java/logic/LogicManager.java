@@ -190,6 +190,7 @@ public final class LogicManager extends ContextDataImpl {
 	 */
 	public int performParallel(List<LogicTask> parallels, int flags, LogicResultListener listener) {
 		Throwables.checkEmpty(parallels);
+		flags &= ~FLAG_SHARE_TO_NEXT;
 		final int size = parallels.size();
 		if (size > MAX_PARALLEL_COUNT) {
 			throw new UnsupportedOperationException("max parallel count must below " + MAX_PARALLEL_COUNT);
@@ -210,7 +211,7 @@ public final class LogicManager extends ContextDataImpl {
 				flags > 0 && (flags & FLAG_ALLOW_FAILED) == FLAG_ALLOW_FAILED);
 		final Object data = getContextData();
 		for (LogicTask task : parallels) {
-			task.mergeFlags(flags);
+			task.mergeFlags(flags, false);
 			task.setContextData(data);
 			task.addStateCallback(callback);
 			task.perform();
@@ -403,7 +404,7 @@ public final class LogicManager extends ContextDataImpl {
 	private void performSequenceImpl(List<LogicTask> tasks, int key, int currentIndex, 
 			LogicResultListener listener, Object lastResult,int flags) {
 		final LogicTask target = tasks.get(currentIndex);
-		target.mergeFlags(flags);
+		target.mergeFlags(flags, true);
 		target.setLastResult(lastResult);
 		target.setContextData(getContextData());
 		target.addStateCallback(new SequenceCallback(tasks, key, currentIndex, listener, flags));
