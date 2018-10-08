@@ -1,5 +1,8 @@
 package com.heaven7.java.logic;
 
+import com.heaven7.java.base.anno.Deprecated;
+
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 /**
@@ -21,7 +24,11 @@ public class LogicTaskGroup extends LogicTask{
      * @return the tasks group
      */
     public static LogicTaskGroup of(List<LogicTask> tasks, int performFlags, boolean sequence){
-        return of(new LogicManager(), tasks, performFlags, sequence);
+        GroupAction action = new GroupAction();
+        action.sequence = sequence;
+        action.mLogicFlags = performFlags;
+        action.mTasks = tasks;
+        return new LogicTaskGroup(action, null);
     }
 
     /**
@@ -32,15 +39,11 @@ public class LogicTaskGroup extends LogicTask{
      * @param sequence true to perform sequence , false to perform Parallel.
      * @return the tasks group
      */
+    @java.lang.Deprecated
+    @Deprecated("the logic manager is removed from here, and just use internal.")
     public static LogicTaskGroup of(LogicManager lm, List<LogicTask> tasks, int performFlags, boolean sequence){
-        GroupAction action = new GroupAction();
-        action.mLM = lm;
-        action.sequence = sequence;
-        action.mLogicFlags = performFlags;
-        action.mTasks = tasks;
-        return new LogicTaskGroup(action, null);
+        return of(tasks, performFlags, sequence);
     }
-
     public static class GroupData{
         private final Object lastResult;
         private final List<?> results;
@@ -65,24 +68,38 @@ public class LogicTaskGroup extends LogicTask{
     }
 
     private static class GroupAction extends SimpleLogicAction implements LogicResultListener{
-        LogicManager mLM;
+        WeakReference<LogicManager> mWeakLM;
         boolean sequence;
         int mLogicFlags;
         List<LogicTask> mTasks;
+        int key;
+
         @Override
-        protected void performImpl(int tag, int count, LogicParam param) {
+        protected void cancelImpl(int tag) {
+            LogicManager lm = mWeakLM.get();
+            if(lm != null && key != 0){
+                lm.cancel(key);
+                key = 0;
+            }
+        }
+
+        @Override
+        protected void performImpl(LogicManager lm, int tag, int count, LogicParam param) {
+            mWeakLM = new WeakReference<>(lm);
             if(sequence){
-                mLM.performSequence(mTasks, mLogicFlags, this);
+                key = lm.performSequence(mTasks, mLogicFlags, this);
             }else{
-                mLM.performParallel(mTasks, mLogicFlags, this);
+                key = lm.performParallel(mTasks, mLogicFlags, this);
             }
         }
         @Override
         public void onFailed(LogicManager lm, List<LogicTask> failedTask, Object lastResult, List<?> results) {
+            key = 0;
             dispatchResult(0, new LogicResult(LogicAction.RESULT_FAILED, new GroupData(lastResult,results)));
         }
         @Override
         public void onSuccess(LogicManager lm, LogicTask lastTask, Object lastResult, List<?> results) {
+            key = 0;
             dispatchResult(0, new LogicResult(LogicAction.RESULT_SUCCESS, new GroupData(lastResult,results)));
         }
     }

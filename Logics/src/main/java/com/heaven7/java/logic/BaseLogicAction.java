@@ -59,48 +59,54 @@ import java.util.concurrent.atomic.AtomicReference;
 	public void setDelay(int tag, long delay) {
 		getScheduleHandler(tag, true).setDelay(delay);
 	}
-	
+
 	@Override
-	public final void perform(final int tag, final LogicParam param, int flags) {
+	public final void perform(final LogicManager lm,final int tag,final LogicParam param, int flags) {
 		TagInfo info = getTagInfo(tag, false);
 		if(info != null){
 			switch (info.mState.get()) {
-			case STATE_CANCELLED:
-				DefaultPrinter.getDefault().warn(TAG, "perform", "The logic action of target tag(" + tag +") is cancelled."
-						+ "you can call #reset(int) to reset it, and then you can perform again.");
-				return;
-			
-			case STATE_PERFORMING:	
-			case STATE_STARTED:
-				DefaultPrinter.getDefault().warn(TAG, "perform", "The logic action of target tag(" + 
-			             tag +") is running!");
-				return;
+				case STATE_CANCELLED:
+					DefaultPrinter.getDefault().warn(TAG, "perform", "The logic action of target tag(" + tag +") is cancelled."
+							+ "you can call #reset(int) to reset it, and then you can perform again.");
+					return;
+
+				case STATE_PERFORMING:
+				case STATE_STARTED:
+					DefaultPrinter.getDefault().warn(TAG, "perform", "The logic action of target tag(" +
+							tag +") is running!");
+					return;
 			}
 		}
 		//mark start.
 		putTagInfo(tag, new TagInfo(param, flags));
-		
+
 		//put schedule handler
 		ScheduleHandler s = getScheduleHandler(tag, true);
 		// dispatch start
 		dispatchCallbackInternal(OP_START, tag, param, null);
-		
+
 		final int targetCount = computeTagCount(tag);
-		
+
 		// perform impl
 		s.schedule(new Runnable() {
 			@Override
 			public void run() {
-				perform0(tag, targetCount, param);
+				perform0(lm, tag, targetCount, param);
 			}
 		});
 	}
+
+	@Deprecated
+	@Override
+	public final void perform(final int tag, final LogicParam param, int flags) {
+		perform(null, tag, param, flags);
+	}
 	
-	private void perform0(int tag, int count, LogicParam param){
+	private void perform0(LogicManager lm, int tag, int count, LogicParam param){
 		TagInfo info = getTagInfo(tag, false);
 		if(info.mState.compareAndSet(STATE_STARTED, STATE_PERFORMING)){
 			//success
-			performImpl(tag, count, param);
+			performImpl(lm, tag, count, param);
 		}else{
 			if(info.mState.get() == STATE_CANCELLED){
 				//cancelled.
@@ -191,17 +197,35 @@ import java.util.concurrent.atomic.AtomicReference;
 	/**
 	 * do perform this logic state. also support async perform this logic state.
 	 *
+	 * @param lm  the logic manager
+	 * @param tag
+	 *            the tag of this logic state.
+	 * @param count
+ *            the count of perform this tag by logic. but if it was cleaned
+ *            it always be one. start from 1
+	 * @param param the logic param
+	 *  @since 1.1.1
+	 */
+	protected void performImpl(LogicManager lm, int tag, int count, LogicParam param){
+		performImpl( tag, count, param);
+	}
+
+	/**
+	 * <p>Use {@linkplain #performImpl(LogicManager, int, int, LogicParam)} instead.</p>
+	 * do perform this logic state. also support async perform this logic state.
+	 *
 	 * @param tag
 	 *            the tag of this logic state.
 	 * @param count
 	 *            the count of perform this tag by logic. but if it was cleaned
 	 *            it always be one. start from 1
-	 * @param param
-	 *            the logic parameter of this logic state
+	 * @param param the logic param
 	 */
-	protected abstract void performImpl(int tag, int count, LogicParam param);
-	
-	
+	@Deprecated
+	protected void performImpl(int tag, int count, LogicParam param){
+
+	}
+
 	/**
 	 * compute the running count of target tag.
 	 * @param tag the tag

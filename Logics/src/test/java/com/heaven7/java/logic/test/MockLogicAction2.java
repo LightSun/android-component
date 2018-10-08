@@ -2,6 +2,7 @@ package com.heaven7.java.logic.test;
 
 import com.heaven7.java.base.util.DefaultPrinter;
 import com.heaven7.java.logic.AbstractLogicAction;
+import com.heaven7.java.logic.LogicManager;
 import com.heaven7.java.logic.LogicParam;
 import com.heaven7.java.logic.LogicResult;
 
@@ -15,7 +16,7 @@ public class MockLogicAction2 extends AbstractLogicAction {
 	}
 
 	@Override
-	protected void performImpl(int tag, int count, LogicParam param) {
+	protected void performImpl(LogicManager lm, int tag, int count, LogicParam param) {
 		//last result may used to sequence task.
 		//DefaultPrinter.getDefault().debug(TAG, "performImpl", "last perform result = " + param.getLastResult());
 		DefaultPrinter.getDefault().debug(TAG, "performImpl", "tag = "+ tag + " ," + param.getData());

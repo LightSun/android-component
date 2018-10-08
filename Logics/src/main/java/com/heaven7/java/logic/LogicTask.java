@@ -116,8 +116,8 @@ public class LogicTask {
 		action.removeStateCallback(tag, callback);
 	}
 	@CalledInternal
-	void perform() {
-		action.perform(tag, logicParam, mFlags);
+	void perform(LogicManager lm) {
+		action.perform(lm, tag, logicParam, mFlags);
 	}
 	@CalledInternal
 	void cancel() {

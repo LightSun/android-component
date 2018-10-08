@@ -214,7 +214,7 @@ public final class LogicManager extends ContextDataImpl {
 			task.mergeFlags(flags, false);
 			task.setContextData(data);
 			task.addStateCallback(callback);
-			task.perform();
+			task.perform(this);
 		}
 		return key;
 	}
@@ -408,7 +408,7 @@ public final class LogicManager extends ContextDataImpl {
 		target.setLastResult(lastResult);
 		target.setContextData(getContextData());
 		target.addStateCallback(new SequenceCallback(tasks, key, currentIndex, listener, flags));
-		target.perform();
+		target.perform(this);
 	}
 
 	// this key is blur

@@ -1,5 +1,6 @@
 package com.heaven7.java.logic.test;
 
+import com.heaven7.java.logic.LogicManager;
 import com.heaven7.java.logic.LogicParam;
 import com.heaven7.java.logic.LogicResult;
 import com.heaven7.java.logic.SimpleLogicAction;
@@ -15,7 +16,7 @@ public class MockSimpleAction extends SimpleLogicAction {
 	}
 
 	@Override
-	protected void performImpl(int tag, int count,LogicParam param) {
+	protected void performImpl(LogicManager lm, int tag, int count, LogicParam param) {
 		System.out.println("MockSimpleAction_" + hashCode() + " >>> start perform: thread = "
 				+ Thread.currentThread().getName() + " , param = " + param);
 		System.out.println(

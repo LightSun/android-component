@@ -71,6 +71,7 @@ public interface LogicAction extends ContextData {
     void observeOn(int tag, @Nullable Scheduler scheduler);
 
     /**
+     * <p>Note: will be removed </p>
      * perform this logic action.
      *
      * @param tag   the tag of this state.
@@ -78,7 +79,20 @@ public interface LogicAction extends ContextData {
      * @param flags the flags. see {@linkplain LogicManager#FLAG_SHARE_TO_NEXT} and 
      * see {@linkplain LogicManager#FLAG_SHARE_TO_POOL} and etc.
      */
+    @Deprecated
     void perform(int tag, LogicParam param, int flags);
+
+    /**
+     * perform this logic action.
+     *
+     * @param lm   the logic manager
+     * @param tag   the tag of this state.
+     * @param param the logic parameter.
+     * @param flags the flags. see {@linkplain LogicManager#FLAG_SHARE_TO_NEXT} and
+     * see {@linkplain LogicManager#FLAG_SHARE_TO_POOL} and etc.
+     * @since 1.1.1
+     */
+    void perform(LogicManager lm , int tag, LogicParam param, int flags);
 
     /**
      * cancel this logic immediately or not.

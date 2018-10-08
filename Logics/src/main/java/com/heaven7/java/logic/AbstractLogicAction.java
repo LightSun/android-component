@@ -9,7 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * the logic action. support async and count analyse. default support multi tag
  * in one {@linkplain AbstractLogicAction}. you should call
  * {@link #dispatchResult(int, LogicResult)} in
- * {@linkplain #performImpl(int, int, LogicParam)} or it's relative method.
+ * {@linkplain BaseLogicAction#performImpl(LogicManager, int, int, LogicParam)} or it's relative method.
  * <p>this class is thread safe.</p>
  * Created by heaven7 on 2017/6/17.
  */
