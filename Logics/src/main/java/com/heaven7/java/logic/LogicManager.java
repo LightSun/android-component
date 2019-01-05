@@ -447,7 +447,6 @@ public final class LogicManager extends ContextDataImpl {
 		target.perform(this);
 	}
 	// this key is blur
-
 	private void cancelByKey(int key, boolean invokeByInternal) {
 		final int type = (key & MASK_TYPE) >> SHIFT_TYPE;
 		switch (type) {

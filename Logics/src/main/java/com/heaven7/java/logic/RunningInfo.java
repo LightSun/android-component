@@ -29,6 +29,31 @@ public final class RunningInfo {
         return totalCount;
     }
 
+    /**
+     * get finish percent
+     * @return the finish percent . 0-1
+     * @since 1.1.3
+     */
+    public float getFinishPercent(){
+        return (getSuccessCount() + getFailedCount()) * 1f / totalCount;
+    }
+    /**
+     * get success percent
+     * @return the success percent . 0-1
+     * @since 1.1.3
+     */
+    public float getSuccessPercent(){
+        return getSuccessCount() * 1f / totalCount;
+    }
+    /**
+     * get failed percent
+     * @return the failed percent . 0-1
+     * @since 1.1.3
+     */
+    public float getFailedPercent(){
+        return getFailedCount() * 1f / totalCount;
+    }
+
     /*public*/ void increaseSuccess() {
         successCount.incrementAndGet();
     }

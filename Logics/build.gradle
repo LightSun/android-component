@@ -35,7 +35,7 @@ publish {
     userOrg = 'lightsun' //bintray user name
     groupId = 'com.heaven7.java.logics'
     artifactId = 'Logics'
-    publishVersion = '1.1.2'
+    publishVersion = '1.1.3'
     desc = 'this is a logic lib of java platform. '
     website = 'https://github.com/LightSun/android-component'
 }
