@@ -435,8 +435,22 @@ public final class LogicManager extends ContextDataImpl {
 		performSequenceImpl(tasks, key, 0, listener, null, flags);
 		return key;
 	}
-	//lastResult the perform result of last logic task.
 
+	private void dispatchRunningInfo(int key, boolean success, Object listener) {
+		if(listener instanceof LogicRunningInfoListener){
+			RunningInfo info = getRunningInfo(key);
+			if(info != null){
+				if(success){
+					info.increaseSuccess();
+				}else{
+					info.increaseFailed();
+				}
+				((LogicRunningInfoListener) listener).onRunningProcessChanged(this, key, info);
+			}
+		}
+	}
+
+	//lastResult the perform result of last logic task.
 	private void performSequenceImpl(List<LogicTask> tasks, int key, int currentIndex,
 			LogicResultListener listener, Object lastResult,int flags) {
 		final LogicTask target = tasks.get(currentIndex);
@@ -483,6 +497,7 @@ public final class LogicManager extends ContextDataImpl {
 		}
 	}
 	//mark
+
 	private void markRunningInfo(int key, int size) {
 		synchronized (mRunningLock){
 			if(mRunningMap == null){
@@ -498,20 +513,6 @@ public final class LogicManager extends ContextDataImpl {
 				mRunningMap.remove(key);
 			}
 		}
-	}
-
-	private void callbackRunningInfo(int key, boolean success, LogicResultListener listener) {
-         if(listener instanceof LogicRunningInfoListener){
-			 RunningInfo info = getRunningInfo(key);
-			 if(info != null){
-			 	if(success){
-			 		info.increaseSuccess();
-				}else{
-			 		info.increaseFailed();
-				}
-				 ((LogicRunningInfoListener) listener).onRunningProcessChanged(this, key, info);
-			 }
-		 }
 	}
 
 	/**
@@ -621,7 +622,7 @@ public final class LogicManager extends ContextDataImpl {
 		protected void onSuccess(LogicAction action, int tag, LogicParam param, LogicResult result) {
       // callback running info if need
 		    if (focusRunning) {
-				callbackRunningInfo(key, true, listener);
+				dispatchRunningInfo(key, true, listener);
 			}
 
 			final boolean theEnd = finishCount.incrementAndGet() == getTaskCount();
@@ -651,7 +652,7 @@ public final class LogicManager extends ContextDataImpl {
 		protected void onFailed(LogicAction action, int tag, LogicParam param, LogicResult result) {
 			//callback running info if need
 			if (focusRunning) {
-				callbackRunningInfo(key, false, listener);
+				dispatchRunningInfo(key, false, listener);
 			}
 
 			if(!allowFailed){
@@ -747,7 +748,7 @@ public final class LogicManager extends ContextDataImpl {
 		protected void onSuccess(LogicAction action, int tag, LogicParam param, LogicResult result) {
 			//callback running info if need
 			if(focusRunning) {
-				callbackRunningInfo(key, true, mListener);
+				dispatchRunningInfo(key, true, mListener);
 			}
 			//remove task
 			final LogicTask task = removeTask();
@@ -777,7 +778,7 @@ public final class LogicManager extends ContextDataImpl {
 		protected void onFailed(LogicAction action, int tag, LogicParam param, LogicResult result) {
 			//callback running info if need
 			if(focusRunning) {
-				callbackRunningInfo(key, false, mListener);
+				dispatchRunningInfo(key, false, mListener);
 			}
 
 			final LogicTask failedTask = removeTask();
