@@ -4,7 +4,6 @@ import com.heaven7.java.base.util.DefaultPrinter;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import junit.framework.TestCase;
 
 import javax.lang.model.element.Modifier;
 import java.io.File;
@@ -13,7 +12,7 @@ import java.io.IOException;
 /**
  * Created by heaven7 on 2017/8/28.
  */
-public class JavaPoetTest extends TestCase{
+public class JavaPoetTest{
 
     public static final String TAG = "JavaPoetTest";
 

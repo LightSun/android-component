@@ -18,9 +18,9 @@ public class MultiplyTasksTest {
 	public static void main(String[] args) {
 		MultiplyTasksTest test = new MultiplyTasksTest();
 		//test.testShareToPoolWithParallel(false);
-		//test.testShareToNextWithSequence(false);
+		test.testShareToNextWithSequence(true);
 		//test.testAllowFailedWithParallel();
-		test.testGroupTaskSequence(false);
+		//test.testGroupTaskSequence(false);
 	}
 	public void testGroupTaskSequence(boolean mockFailed){
 
@@ -92,9 +92,7 @@ public class MultiplyTasksTest {
 					;
 			tasks.add(task);
 		}
-		
-		mLm.performSequence(tasks, -1, new LogicResultListener() {
-			
+		mLm.performSequence(tasks, LogicManager.FLAG_RUNNING_INFO, new SimpleLogicResultListener() {
 			@Override
 			public void onSuccess(LogicManager lm,LogicTask lastTask, Object lastResult, List<?> results) {
 				Logger.i(TAG, method + "_onSuccess", "end time = " + Schedulers.getCurrentTime());
@@ -105,6 +103,11 @@ public class MultiplyTasksTest {
 			public void onFailed(LogicManager lm,List<LogicTask> failedTask, Object lastResult, List<?> results) {
 				Logger.w(TAG, method + "_onFailed", "end time = " + Schedulers.getCurrentTime() + " ,failed size = " + failedTask.size());
 				Logger.w(TAG, method + "_onFailed", "failedTask = " + failedTask);
+			}
+
+			@Override
+			public void onRunningProcessChanged(LogicManager lm, int key, RunningInfo info) {
+				Logger.w(TAG, method + "_onRunningProcessChanged", info.toString());
 			}
 		});
 	}
@@ -185,28 +188,31 @@ public class MultiplyTasksTest {
 			tasks.add(task);
 		}
 		//run parallel allow failed.
-		mLm.performParallel(tasks, LogicManager.FLAG_ALLOW_FAILED, 
-				new LogicResultListener() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public void onSuccess(LogicManager lm,LogicTask lastTask, Object lastResult, List<?> results) {
-				Logger.i(TAG, method + "_onSuccess", "end time = " + Schedulers.getCurrentTime());
-				List<Integer> list = (List<Integer>) results;
-				Logger.i(TAG, method + "_onSuccess", "results = " + list);
-				int sum = 0;
-				for(int i = 0, size = list.size() ; i < size ; i++){
-					sum += list.get(i).intValue();
+		mLm.performParallel(tasks, LogicManager.FLAG_ALLOW_FAILED | LogicManager.FLAG_RUNNING_INFO,
+			new SimpleLogicResultListener() {
+				@SuppressWarnings("unchecked")
+				@Override
+				public void onSuccess(LogicManager lm, LogicTask lastTask, Object lastResult, List<?> results) {
+					Logger.i(TAG, method + "_onSuccess", "end time = " + Schedulers.getCurrentTime());
+					List<Integer> list = (List<Integer>) results;
+					Logger.i(TAG, method + "_onSuccess", "results = " + list);
+					int sum = 0;
+					for (int i = 0, size = list.size(); i < size; i++) {
+						sum += list.get(i).intValue();
+					}
+					Logger.i(TAG, method + "_onSuccess", "Distributed Sum = " + sum);
 				}
-				Logger.i(TAG, method + "_onSuccess", "Distributed Sum = " + sum);
-			}
-			
-			@Override
-			public void onFailed(LogicManager lm,List<LogicTask> failedTask, Object lastResult, List<?> results) {
-				Logger.w(TAG, method + "_onFailed", "end time = " + Schedulers.getCurrentTime() + " ,failed size = " + failedTask.size());
-				Logger.w(TAG, method + "_onFailed", "failedTask = " + failedTask);
-			}
-		});
+
+				@Override
+				public void onFailed(LogicManager lm, List<LogicTask> failedTask, Object lastResult, List<?> results) {
+					Logger.w(TAG, method + "_onFailed", "end time = " + Schedulers.getCurrentTime() + " ,failed size = " + failedTask.size());
+					Logger.w(TAG, method + "_onFailed", "failedTask = " + failedTask);
+				}
+				@Override
+				public void onRunningProcessChanged(LogicManager lm, int key, RunningInfo info) {
+					Logger.w(TAG, method + "_onRunningProcessChanged", info.toString());
+				}
+			});
 	}
-	
 
 }

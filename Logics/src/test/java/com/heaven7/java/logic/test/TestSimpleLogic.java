@@ -5,21 +5,15 @@ import com.heaven7.java.logic.LogicParam;
 import com.heaven7.java.logic.LogicTask;
 
 import com.heaven7.java.logic.LogicTaskGroup;
-import junit.framework.TestCase;
 
 import java.util.Arrays;
 
-public class TestSimpleLogic extends TestCase{
+public class TestSimpleLogic{
 
 	private static final String TAG = "TestSimpleLogic";
 	private final LogicManager mLm = new LogicManager();
 	private final MockSimpleAction mAction = new MockSimpleAction();
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-	
+
 	public void testNormalAsync(){
 		LogicTask task = LogicTask.ofSimple(mAction, new LogicParam().setData("testNormalAsync"))
 				.schedulerOn(Schedulers.ASYNC)
@@ -142,9 +136,9 @@ public class TestSimpleLogic extends TestCase{
 		//logic.testNormalAsync();
 		//logic.testNormal();
 		//logic.testCancel();
-		//logic.testCancelAndReset();
+		logic.testCancelAndReset();
 		//logic.testCancelSequence();
 		//logic.testScheduler();
-		logic.testTaskGroupSequence();
+		//logic.testTaskGroupSequence();
 	}
 }
