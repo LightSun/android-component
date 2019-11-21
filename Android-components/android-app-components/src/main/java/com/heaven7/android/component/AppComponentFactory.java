@@ -1,5 +1,6 @@
 package com.heaven7.android.component;
 
+import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 
 import com.heaven7.android.component.guide.AppGuideComponent;
@@ -20,19 +21,19 @@ public interface AppComponentFactory {
      */
     class SimpleAppComponentFactory implements AppComponentFactory{
         @Override
-        public AppImageComponent onCreateAppImageComponent(AppCompatActivity activity) {
+        public AppImageComponent onCreateAppImageComponent(Activity activity) {
             return null;
         }
         @Override
-        public AppLoadingComponent onCreateAppLoadingComponent(AppCompatActivity activity) {
+        public AppLoadingComponent onCreateAppLoadingComponent(Activity activity) {
             return null;
         }
         @Override
-        public AppGuideComponent onCreateAppGuideComponent(AppCompatActivity activity) {
+        public AppGuideComponent onCreateAppGuideComponent(Activity activity) {
             return null;
         }
         @Override
-        public AppToastComponent onCreateAppToastComponent(AppCompatActivity activity) {
+        public AppToastComponent onCreateAppToastComponent(Activity activity) {
             return null;
         }
     }
@@ -42,23 +43,23 @@ public interface AppComponentFactory {
      * @param activity the activity
      * @return the app image component
      */
-    AppImageComponent onCreateAppImageComponent(AppCompatActivity activity);
+    AppImageComponent onCreateAppImageComponent(Activity activity);
     /**
      * called on create app loading component.
      * @param activity the activity
      * @return the app loading component
      */
-    AppLoadingComponent onCreateAppLoadingComponent(AppCompatActivity activity);
+    AppLoadingComponent onCreateAppLoadingComponent(Activity activity);
     /**
      * called on create app guide component.
      * @param activity the activity
      * @return the app guide component
      */
-    AppGuideComponent onCreateAppGuideComponent(AppCompatActivity activity);
+    AppGuideComponent onCreateAppGuideComponent(Activity activity);
     /**
      * called on create app toast component.
      * @param activity the activity
      * @return the app toast component
      */
-    AppToastComponent onCreateAppToastComponent(AppCompatActivity activity);
+    AppToastComponent onCreateAppToastComponent(Activity activity);
 }

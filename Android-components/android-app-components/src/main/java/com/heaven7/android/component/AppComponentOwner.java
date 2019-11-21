@@ -11,6 +11,8 @@ import android.os.Build;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.SupportActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -46,7 +48,7 @@ public class AppComponentOwner implements LifecycleObserver {
     private static final String TAG = "AppComponentOwner";
     private final ArrayList<SmartReference0> mWeakLives;
     private final AppComponentFactory mFactory;
-    private final AppCompatActivity mContext;
+    private final FragmentActivity mContext;
 
     private AppImageComponent mImageCpt;
     private AppLoadingComponent mLoadingCpt;
@@ -59,7 +61,7 @@ public class AppComponentOwner implements LifecycleObserver {
      * @param activity  the activity context
      * @param factory   the component factory
      */
-    public AppComponentOwner(@NonNull AppCompatActivity activity, @NonNull AppComponentFactory factory) {
+    public AppComponentOwner(@NonNull FragmentActivity activity, @NonNull AppComponentFactory factory) {
         this.mContext = activity;
         this.mFactory = factory;
         this.mWeakLives = new ArrayList<>(8);
@@ -73,7 +75,7 @@ public class AppComponentOwner implements LifecycleObserver {
      * @return the activity
      */
     @SuppressWarnings("unchecked")
-    public final <T extends AppCompatActivity> T getActivity() {
+    public final <T extends FragmentActivity> T getActivity() {
         return (T) mContext;
     }
 
