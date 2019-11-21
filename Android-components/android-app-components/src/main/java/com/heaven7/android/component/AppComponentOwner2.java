@@ -5,9 +5,6 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.support.annotation.NonNull;
 
 import com.heaven7.android.component.lifecycle.LifeCycleComponent2;
-import com.heaven7.java.base.util.SmartReference;
-
-import java.util.Iterator;
 
 /**
  * app fragment component owner
@@ -27,18 +24,8 @@ public class AppComponentOwner2 extends AbstractLifeCycleComponentOwner<LifeCycl
         // ReportFragment.injectIfNeededIn(activity);
     }
 
-    protected void performLifeCycle(int liftCycle) {
-        LifecycleOwner owner = getLifecycleOwner();
-        //currently flag only use as single, future may be multi
-        final Iterator<SmartReference0<LifeCycleComponent2>> it = mWeakLives.iterator();
-        for (; it.hasNext(); ) {
-            SmartReference<LifeCycleComponent2> item = it.next();
-            if (item.isAlive()) {
-                item.get().onLifeCycle(owner, liftCycle);
-            } else {
-                it.remove();
-            }
-        }
+    @Override
+    protected void onLifeCycle(LifecycleOwner owner, LifeCycleComponent2 t, int liftCycle) {
+        t.onLifeCycle(owner, liftCycle);
     }
-
 }

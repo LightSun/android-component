@@ -3,7 +3,9 @@ package com.heaven7.android.component;
 import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
+import android.content.Context;
 import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -108,18 +110,8 @@ public class AppComponentOwner extends AbstractLifeCycleComponentOwner<LifeCycle
         }
     }
 
-    protected void performLifeCycle(int liftCycle) {
-        final Activity activity = getActivity();
-        //currently flag only use as single, future may be multi
-        final Iterator<SmartReference0<LifeCycleComponent>> it = mWeakLives.iterator();
-        for (; it.hasNext(); ) {
-            SmartReference<LifeCycleComponent> item = it.next();
-            if (item.isAlive()) {
-                item.get().onLifeCycle(activity, liftCycle);
-            } else {
-                it.remove();
-            }
-        }
+    @Override
+    protected void onLifeCycle(LifecycleOwner owner, LifeCycleComponent item, int liftCycle) {
+        item.onLifeCycle((Context) owner, liftCycle);
     }
-
 }

@@ -6,6 +6,8 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.support.annotation.CallSuper;
 
+import com.heaven7.java.base.util.SmartReference;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -132,6 +134,20 @@ public abstract class AbstractLifeCycleComponentOwner<T> implements LifecycleObs
         return result;
     }
 
-    protected abstract void performLifeCycle(int liftCycle);
+    private void performLifeCycle(int liftCycle) {
+        LifecycleOwner owner = getLifecycleOwner();
+        //currently flag only use as single, future may be multi
+        final Iterator<SmartReference0<T>> it = mWeakLives.iterator();
+        for (; it.hasNext(); ) {
+            SmartReference<T> item = it.next();
+            if (item.isAlive()) {
+                onLifeCycle(owner, item.get(), liftCycle);
+            } else {
+                it.remove();
+            }
+        }
+    }
+
+    protected abstract void onLifeCycle(LifecycleOwner owner, T item, int liftCycle);
 
 }
