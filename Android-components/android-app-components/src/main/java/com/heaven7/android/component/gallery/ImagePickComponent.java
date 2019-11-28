@@ -32,11 +32,12 @@ public interface ImagePickComponent extends AppComponentContext {
 
     /**
      * often we handle data from activity onActivityResult.
+     * @param activity the activity
      * @param requestCode the request code
      * @param resultCode the result code
      * @param data the intent data.
      */
-    void onActivityResult(int requestCode, int resultCode, Intent data);
+    void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data);
 
     /**
      * the callback of pick
