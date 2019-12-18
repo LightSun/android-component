@@ -1,11 +1,14 @@
 package com.heaven7.android.component.gallery;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * the pick option
  * @author heaven7
  * @since 1.1.4
  */
-public class PickOption {
+public class PickOption implements Parcelable {
 
     private int minCount;
     private int maxCount;
@@ -113,4 +116,44 @@ public class PickOption {
             return new PickOption(this);
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.minCount);
+        dest.writeInt(this.maxCount);
+        dest.writeByte(this.crop ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.aspectX);
+        dest.writeInt(this.aspectY);
+        dest.writeInt(this.outputX);
+        dest.writeInt(this.outputY);
+        dest.writeString(this.outputFormat);
+    }
+
+    protected PickOption(Parcel in) {
+        this.minCount = in.readInt();
+        this.maxCount = in.readInt();
+        this.crop = in.readByte() != 0;
+        this.aspectX = in.readInt();
+        this.aspectY = in.readInt();
+        this.outputX = in.readInt();
+        this.outputY = in.readInt();
+        this.outputFormat = in.readString();
+    }
+
+    public static final Creator<PickOption> CREATOR = new Creator<PickOption>() {
+        @Override
+        public PickOption createFromParcel(Parcel source) {
+            return new PickOption(source);
+        }
+
+        @Override
+        public PickOption[] newArray(int size) {
+            return new PickOption[size];
+        }
+    };
 }

@@ -1,12 +1,7 @@
 package com.heaven7.android.component;
 
-import android.app.Activity;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
-import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
@@ -14,22 +9,13 @@ import android.support.v4.app.FragmentActivity;
 import com.heaven7.android.component.guide.AppGuideComponent;
 import com.heaven7.android.component.image.AppImageComponent;
 import com.heaven7.android.component.lifecycle.LifeCycleComponent;
-import com.heaven7.android.component.lifecycle.LifeCycleComponent2;
 import com.heaven7.android.component.loading.AppLoadingComponent;
 import com.heaven7.android.component.toast.AppToastComponent;
-import com.heaven7.java.base.util.SmartReference;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import static com.heaven7.android.component.lifecycle.LifeCycleComponent.ON_CREATE;
-import static com.heaven7.android.component.lifecycle.LifeCycleComponent.ON_DESTROY;
-import static com.heaven7.android.component.lifecycle.LifeCycleComponent.ON_PAUSE;
-import static com.heaven7.android.component.lifecycle.LifeCycleComponent.ON_RESUME;
-import static com.heaven7.android.component.lifecycle.LifeCycleComponent.ON_START;
-import static com.heaven7.android.component.lifecycle.LifeCycleComponent.ON_STOP;
 
 /**
+ * <p>for this class can only used for activity. we recommend you
+ *     use {@linkplain AppComponentOwner2} instead.
+ * </p>
  * the app component owner.
  * Created by heaven7 on 2017/8/15 0015.
  * @see AppImageComponent
@@ -39,6 +25,7 @@ import static com.heaven7.android.component.lifecycle.LifeCycleComponent.ON_STOP
  *
  * @since 1.0.5
  */
+@Deprecated
 public class AppComponentOwner extends AbstractLifeCycleComponentOwner<LifeCycleComponent>{
     private final AppComponentFactory mFactory;
 
