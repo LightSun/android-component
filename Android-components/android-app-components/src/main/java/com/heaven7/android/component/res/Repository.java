@@ -12,6 +12,6 @@ public interface Repository {
     interface Callback{
          void onSuccess(RepositoryContext context, Key key, Object data);
 
-         void onFailed(RepositoryContext context, Key key, int code);
+         void onFailed(RepositoryContext context, Key key, Cause cause);
     }
 }
