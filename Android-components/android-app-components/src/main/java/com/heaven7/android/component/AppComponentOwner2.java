@@ -1,6 +1,5 @@
 package com.heaven7.android.component;
 
-import android.app.Activity;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.support.annotation.NonNull;
@@ -10,7 +9,6 @@ import android.support.v4.app.FragmentActivity;
 
 import com.heaven7.android.component.guide.AppGuideComponent;
 import com.heaven7.android.component.image.AppImageComponent;
-import com.heaven7.android.component.lifecycle.LifeCycleComponent;
 import com.heaven7.android.component.lifecycle.LifeCycleComponent2;
 import com.heaven7.android.component.loading.AppLoadingComponent;
 import com.heaven7.android.component.toast.AppToastComponent;
@@ -37,6 +35,12 @@ public class AppComponentOwner2 extends AbstractLifeCycleComponentOwner<LifeCycl
     public AppComponentOwner2(@NonNull LifecycleOwner owner) {
         this(owner, null);
     }
+    /**
+     * create app-component context. this should be called before 'super.onCreate(saveInstanceState)'
+     *
+     * @param owner  the owner
+     * @param factory  the factory
+     */
     public AppComponentOwner2(@NonNull LifecycleOwner owner, AppComponentFactory factory) {
         super(owner);
         this.mFactory = factory;
@@ -62,7 +66,7 @@ public class AppComponentOwner2 extends AbstractLifeCycleComponentOwner<LifeCycl
 
     public @Nullable
     AppImageComponent getAppImageComponent() {
-        if (mImageCpt == null) {
+        if (mImageCpt == null && mFactory != null) {
             mImageCpt = mFactory.onCreateAppImageComponent(getActivity());
             registerLifeCycleContextIfNeed(mImageCpt);
         }
@@ -71,7 +75,7 @@ public class AppComponentOwner2 extends AbstractLifeCycleComponentOwner<LifeCycl
 
     public @Nullable
     AppLoadingComponent getAppLoadingComponent() {
-        if (mLoadingCpt == null) {
+        if (mLoadingCpt == null && mFactory != null) {
             mLoadingCpt = mFactory.onCreateAppLoadingComponent(getActivity());
             registerLifeCycleContextIfNeed(mLoadingCpt);
         }
@@ -80,7 +84,7 @@ public class AppComponentOwner2 extends AbstractLifeCycleComponentOwner<LifeCycl
 
     public @Nullable
     AppGuideComponent getAppGuideComponent() {
-        if (mGuideCpt == null) {
+        if (mGuideCpt == null && mFactory != null) {
             mGuideCpt = mFactory.onCreateAppGuideComponent(getActivity());
             registerLifeCycleContextIfNeed(mGuideCpt);
         }
@@ -89,7 +93,7 @@ public class AppComponentOwner2 extends AbstractLifeCycleComponentOwner<LifeCycl
 
     public @Nullable
     AppToastComponent getAppToastComponent() {
-        if (mToastCpt == null) {
+        if (mToastCpt == null && mFactory != null) {
             mToastCpt = mFactory.onCreateAppToastComponent(getActivity());
             registerLifeCycleContextIfNeed(mToastCpt);
         }

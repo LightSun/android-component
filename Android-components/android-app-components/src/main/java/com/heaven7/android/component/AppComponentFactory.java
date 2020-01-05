@@ -1,7 +1,6 @@
 package com.heaven7.android.component;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 
 import com.heaven7.android.component.guide.AppGuideComponent;
 import com.heaven7.android.component.image.AppImageComponent;

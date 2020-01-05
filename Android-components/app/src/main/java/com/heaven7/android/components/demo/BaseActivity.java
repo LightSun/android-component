@@ -1,5 +1,6 @@
 package com.heaven7.android.components.demo;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
@@ -28,15 +29,15 @@ public abstract class BaseActivity extends AppCompatActivity implements AppConte
     public void onCreate(Bundle savedInstanceState) {
         mAppComponentOwner = new AppComponentOwner(this, new AppComponentFactory() {
             @Override
-            public AppImageComponent onCreateAppImageComponent(AppCompatActivity activity) {
+            public AppImageComponent onCreateAppImageComponent(Activity activity) {
                 return new GlideAppImageComponent();
             }
             @Override
-            public AppLoadingComponent onCreateAppLoadingComponent(AppCompatActivity activity) {
+            public AppLoadingComponent onCreateAppLoadingComponent(Activity activity) {
                 return BaseActivity.this.onCreateAppLoadingComponent();
             }
             @Override
-            public AppGuideComponent onCreateAppGuideComponent(AppCompatActivity activity) {
+            public AppGuideComponent onCreateAppGuideComponent(Activity activity) {
                 final GuideHelper helper = new GuideHelper(activity, getLayoutId());
                 //register back key listener of guide.
                 helper.setOnKeyListener(new BackKeyListener() {
@@ -48,7 +49,7 @@ public abstract class BaseActivity extends AppCompatActivity implements AppConte
                 return helper;
             }
             @Override
-            public AppToastComponent onCreateAppToastComponent(AppCompatActivity activity) {
+            public AppToastComponent onCreateAppToastComponent(Activity activity) {
                 return AppToastComponentImpl.create(activity);
             }
         });

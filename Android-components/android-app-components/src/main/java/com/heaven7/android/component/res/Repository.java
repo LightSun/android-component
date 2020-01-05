@@ -5,11 +5,12 @@ package com.heaven7.android.component.res;
  */
 public interface Repository {
 
-    Object getResource(RepositoryContext context, Key key);
+    Object get(RepositoryContext context, Key key);
 
-    void getResourceAsync(RepositoryContext context, Key key, Callback callback);
+    void getAsync(RepositoryContext context, Key key, Callback callback);
 
     interface Callback{
+
          void onSuccess(RepositoryContext context, Key key, Object data);
 
          void onFailed(RepositoryContext context, Key key, Cause cause);
