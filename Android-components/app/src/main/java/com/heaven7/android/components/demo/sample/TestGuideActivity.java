@@ -13,7 +13,6 @@ import com.heaven7.android.component.guide.GuideComponent;
 import com.heaven7.android.component.guide.RelativeLocation;
 import com.heaven7.android.components.demo.BaseActivity;
 import com.heaven7.android.components.demo.R;
-import com.heaven7.android.util2.GuideHelper;
 import com.heaven7.core.util.Logger;
 import com.heaven7.core.util.MainWorker;
 
@@ -48,7 +47,7 @@ public class TestGuideActivity extends BaseActivity {
 
     private void showTip() {
         mIndex ++ ;
-        final GuideComponent gc = new GuideComponent.Builder()
+        /*final GuideComponent gc = new GuideComponent.Builder()
                 .anchor(mTb_1)
                 .tip(mTip)
                 .location(new RelativeLocation(
@@ -86,7 +85,7 @@ public class TestGuideActivity extends BaseActivity {
                     }
                 });
             }
-        });
+        });*/
     }
 
     @OnClick(R.id.tb)

@@ -13,6 +13,7 @@ import com.heaven7.android.component.image.BitmapTransformer;
  * Created by heaven7 on 2017/8/15 0015.
  */
 
+/*
 public class RoundTransformer implements BitmapTransformer {
 
     private final float radius;
@@ -44,3 +45,4 @@ public class RoundTransformer implements BitmapTransformer {
         return "com.heaven7.android.RoundTransformer";
     }
 }
+*/

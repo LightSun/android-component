@@ -4,9 +4,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Build;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
+
+import androidx.fragment.app.Fragment;
 
 import com.heaven7.java.base.util.SmartReference;
 
@@ -31,7 +32,7 @@ class SmartReference0<T> extends SmartReference<T> {
         return t instanceof AppComponentContext
                 || t instanceof Context
                 || t instanceof Fragment
-                || t instanceof android.support.v4.app.Fragment
+                || t instanceof android.app.Fragment
                 || t instanceof View
                 || t instanceof Dialog;
     }
@@ -51,15 +52,15 @@ class SmartReference0<T> extends SmartReference<T> {
                 return true;
             }
         }
-        if (t instanceof android.support.v4.app.Fragment) {
-            final android.support.v4.app.Fragment frag = (android.support.v4.app.Fragment) t;
+        if (t instanceof Fragment) {
+            final Fragment frag = (Fragment) t;
             if (frag.isDetached() || frag.isRemoving()) {
                 Log.w(TAG, "shouldDestroyReference>>> fragment is detached or removing. fragment = "
                         + name);
                 return true;
             }
         }
-        if (t instanceof Fragment) {
+        if (t instanceof android.app.Fragment) {
             final Fragment frag = (Fragment) t;
             if (frag.isDetached() || frag.isRemoving()) {
                 Log.w(TAG, "shouldDestroyReference>>> fragment is detached or removing. fragment = "

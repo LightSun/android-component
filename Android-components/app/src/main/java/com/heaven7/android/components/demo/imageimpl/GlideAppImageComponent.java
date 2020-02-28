@@ -12,6 +12,7 @@ import com.heaven7.android.component.image.ImageRequestEditor;
  * Created by heaven7 on 2017/8/15 0015.
  */
 
+/*
 public class GlideAppImageComponent implements AppImageComponent {
 
     @Override
@@ -40,3 +41,4 @@ public class GlideAppImageComponent implements AppImageComponent {
     }
 
 }
+*/

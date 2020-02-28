@@ -7,7 +7,7 @@
     android:padding="10dp"
     android:fitsSystemWindows="true">
 
-    <android.support.v7.widget.SwitchCompat
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/sc"
         style="@style/switch_common"
         android:layout_marginTop="20dp"

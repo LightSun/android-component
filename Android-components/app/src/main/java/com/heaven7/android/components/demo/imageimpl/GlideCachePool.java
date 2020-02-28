@@ -10,6 +10,7 @@ import com.heaven7.android.component.image.ImageCachePool;
  * Created by heaven7 on 2017/8/15 0015.
  */
 
+/*
 public class GlideCachePool implements ImageCachePool {
 
     private final com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool mImpl;
@@ -49,3 +50,4 @@ public class GlideCachePool implements ImageCachePool {
         }).start();
     }
 }
+*/

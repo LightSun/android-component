@@ -2,7 +2,6 @@ package com.heaven7.android.component.image;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.annotation.IdRes;
 
 import com.heaven7.android.component.AppComponentContext;
 

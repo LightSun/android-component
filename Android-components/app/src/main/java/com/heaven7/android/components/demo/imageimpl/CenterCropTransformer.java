@@ -10,7 +10,7 @@ import com.heaven7.android.component.image.BitmapTransformer;
  * Created by heaven7 on 2017/8/15 0015.
  */
 
-public class CenterCropTransformer implements BitmapTransformer{
+/*public class CenterCropTransformer implements BitmapTransformer{
 
     @Override
     public Bitmap transform(String key, ImageCachePool pool, Bitmap source, int outWidth, int outHeight) {
@@ -27,4 +27,4 @@ public class CenterCropTransformer implements BitmapTransformer{
     public String getId() {
         return null;
     }
-}
+}*/

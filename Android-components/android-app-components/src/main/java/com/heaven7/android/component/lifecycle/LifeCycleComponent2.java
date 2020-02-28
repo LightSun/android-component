@@ -1,6 +1,6 @@
 package com.heaven7.android.component.lifecycle;
 
-import android.arch.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleOwner;
 
 /**
  * the lifecycle context

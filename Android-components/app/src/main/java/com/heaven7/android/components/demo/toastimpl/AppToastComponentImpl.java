@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.view.View;
 
 import com.heaven7.android.components.demo.R;
-import com.heaven7.android.util2.BaseWindow;
 import com.heaven7.core.util.ViewHelper;
 import com.heaven7.core.util.viewhelper.action.Getters;
 
@@ -14,6 +13,7 @@ import com.heaven7.core.util.viewhelper.action.Getters;
  * Created by heaven7 on 2017/7/12 0012.
  */
 
+/*
 public class AppToastComponentImpl extends BaseWindow {
 
     protected AppToastComponentImpl(Context context) {
@@ -59,4 +59,4 @@ public class AppToastComponentImpl extends BaseWindow {
                 });
         show();
     }
-}
+}*/

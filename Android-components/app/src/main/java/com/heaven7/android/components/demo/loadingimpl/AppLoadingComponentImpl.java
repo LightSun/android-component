@@ -1,10 +1,11 @@
 package com.heaven7.android.components.demo.loadingimpl;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.LinearLayout;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.heaven7.adapter.QuickRecycleViewAdapter;
 import com.heaven7.android.component.loading.AppLoadingComponent;

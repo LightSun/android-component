@@ -5,15 +5,15 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.widget.ImageView;
 
-import com.bumptech.glide.DrawableTypeRequest;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+/*import com.bumptech.glide.DrawableTypeRequest;
 import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.target.Target;*/
 import com.heaven7.android.component.image.BitmapTransformer;
 import com.heaven7.android.component.image.ImageLoadCallback;
 import com.heaven7.android.component.image.ImageRequestEditor;
@@ -29,7 +29,7 @@ import java.util.List;
  * Created by Administrator on 2017/8/15 0015.
  */
 
-public class GlideRequestEditor implements ImageRequestEditor {
+/*public class GlideRequestEditor implements ImageRequestEditor {
 
     private static final String KEY_PREFIX = "Android://res/";
     private static final SimpleTarget<GlideDrawable> sDefault_Target = new SimpleTarget<GlideDrawable>() {
@@ -274,4 +274,4 @@ public class GlideRequestEditor implements ImageRequestEditor {
             mCallback.onLoadStarted(key, placeHolder);
         }
     }
-}
+}*/

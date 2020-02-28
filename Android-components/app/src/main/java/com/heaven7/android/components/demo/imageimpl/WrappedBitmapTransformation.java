@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * @author heaven7
  */
+/*
 public class WrappedBitmapTransformation extends BitmapTransformation {
 
     private List<BitmapTransformer> mTransformers;
@@ -56,4 +57,4 @@ public class WrappedBitmapTransformation extends BitmapTransformation {
         }
         return id;
     }
-}
+}*/
