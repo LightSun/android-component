@@ -285,5 +285,23 @@ public interface AppLoadingComponent extends AppComponentContext{
     void showEmpty(int code);
 
 
+    /**
+     * get the view of reload data
+     * @return the reload view
+     * @since 1.1.6
+     */
+    View getReloadView();
 
+    /**
+     * get the empty view which should support pull-to-refresh page.
+     * @return the empty view
+     * @since 1.1.6
+     */
+    View getEmptyView();
+
+    /**
+     * hide the error ui
+     * @since 1.1.6
+     */
+    void hideError();
 }

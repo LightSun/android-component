@@ -1,0 +1,275 @@
+package com.heaven7.android.component.network.list;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.heaven7.adapter.AdapterManager;
+import com.heaven7.adapter.QuickRecycleViewAdapter;
+import com.heaven7.adapter.QuickRecycleViewAdapter2;
+import com.heaven7.android.component.loading.AppLoadingComponent;
+import com.heaven7.android.component.network.NetworkContext;
+import com.heaven7.android.component.network.RequestConfig;
+import com.heaven7.android.pullrefresh.FooterDelegate;
+import com.heaven7.android.pullrefresh.PullToRefreshLayout;
+import com.heaven7.core.util.Logger;
+
+import java.util.List;
+
+/**
+ * the list callback
+ *
+ * @param <T> the data type of http response.
+ */
+public final class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.Callback<T> {
+
+    private final NetworkContext mContext;
+    private final Callback mCallback;
+    private final Factory mFactory;
+    private final RefreshDelegate mRefresh;
+
+    private PageManager mPageM;
+    private RequestConfig mConfig;
+    private AppLoadingComponent mComponent;
+    private IAdapterDelegate mAdapterDelegate;
+
+    public ListHelper(NetworkContext mContext,Factory factory,RefreshDelegate delegate,Callback mCallback) {
+        this.mContext = mContext;
+        this.mCallback = mCallback;
+        this.mFactory = factory;
+        this.mRefresh = delegate;
+    }
+
+    public AppLoadingComponent getAppLoadingComponent() {
+        return mComponent;
+    }
+
+    public PageManager getPageManager() {
+        return mPageM;
+    }
+
+    public void onInitialize(Context context, @Nullable Bundle savedInstanceState) {
+        mPageM = mFactory.onCreatePageManager(mContext);
+        mPageM.setParameterProcessor(mCallback);
+        mConfig = mCallback.onCreateRequestConfig();
+
+        mComponent = mFactory.onCreateAppLoadingComponent(mCallback.getPullToRefreshLayout());
+        mComponent.getReloadView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mComponent.showContent(0);
+                refresh();
+            }
+        });
+        mAdapterDelegate = mFactory.onCreateAdapterDelegate(mComponent.getRecyclerView());
+
+        final View emptyView = mComponent.getEmptyView();
+        mRefresh.setOnRefreshListenerForEmpty(emptyView, new SwipeRefreshLayout.OnRefreshListener(){
+            @Override
+            public void onRefresh() {
+                mRefresh.setRefreshing(emptyView, false);
+                //mComponent.getEmptyLayout().setRefreshing(false);
+                mComponent.showLoading(AppLoadingComponent.STATE_NORMAL);
+                mComponent.showContent(0);
+                refresh();
+            }
+        });
+        FooterDelegate delegate = mCallback.getFooterDelegate();
+        if (delegate != null) {
+            mCallback.getPullToRefreshLayout().setFooterDelegate(delegate);
+        }
+        mComponent.setLayoutManager(new LinearLayoutManager(context));
+        mComponent.setCallback(this);
+    }
+
+    public void refresh(){
+        mCallback.getPullToRefreshLayout().getSwipeRefreshLayout().setRefreshing(true);
+        requestData(true);
+    }
+
+    public void requestData(boolean refresh) {
+        if(refresh){
+            final IAdapterDelegate ad = mAdapterDelegate;
+            if(ad.getItemSize() > 0){
+                ad.clearItems();
+            }
+        }
+        if (mConfig.get) {
+            mPageM.get(mConfig.url, refresh, mConfig.type, this);
+        } else {
+            mPageM.postBody(mConfig.url, refresh, mConfig.type, this);
+        }
+    }
+
+    @Override
+    public void onResult(String url, boolean refresh, T data) {
+        mCallback.onResult(url, refresh, data);
+        mComponent.hideError();
+        mComponent.setLoadingComplete();
+        List<?> listData = mCallback.getListData(data);
+        //empty
+        if (listData.isEmpty() && mPageM.getPageNo() == 1) {
+            if (!mCallback.showEmpty(this)) {
+                mComponent.showEmpty(0);
+            }
+            return;
+        }
+        showContent(refresh, listData);
+    }
+
+    /**
+     * show the list content
+     * @param refresh true is the refresh
+     * @param listData the data
+     */
+    public void showContent(boolean refresh, List<?> listData) {
+        mComponent.showContent(0);
+        if (refresh) {
+            mAdapterDelegate.replaceAllItems(mCallback.map(listData));
+        } else {
+            mAdapterDelegate.addItems(mCallback.map(listData));
+        }
+        if (listData.size() < mPageM.getPageSize()) {
+            mPageM.setAllLoadDone(true);
+            mCallback.getPullToRefreshLayout().getFooterDelegate().setState(
+                    mPageM.getPageNo() == 1 ? FooterDelegate.STATE_NORMAL : FooterDelegate.STATE_THE_END);
+        } else {
+            mCallback.getPullToRefreshLayout().getFooterDelegate().setState(FooterDelegate.STATE_NORMAL);
+        }
+    }
+
+    @Override
+    public void onThrowable(String url, boolean refresh, Throwable e) {
+        Logger.w("ListHelper", "onThrowable", Logger.toString(e));
+        getAppLoadingComponent().showError(0);
+
+        mAdapterDelegate.clearItems();
+        mCallback.onThrowable(url, refresh, e);
+    }
+
+    @Override
+    public void onRefresh(AppLoadingComponent component) {
+        requestData(true);
+    }
+
+    @Override
+    public void onLoadMore(AppLoadingComponent component) {
+        if (!mPageM.isAllLoadDone()) {
+            getAppLoadingComponent().showLoading(AppLoadingComponent.STATE_LOADING);
+            requestData(false);
+        }
+    }
+
+    @Override
+    public void onClickLoadingView(AppLoadingComponent appLoadingComponent, View view, int i) {
+
+    }
+
+    /**
+     * the factory to create some
+     */
+    public interface Factory{
+
+        AppLoadingComponent onCreateAppLoadingComponent(PullToRefreshLayout layout);
+
+        IAdapterDelegate onCreateAdapterDelegate(RecyclerView rv);
+
+        PageManager onCreatePageManager(NetworkContext context);
+    }
+
+    public interface RefreshDelegate{
+
+        void setOnRefreshListenerForEmpty(View emptyView, SwipeRefreshLayout.OnRefreshListener l);
+
+        void setRefreshing(View emptyView, boolean refreshing);
+    }
+
+    /**
+     * the callback of list request
+     */
+    public interface Callback extends PageManager.ParameterProcessor {
+
+        /**
+         * get the footer delegate
+         * @return the footer delegate
+         */
+        FooterDelegate getFooterDelegate();
+
+        /**
+         * get the list data
+         * @param data the data
+         * @return the list data
+         */
+        default List<?> getListData(Object data){
+            if(data instanceof List){
+                return (List<?>) data;
+            }else if(data instanceof ListDataOwner){
+                return ((ListDataOwner)data).getListData();
+            }
+            throw new RuntimeException("you must override #getListData().");
+        }
+
+        /**
+         * get the pull to refresh layout
+         * @return the layout
+         */
+        PullToRefreshLayout getPullToRefreshLayout();
+        /**
+         * called on create request config
+         *
+         * @return the request config.
+         */
+        RequestConfig onCreateRequestConfig();
+
+        /**
+         * called on show empty. if return false show empty by default
+         * @param helper the list helper
+         * @return true if handled show empty
+         */
+        default boolean showEmpty(ListHelper helper){
+            return false;
+        }
+
+        /**
+         * called on transform/map list data to another list.
+         * @param data the list data
+         * @return the list data
+         */
+        default List<?> map(List<?> data){
+            return data;
+        }
+
+        default void onThrowable(String url, boolean refresh, Throwable e) {
+        }
+        default void onResult(String url, boolean refresh, Object data){}
+    }
+
+    public static abstract class AbstractFactory implements ListHelper.Factory{
+        @Override
+        public IAdapterDelegate onCreateAdapterDelegate(RecyclerView rv) {
+            return AdapterDelegateFactory.getAdapterDelegate(rv);
+        }
+        @Override
+        public PageManager onCreatePageManager(NetworkContext context) {
+            return new PageManager(context);
+        }
+    }
+    public static class SimpleRefreshDelegate implements RefreshDelegate{
+
+        @Override
+        public void setOnRefreshListenerForEmpty(View emptyView, SwipeRefreshLayout.OnRefreshListener l) {
+            SwipeRefreshLayout srl = (SwipeRefreshLayout) emptyView;
+            srl.setOnRefreshListener(l);
+        }
+        @Override
+        public void setRefreshing(View emptyView, boolean refreshing) {
+            SwipeRefreshLayout srl = (SwipeRefreshLayout) emptyView;
+            srl.setRefreshing(refreshing);
+        }
+    }
+}

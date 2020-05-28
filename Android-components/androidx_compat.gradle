@@ -13,4 +13,9 @@ dependencies {
         implementation "com.android.support:appcompat-v7:$androidSupport_ver"
         //implementation "com.android.support:exifinterface:$androidSupport_ver"
     }
+
+    implementation('com.github.LightSun:android-PullRefreshView:1.1.1-x') {
+        exclude group: "com.heaven7.core.adapter"
+        exclude group: "com.heaven7.core.util"
+    }
 }
