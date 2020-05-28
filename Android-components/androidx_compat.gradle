@@ -2,7 +2,7 @@
 def useAndroidX = true
 
 dependencies {
-    def androidX_ver = "1.0.0"
+    def androidX_ver = "1.1.0"
     def androidSupport_ver = '28.0.0'
     if(useAndroidX){
         implementation  "androidx.appcompat:appcompat:$androidX_ver"
@@ -18,4 +18,6 @@ dependencies {
         exclude group: "com.heaven7.core.adapter"
         exclude group: "com.heaven7.core.util"
     }
+    implementation 'com.github.LightSun:SuperAdapter:2.1.7-x'
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 }

@@ -1,6 +1,5 @@
 package com.heaven7.android.component.network.list;
 
-import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.heaven7.adapter.AdapterManager;

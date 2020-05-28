@@ -14,6 +14,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * the network component
+ * @author heaven7
+ * @since 1.1.6
+ */
 public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleComponent2 {
 
     private final List<Disposable> mTasks = new CopyOnWriteArrayList<>();
@@ -47,15 +52,43 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
         }
     }
 
+    /**
+     * run the task async
+     * @param task the task
+     */
     public abstract void asyncRun(Runnable task);
 
+    /**
+     * of get request Applier
+     * @param url the url
+     * @param params the parameter
+     * @return applier
+     */
     public abstract Applier ofGet(String url, HashMap<String, Object> params);
     public abstract Applier ofGet(String url, String json);
-    // ofPost used for 'FormUrlEncoded'.
+    /**
+     * of post request Applier. which often is used for 'FormUrlEncoded'
+     * @param url the url
+     * @param params the parameter
+     * @return applier
+     */
     public abstract Applier ofPost(String url, HashMap<String, Object> params);
+
+    /**
+     * of post request Applier. which often is used for 'FormUrlEncoded'
+     * @param url the url
+     * @param json the parameter
+     * @return applier
+     */
     public abstract Applier ofPost(String url, String json);
 
     public abstract Applier ofPostBody(String url, HashMap<String, Object> params);
+    /**
+     * of post request Applier. which often is used for body request
+     * @param url the url
+     * @param json the parameter of body
+     * @return applier
+     */
     public abstract Applier ofPostBody(String url, String json);
 
     public interface Applier{

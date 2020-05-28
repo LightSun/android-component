@@ -9,22 +9,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.heaven7.adapter.AdapterManager;
-import com.heaven7.adapter.QuickRecycleViewAdapter;
-import com.heaven7.adapter.QuickRecycleViewAdapter2;
 import com.heaven7.android.component.loading.AppLoadingComponent;
 import com.heaven7.android.component.network.NetworkContext;
 import com.heaven7.android.component.network.RequestConfig;
 import com.heaven7.android.pullrefresh.FooterDelegate;
 import com.heaven7.android.pullrefresh.PullToRefreshLayout;
-import com.heaven7.core.util.Logger;
 
 import java.util.List;
 
 /**
  * the list callback
- *
  * @param <T> the data type of http response.
+ * @since 1.1.6
  */
 public final class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.Callback<T> {
 
@@ -44,11 +40,16 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
         this.mFactory = factory;
         this.mRefresh = delegate;
     }
+    public ListHelper(NetworkContext mContext,Factory factory, Callback mCallback) {
+       this(mContext, factory, new SwipeRefreshDelegate(), mCallback);
+    }
 
     public AppLoadingComponent getAppLoadingComponent() {
         return mComponent;
     }
-
+    public RequestConfig getRequestConfig() {
+        return mConfig;
+    }
     public PageManager getPageManager() {
         return mPageM;
     }
@@ -145,7 +146,7 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
 
     @Override
     public void onThrowable(String url, boolean refresh, Throwable e) {
-        Logger.w("ListHelper", "onThrowable", Logger.toString(e));
+        e.printStackTrace();
         getAppLoadingComponent().showError(0);
 
         mAdapterDelegate.clearItems();
@@ -166,7 +167,7 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
     }
 
     @Override
-    public void onClickLoadingView(AppLoadingComponent appLoadingComponent, View view, int i) {
+    public void onClickLoadingView(AppLoadingComponent component, View view, int state) {
 
     }
 
@@ -175,13 +176,31 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
      */
     public interface Factory{
 
+        /**
+         * called on create loading component
+         * @param layout the pull-to-refresh layout
+         * @return the loading component
+         */
         AppLoadingComponent onCreateAppLoadingComponent(PullToRefreshLayout layout);
 
+        /**
+         * called on create adapter delegate
+         * @param rv the recycler view
+         * @return the adapter delegate
+         */
         IAdapterDelegate onCreateAdapterDelegate(RecyclerView rv);
 
+        /**
+         * called on create page manager for multi pages.
+         * @param context the network context
+         * @return the page manager
+         */
         PageManager onCreatePageManager(NetworkContext context);
     }
 
+    /**
+     * the refresh delegate
+     */
     public interface RefreshDelegate{
 
         void setOnRefreshListenerForEmpty(View emptyView, SwipeRefreshLayout.OnRefreshListener l);
@@ -259,8 +278,7 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
             return new PageManager(context);
         }
     }
-    public static class SimpleRefreshDelegate implements RefreshDelegate{
-
+    public static class SwipeRefreshDelegate implements RefreshDelegate{
         @Override
         public void setOnRefreshListenerForEmpty(View emptyView, SwipeRefreshLayout.OnRefreshListener l) {
             SwipeRefreshLayout srl = (SwipeRefreshLayout) emptyView;

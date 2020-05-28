@@ -12,6 +12,7 @@ import java.util.Map;
  * page manager
  *
  * @author heaven7
+ * @since 1.1.6
  */
 public final class PageManager {
 

@@ -2,6 +2,10 @@ package com.heaven7.android.component.network;
 
 import java.lang.reflect.Type;
 
+/**
+ * the request config
+ * @since 1.1.6
+ */
 public class RequestConfig {
 
     public final String url;
