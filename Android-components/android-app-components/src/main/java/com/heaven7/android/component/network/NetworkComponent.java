@@ -1,15 +1,15 @@
 package com.heaven7.android.component.network;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.heaven7.android.component.lifecycle.LifeCycleComponent;
 import com.heaven7.android.component.lifecycle.LifeCycleComponent2;
-import com.heaven7.core.util.Logger;
-import com.heaven7.core.util.Toaster;
 import com.heaven7.java.base.util.Disposable;
+import com.heaven7.java.base.util.Logger;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -224,7 +224,7 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
             return error(new Consumer<Throwable>() {
                 @Override
                 public void accept(Throwable throwable) {
-                    Toaster.show(context, error);
+                    Toast.makeText(context, error, Toast.LENGTH_LONG).show();
                 }
             });
         }
@@ -238,8 +238,7 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
                     @Override
                     public void accept(Throwable t) {
                         t.printStackTrace();
-                        Logger.w(TAG, "subscribe", "url = " + mUrl
-                                + "\n" + Logger.toString(t));
+                        System.err.println("Http/https network error. \n" + Logger.toString(t));
                     }
                 });
             }
