@@ -124,6 +124,11 @@ public final class PageManager {
         }
         void onResult(String url, boolean refresh, T data);
     }
+
+    /**
+     * sometimes when want to add extra parameter to the list request.
+     * this is used for that.
+     */
     public interface ParameterProcessor {
         void addRequestParams(Map<String, Object> params);
     }

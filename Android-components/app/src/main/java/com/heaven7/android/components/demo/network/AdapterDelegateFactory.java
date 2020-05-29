@@ -1,14 +1,15 @@
-package com.heaven7.android.component.network.list;
+package com.heaven7.android.components.demo.network;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.heaven7.adapter.AdapterManager;
 import com.heaven7.adapter.QuickRecycleViewAdapter;
 import com.heaven7.adapter.QuickRecycleViewAdapter2;
+import com.heaven7.android.component.network.list.IAdapterDelegate;
 
 import java.util.List;
 
-/*public*/ final class AdapterDelegateFactory {
+public final class AdapterDelegateFactory {
 
     public static IAdapterDelegate getAdapterDelegate(RecyclerView rv){
         RecyclerView.Adapter adapter = rv.getAdapter();

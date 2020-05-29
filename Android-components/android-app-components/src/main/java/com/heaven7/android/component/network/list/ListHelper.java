@@ -22,7 +22,7 @@ import java.util.List;
  * @param <T> the data type of http response.
  * @since 1.1.6
  */
-public final class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.Callback<T> {
+public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.Callback<T> {
 
     private final NetworkContext mContext;
     private final Callback mCallback;
@@ -190,9 +190,7 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
          * @param rv the recycler view
          * @return the adapter delegate
          */
-        public IAdapterDelegate onCreateAdapterDelegate(RecyclerView rv){
-            return AdapterDelegateFactory.getAdapterDelegate(rv);
-        }
+        public abstract IAdapterDelegate onCreateAdapterDelegate(RecyclerView rv);
 
         /**
          * called on create page manager for multi pages.
