@@ -77,6 +77,7 @@ public final class PageManager {
         })
                 .startRequest();
     }
+    @SuppressWarnings("unchecked")
     public <T> void post(String url, boolean refresh, Type type, Callback<T> callback) {
         HashMap<String, Object> map = getParameterMap(refresh);
         mContext.getNetworkComponent().ofPost(url, map

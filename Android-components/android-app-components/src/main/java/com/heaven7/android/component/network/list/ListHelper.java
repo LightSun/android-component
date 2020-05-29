@@ -27,14 +27,14 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
     private final NetworkContext mContext;
     private final Callback mCallback;
     private final Factory mFactory;
-    private final RefreshDelegate mRefresh;
+    private final EmptyRefreshDelegate mRefresh;
 
     private PageManager mPageM;
     private RequestConfig mConfig;
     private AppLoadingComponent mComponent;
     private IAdapterDelegate mAdapterDelegate;
 
-    public ListHelper(NetworkContext mContext,Factory factory,RefreshDelegate delegate,Callback mCallback) {
+    public ListHelper(NetworkContext mContext,Factory factory,EmptyRefreshDelegate delegate,Callback mCallback) {
         this.mContext = mContext;
         this.mCallback = mCallback;
         this.mFactory = factory;
@@ -73,7 +73,7 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
         mAdapterDelegate = mFactory.onCreateAdapterDelegate(mComponent.getRecyclerView());
 
         final View emptyView = mComponent.getEmptyView();
-        mRefresh.setOnRefreshListenerForEmpty(emptyView, new SwipeRefreshLayout.OnRefreshListener(){
+        mRefresh.setOnRefreshListener(emptyView, new SwipeRefreshLayout.OnRefreshListener(){
             @Override
             public void onRefresh() {
                 mRefresh.setRefreshing(emptyView, false);
@@ -176,37 +176,51 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
     /**
      * the factory to create some
      */
-    public interface Factory{
+    public abstract static class Factory{
 
         /**
          * called on create loading component
          * @param layout the pull-to-refresh layout
          * @return the loading component
          */
-        AppLoadingComponent onCreateAppLoadingComponent(PullToRefreshLayout layout);
+        public abstract AppLoadingComponent onCreateAppLoadingComponent(PullToRefreshLayout layout);
 
         /**
          * called on create adapter delegate
          * @param rv the recycler view
          * @return the adapter delegate
          */
-        IAdapterDelegate onCreateAdapterDelegate(RecyclerView rv);
+        public IAdapterDelegate onCreateAdapterDelegate(RecyclerView rv){
+            return AdapterDelegateFactory.getAdapterDelegate(rv);
+        }
 
         /**
          * called on create page manager for multi pages.
          * @param context the network context
          * @return the page manager
          */
-        PageManager onCreatePageManager(NetworkContext context);
+        public PageManager onCreatePageManager(NetworkContext context){
+            return new PageManager(context);
+        }
     }
 
     /**
-     * the refresh delegate
+     * the empty refresh delegate
      */
-    public interface RefreshDelegate{
+    public interface EmptyRefreshDelegate{
 
-        void setOnRefreshListenerForEmpty(View emptyView, SwipeRefreshLayout.OnRefreshListener l);
+        /**
+         * set on refresh listener for empty view
+         * @param emptyView the empty view
+         * @param l the refresh listener
+         */
+        void setOnRefreshListener(View emptyView, SwipeRefreshLayout.OnRefreshListener l);
 
+        /**
+         * set refresh or not.
+         * @param emptyView the empty view
+         * @param refreshing the refreshing or not
+         */
         void setRefreshing(View emptyView, boolean refreshing);
     }
 
@@ -265,24 +279,27 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
             return data;
         }
 
+        /**
+         *  called when network error.
+          * @param url the url
+         * @param refresh true if used as refresh
+         * @param e the exception
+         */
         default void onThrowable(String url, boolean refresh, Throwable e) {
         }
+
+        /**
+         * called on every network result
+         * @param url  the url
+         * @param refresh true if refresh
+         * @param data the response data
+         */
         default void onResult(String url, boolean refresh, Object data){}
     }
 
-    public static abstract class AbstractFactory implements ListHelper.Factory{
+    public static class SwipeRefreshDelegate implements EmptyRefreshDelegate{
         @Override
-        public IAdapterDelegate onCreateAdapterDelegate(RecyclerView rv) {
-            return AdapterDelegateFactory.getAdapterDelegate(rv);
-        }
-        @Override
-        public PageManager onCreatePageManager(NetworkContext context) {
-            return new PageManager(context);
-        }
-    }
-    public static class SwipeRefreshDelegate implements RefreshDelegate{
-        @Override
-        public void setOnRefreshListenerForEmpty(View emptyView, SwipeRefreshLayout.OnRefreshListener l) {
+        public void setOnRefreshListener(View emptyView, SwipeRefreshLayout.OnRefreshListener l) {
             SwipeRefreshLayout srl = (SwipeRefreshLayout) emptyView;
             srl.setOnRefreshListener(l);
         }
