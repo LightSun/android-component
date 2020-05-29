@@ -59,7 +59,7 @@ public final class PageManager {
                 callback.onThrowable(url, refresh, throwable);
             }
         })
-                .subscribe();
+                .startRequest();
     }
 
     public <T> void postBody(String url, boolean refresh, Type type, Callback<T> callback) {
@@ -75,7 +75,7 @@ public final class PageManager {
                 callback.onThrowable(url, refresh, throwable);
             }
         })
-                .subscribe();
+                .startRequest();
     }
     public <T> void post(String url, boolean refresh, Type type, Callback<T> callback) {
         HashMap<String, Object> map = getParameterMap(refresh);
@@ -90,7 +90,7 @@ public final class PageManager {
                 callback.onThrowable(url, refresh, throwable);
             }
         })
-                .subscribe();
+                .startRequest();
     }
 
     private HashMap<String, Object> getParameterMap(boolean refresh) {

@@ -53,6 +53,9 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
     public PageManager getPageManager() {
         return mPageM;
     }
+    public IAdapterDelegate getAdapterDelegate() {
+        return mAdapterDelegate;
+    }
 
     public void onInitialize(Context context, @Nullable Bundle savedInstanceState) {
         mPageM = mFactory.onCreatePageManager(mContext);
@@ -165,7 +168,6 @@ public final class ListHelper<T> implements AppLoadingComponent.Callback, PageMa
             requestData(false);
         }
     }
-
     @Override
     public void onClickLoadingView(AppLoadingComponent component, View view, int state) {
 
