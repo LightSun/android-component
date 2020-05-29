@@ -38,6 +38,34 @@ dependencies {
     implementation 'com.heaven7.java.base:Java-base:1.2.0'
 }
 
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    getArchiveClassifier().set('sources')
+    //classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    failOnError  false
+    source = android.sourceSets.main.java.sourceFiles
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += configurations.compile
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    //classifier = 'javadoc'
+    getArchiveClassifier().set('javadoc')
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
 /*ext {
     bintrayRepo = 'maven'
     bintrayName = 'android-app-components'   // Has to be same as your library module name

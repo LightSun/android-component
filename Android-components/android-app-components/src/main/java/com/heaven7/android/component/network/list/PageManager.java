@@ -47,6 +47,7 @@ public final class PageManager {
     }
 
     //TypeToken<HttpResult<T>> tt
+    @SuppressWarnings("unchecked")
     public <T> void get(String url, boolean refresh, Type type, Callback<T> callback) {
         HashMap<String, Object> map = getParameterMap(refresh);
         mContext.getNetworkComponent().ofGet(url, map)
@@ -62,6 +63,7 @@ public final class PageManager {
                 .startRequest();
     }
 
+    @SuppressWarnings("unchecked")
     public <T> void postBody(String url, boolean refresh, Type type, Callback<T> callback) {
         HashMap<String, Object> map = getParameterMap(refresh);
         mContext.getNetworkComponent().ofPostBody(url, map
