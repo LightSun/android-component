@@ -176,7 +176,7 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
 
     @Override
     public void onRefresh(AppLoadingComponent component) {
-        requestData(true);
+        refresh();
     }
 
     @Override
