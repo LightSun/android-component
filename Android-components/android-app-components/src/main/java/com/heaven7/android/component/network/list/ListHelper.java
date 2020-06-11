@@ -62,7 +62,7 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
         mPageM = mFactory.onCreatePageManager(mContext);
         mPageM.setParameterProcessor(mCallback);
         mConfig = mCallback.onCreateRequestConfig();
-
+        //reload
         mComponent = mFactory.onCreateAppLoadingComponent(mCallback.getPullToRefreshLayout());
         mComponent.getReloadView().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,8 +71,7 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
                 refresh();
             }
         });
-        mAdapterDelegate = mFactory.onCreateAdapterDelegate(mComponent.getRecyclerView());
-
+        //empty
         final View emptyView = mComponent.getEmptyView();
         mRefresh.setOnRefreshListener(emptyView, new SwipeRefreshLayout.OnRefreshListener(){
             @Override
@@ -84,15 +83,22 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
                 refresh();
             }
         });
+        //footer
         FooterDelegate delegate = mCallback.getFooterDelegate();
         if (delegate != null) {
             mCallback.getPullToRefreshLayout().setFooterDelegate(delegate);
         }
+        //adapter delegate
+        mAdapterDelegate = mFactory.onCreateAdapterDelegate(mComponent.getRecyclerView());
+
         mComponent.setLayoutManager(new LinearLayoutManager(context));
         mComponent.setCallback(this);
     }
 
     public void refresh(){
+        if(mCallback.handleRefresh()){
+            return;
+        }
         mCallback.getPullToRefreshLayout().getSwipeRefreshLayout().setRefreshing(true);
         requestData(true);
     }
@@ -305,6 +311,14 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
          * @param data the response data
          */
         default void onResult(String url, boolean refresh, Object data){}
+
+        /**
+         * called on refresh . if handled return true. false otherwise. default is false
+         * @return true if handled refresh
+         */
+        default boolean handleRefresh(){
+            return false;
+        }
     }
 
     public static class SwipeRefreshDelegate implements EmptyRefreshDelegate{
