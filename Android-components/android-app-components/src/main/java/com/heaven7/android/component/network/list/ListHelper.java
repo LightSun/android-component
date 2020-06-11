@@ -16,6 +16,7 @@ import com.heaven7.android.pullrefresh.FooterDelegate;
 import com.heaven7.android.pullrefresh.PullToRefreshLayout;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * the list callback
@@ -103,10 +104,21 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
                 ad.clearItems();
             }
         }
-        if (mConfig.get) {
-            mPageM.get(mConfig.url, refresh, mConfig.type, this);
-        } else {
-            mPageM.postBody(mConfig.url, refresh, mConfig.type, this);
+        switch (mConfig.method){
+            case RequestConfig.TYPE_GET:
+                mPageM.get(mConfig.url, refresh, mConfig.type, this);
+                break;
+
+            case RequestConfig.TYPE_POST_BODY:
+                mPageM.postBody(mConfig.url, refresh, mConfig.type, this);
+                break;
+
+            case RequestConfig.TYPE_POST_FORM:
+                mPageM.post(mConfig.url, refresh, mConfig.type, this);
+                break;
+
+            default:
+                throw new UnsupportedOperationException();
         }
     }
 

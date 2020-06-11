@@ -141,4 +141,19 @@ public class AppLoadingComponentImpl implements AppLoadingComponent{
     public void showEmpty(int code) {
         //here not impl. if you want please implement
     }
+
+    @Override
+    public View getReloadView() {
+        return null;
+    }
+
+    @Override
+    public View getEmptyView() {
+        return null;
+    }
+
+    @Override
+    public void hideError() {
+
+    }
 }

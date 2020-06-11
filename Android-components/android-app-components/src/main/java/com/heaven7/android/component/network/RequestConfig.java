@@ -8,17 +8,17 @@ import java.lang.reflect.Type;
  */
 public class RequestConfig {
 
+    public static final byte TYPE_GET = 1;
+    public static final byte TYPE_POST_BODY = 2;
+    public static final byte TYPE_POST_FORM = 3;
+
     public final String url;
-    public final boolean get;
+    public final byte method;
     public final Type type;
 
-    public RequestConfig(String url, boolean get, Type type) {
+    public RequestConfig(String url, byte method, Type type) {
         this.url = url;
-        this.get = get;
+        this.method = method;
         this.type = type;
-    }
-
-    public RequestConfig(String url, Type type) {
-       this(url, false, type);
     }
 }
