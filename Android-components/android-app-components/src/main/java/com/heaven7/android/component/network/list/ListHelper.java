@@ -45,15 +45,32 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
        this(mContext, factory, new SwipeRefreshDelegate(), mCallback);
     }
 
+    /**
+     * get app-loading component
+     * @return the app loading component.
+     */
     public AppLoadingComponent getAppLoadingComponent() {
         return mComponent;
     }
+    /**
+     * get request config
+     * @return the config
+     */
     public RequestConfig getRequestConfig() {
         return mConfig;
     }
+    /**
+     * get the page manager for loading
+     * @return the page manager
+     */
     public PageManager getPageManager() {
         return mPageM;
     }
+
+    /**
+     * get the adapter delegate
+     * @return the adapter delegate
+     */
     public IAdapterDelegate getAdapterDelegate() {
         return mAdapterDelegate;
     }

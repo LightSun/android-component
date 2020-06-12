@@ -8,5 +8,9 @@ import java.util.List;
  */
 public interface ListDataOwner {
 
+    /**
+     * get the list data
+     * @return the list data
+     */
     List<?> getListData();
 }

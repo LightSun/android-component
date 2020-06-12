@@ -71,7 +71,7 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
      * @param params the parameter
      * @return applier
      */
-    public abstract Chain ofGet(String url, HashMap<String, Object> params);
+    public abstract Chain ofGet(String url, Map<String, Object> params);
 
     /**
      * of get request Chain
@@ -89,7 +89,7 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
      * @param params the parameter
      * @return applier
      */
-    public abstract Chain ofPost(String url, HashMap<String, Object> params);
+    public abstract Chain ofPost(String url, Map<String, Object> params);
 
     /**
      * of post request Chain. which often is used for 'FormUrlEncoded'
@@ -107,7 +107,7 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
      * @param params the paramter
      * @return applier
      */
-    public abstract Chain ofPostBody(String url, HashMap<String, Object> params);
+    public abstract Chain ofPostBody(String url, Map<String, Object> params);
 
     /**
      * of post request Chain. which often is used for body request.

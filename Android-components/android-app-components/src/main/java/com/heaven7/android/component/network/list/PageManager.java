@@ -2,6 +2,7 @@ package com.heaven7.android.component.network.list;
 
 import androidx.core.util.Consumer;
 
+import com.heaven7.android.component.network.MapBuilder;
 import com.heaven7.android.component.network.NetworkContext;
 
 import java.lang.reflect.Type;
@@ -49,7 +50,7 @@ public final class PageManager {
     //TypeToken<HttpResult<T>> tt
     @SuppressWarnings("unchecked")
     public <T> void get(String url, boolean refresh, Type type, Callback<T> callback) {
-        HashMap<String, Object> map = getParameterMap(refresh);
+        Map<String, Object> map = getParameterMap(refresh);
         mContext.getNetworkComponent().ofGet(url, map)
                 .jsonConsume(type,
                         data ->
@@ -65,7 +66,7 @@ public final class PageManager {
 
     @SuppressWarnings("unchecked")
     public <T> void postBody(String url, boolean refresh, Type type, Callback<T> callback) {
-        HashMap<String, Object> map = getParameterMap(refresh);
+        Map<String, Object> map = getParameterMap(refresh);
         mContext.getNetworkComponent().ofPostBody(url, map
         )
                 .jsonConsume(type,
@@ -81,7 +82,7 @@ public final class PageManager {
     }
     @SuppressWarnings("unchecked")
     public <T> void post(String url, boolean refresh, Type type, Callback<T> callback) {
-        HashMap<String, Object> map = getParameterMap(refresh);
+        Map<String, Object> map = getParameterMap(refresh);
         mContext.getNetworkComponent().ofPost(url, map
         )
                 .jsonConsume(type,
@@ -96,29 +97,26 @@ public final class PageManager {
                 .startRequest();
     }
 
-    private HashMap<String, Object> getParameterMap(boolean refresh) {
+    private Map<String, Object> getParameterMap(boolean refresh) {
         if (refresh) {
             mPageNo = 1;
             mAllLoadDone = false;
         } else {
             mPageNo += 1;
         }
-        HashMap<String, Object> map = createRequestMap(mPageNo, mPageSize);
+        MapBuilder builder = createRequestMap(mPageNo, mPageSize);
         if(mParameterProcessor != null){
-            mParameterProcessor.addRequestParams(map);
+            mParameterProcessor.addRequestParams(builder);
         }
-        return map;
+        return builder.toMap();
     }
 
     public void setAllLoadDone(boolean allDone) {
         mAllLoadDone = allDone;
     }
 
-    protected HashMap<String, Object> createRequestMap(int pageNo, int pageSize){
-        HashMap<String, Object> map = new HashMap<String, Object>();
-        map.put("pageNo", pageNo);
-        map.put("pageSize", pageSize);
-        return map;
+    protected MapBuilder createRequestMap(int pageNo, int pageSize){
+        return new MapBuilder().pair("pageNo", pageNo).pair("pageSize", pageSize);
     }
 
     public interface Callback<T> {
@@ -132,6 +130,11 @@ public final class PageManager {
      * this is used for that.
      */
     public interface ParameterProcessor {
-        void addRequestParams(Map<String, Object> params);
+
+        /**
+         * add extra map request parameter
+         * @param builder the map builder
+         */
+        void addRequestParams(MapBuilder builder);
     }
 }
