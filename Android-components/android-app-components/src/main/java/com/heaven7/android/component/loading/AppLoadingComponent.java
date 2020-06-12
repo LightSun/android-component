@@ -286,7 +286,7 @@ public interface AppLoadingComponent extends AppComponentContext{
 
 
     /**
-     * get the view of reload data
+     * get the view of reload data. often is from error-page
      * @return the reload view
      * @since 1.1.6
      */
