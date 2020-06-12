@@ -10,20 +10,28 @@ import java.util.Map;
  */
 public class MapBuilder {
 
-    private final Map<String, Object> mMap = new HashMap<>();
+    private final Map<String, Object> mMap;
+
+    public MapBuilder(Map<String, Object> mMap) {
+        this.mMap = mMap;
+    }
+    public MapBuilder() {
+        this.mMap = new HashMap<>();
+    }
+
+    public static MapBuilder of(Map<String, Object> map){
+        return new MapBuilder(map);
+    }
 
     public MapBuilder pair(String key, Object val){
         mMap.put(key, val);
         return this;
     }
-    public MapBuilder subMap(String key, MapBuilder builder){
+    public MapBuilder pair(String key, MapBuilder builder){
         mMap.put(key, builder.toMap());
         return this;
     }
-
-    public Map<String, Object > toMap(){
+    public Map<String, Object> toMap(){
         return mMap;
     }
-
-
 }
