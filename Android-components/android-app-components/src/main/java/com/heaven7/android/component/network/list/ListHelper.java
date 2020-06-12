@@ -58,11 +58,16 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
         return mAdapterDelegate;
     }
 
+    /**
+     * initialize list helper
+     * @param context the context
+     * @param savedInstanceState the save instance state. often be null.
+     */
     public void onInitialize(Context context, @Nullable Bundle savedInstanceState) {
         mPageM = mFactory.onCreatePageManager(mContext);
         mPageM.setParameterProcessor(mCallback);
         mConfig = mCallback.onCreateRequestConfig();
-        //reload
+        //reload. often used for error-page
         mComponent = mFactory.onCreateAppLoadingComponent(mCallback.getPullToRefreshLayout());
         mComponent.getReloadView().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -176,7 +181,10 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
 
     @Override
     public void onRefresh(AppLoadingComponent component) {
-        refresh();
+        if(mCallback.handleRefresh()){
+            return;
+        }
+        requestData(true);
     }
 
     @Override
