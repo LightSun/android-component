@@ -100,6 +100,9 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
         mComponent.setCallback(this);
     }
 
+    /**
+     * start refresh list.
+     */
     public void refresh(){
         if(mCallback.handleRefresh()){
             return;
@@ -108,6 +111,10 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
         requestData(true);
     }
 
+    /**
+     * do refresh data
+     * @param refresh true if refresh false for append
+     */
     public void requestData(boolean refresh) {
         if(refresh){
             final IAdapterDelegate ad = mAdapterDelegate;
@@ -323,6 +330,7 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
         /**
          * called on refresh . if handled return true. false otherwise. default is false
          * @return true if handled refresh
+         * @see ListHelper#refresh()
          */
         default boolean handleRefresh(){
             return false;
