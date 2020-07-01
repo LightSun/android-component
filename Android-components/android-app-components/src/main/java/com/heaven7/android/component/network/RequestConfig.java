@@ -14,11 +14,11 @@ public class RequestConfig {
 
     public final String url;
     public final byte method;
-    public final Type type;
+    public final Type dataType;
 
-    public RequestConfig(String url, byte method, Type type) {
+    public RequestConfig(String url, byte method, Type dataType) {
         this.url = url;
         this.method = method;
-        this.type = type;
+        this.dataType = dataType;
     }
 }

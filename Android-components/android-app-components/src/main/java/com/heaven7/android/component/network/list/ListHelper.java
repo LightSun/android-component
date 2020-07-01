@@ -1,6 +1,10 @@
 package com.heaven7.android.component.network.list;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
@@ -46,6 +50,14 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
     }
 
     /**
+     * get the callback
+     * @return the callback
+     * @since 1.1.7
+     */
+    public Callback getCallback() {
+        return mCallback;
+    }
+    /**
      * get app-loading component
      * @return the app loading component.
      */
@@ -86,25 +98,32 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
         mConfig = mCallback.onCreateRequestConfig();
         //reload. often used for error-page
         mComponent = mFactory.onCreateAppLoadingComponent(mCallback.getPullToRefreshLayout());
-        mComponent.getReloadView().setOnClickListener(new View.OnClickListener() {
+
+        //reload for empty and error
+        View.OnClickListener reloadListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mComponent.showContent(0);
                 refresh();
             }
-        });
-        //empty
-        final View emptyView = mComponent.getEmptyView();
-        mRefresh.setOnRefreshListener(emptyView, new SwipeRefreshLayout.OnRefreshListener(){
-            @Override
-            public void onRefresh() {
-                mRefresh.setRefreshing(emptyView, false);
-                //mComponent.getEmptyLayout().setRefreshing(false);
-                mComponent.showLoading(AppLoadingComponent.STATE_NORMAL);
-                mComponent.showContent(0);
-                refresh();
-            }
-        });
+        };
+        View reloadView = mComponent.getEmptyDelegate().getReloadView();
+        if(reloadView != null){
+            reloadView.setOnClickListener(reloadListener);
+        }
+        reloadView = mComponent.getErrorDelegate().getReloadView();
+        if(reloadView != null){
+            reloadView.setOnClickListener(reloadListener);
+        }
+        //refresh view
+        View refreshView = mComponent.getEmptyDelegate().getRefreshView();
+        if(refreshView != null){
+            mRefresh.setOnRefreshListener(refreshView, new OnRefreshListener0(refreshView));
+        }
+        refreshView = mComponent.getErrorDelegate().getRefreshView();
+        if(refreshView != null){
+            mRefresh.setOnRefreshListener(refreshView, new OnRefreshListener0(refreshView));
+        }
         //footer
         FooterDelegate delegate = mCallback.getFooterDelegate();
         if (delegate != null) {
@@ -133,23 +152,33 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
      * @param refresh true if refresh false for append
      */
     public void requestData(boolean refresh) {
+        //reset error and empty
+        mComponent.getErrorDelegate().reset();
+        mComponent.getEmptyDelegate().reset();
+
         if(refresh){
             final IAdapterDelegate ad = mAdapterDelegate;
             if(ad.getItemSize() > 0){
                 ad.clearItems();
             }
         }
+        //show error.
+        if(!hasConnectedNetwork(getAppLoadingComponent().getRecyclerView().getContext())){
+            mComponent.getErrorDelegate().show(AppLoadingComponent.CODE_NO_NETWORK, null, null);
+            mAdapterDelegate.clearItems();
+            return;
+        }
         switch (mConfig.method){
             case RequestConfig.TYPE_GET:
-                mPageM.get(mConfig.url, refresh, mConfig.type, this);
+                mPageM.get(mConfig.url, refresh, mConfig.dataType, this);
                 break;
 
             case RequestConfig.TYPE_POST_BODY:
-                mPageM.postBody(mConfig.url, refresh, mConfig.type, this);
+                mPageM.postBody(mConfig.url, refresh, mConfig.dataType, this);
                 break;
 
             case RequestConfig.TYPE_POST_FORM:
-                mPageM.post(mConfig.url, refresh, mConfig.type, this);
+                mPageM.post(mConfig.url, refresh, mConfig.dataType, this);
                 break;
 
             default:
@@ -160,13 +189,14 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
     @Override
     public void onResult(String url, boolean refresh, T data) {
         mCallback.onResult(url, refresh, data);
-        mComponent.hideError();
+        mComponent.getErrorDelegate().hide();
+
         mComponent.setLoadingComplete();
         List<?> listData = mCallback.getListData(data);
         //empty
         if (listData.isEmpty() && mPageM.getPageNo() == 1) {
             if (!mCallback.showEmpty(this)) {
-                mComponent.showEmpty(0);
+                mComponent.getEmptyDelegate().show(0, null, null);
             }
             return;
         }
@@ -197,7 +227,7 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
     @Override
     public void onThrowable(String url, boolean refresh, Throwable e) {
         e.printStackTrace();
-        getAppLoadingComponent().showError(0);
+        getAppLoadingComponent().getErrorDelegate().show(AppLoadingComponent.CODE_EXCEPTION, null, e);
 
         mAdapterDelegate.clearItems();
         mCallback.onThrowable(url, refresh, e);
@@ -223,6 +253,20 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
 
     }
 
+    private static boolean hasConnectedNetwork(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
+                return capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                        || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR));
+            } else {
+                NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                return activeNetwork != null && activeNetwork.isConnected();
+            }
+        }
+        return false;
+    }
     /**
      * the factory to create some
      */
@@ -364,6 +408,23 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
         public void setRefreshing(View emptyView, boolean refreshing) {
             SwipeRefreshLayout srl = (SwipeRefreshLayout) emptyView;
             srl.setRefreshing(refreshing);
+        }
+    }
+
+    private class OnRefreshListener0 implements SwipeRefreshLayout.OnRefreshListener{
+
+        private final View refreshView;
+
+        public OnRefreshListener0(View refreshView) {
+            this.refreshView = refreshView;
+        }
+        @Override
+        public void onRefresh() {
+            mRefresh.setRefreshing(refreshView, false);
+            //mComponent.getEmptyLayout().setRefreshing(false);
+            mComponent.showLoading(AppLoadingComponent.STATE_NORMAL);
+            mComponent.showContent(0);
+            refresh();
         }
     }
 }

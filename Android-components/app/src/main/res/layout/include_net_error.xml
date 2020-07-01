@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_net_error"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:src="@drawable/ic_bg_net_error" />
+
+    <TextView
+        style="@style/tv_common_second"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
+        android:text="@string/net_error"
+        android:textColor="@color/colorPrimary" />
+
+    <TextView
+        android:id="@+id/tv_reload"
+        style="@style/tv_common_submit"
+        android:layout_width="wrap_content"
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        android:textSize="15sp"
+        android:text="@string/reload"
+        />
+</LinearLayout>

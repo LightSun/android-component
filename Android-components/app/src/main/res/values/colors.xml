@@ -3,4 +3,18 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <!-- 主色，次要，normal 服务于页面内其他控件的文字颜色。 Theme一般用于ActionBar颜色 -->
+    <color name="colorPrimary">#666666</color>
+    <color name="colorSecond">#888888</color>
+    <color name="colorNormal">#333333</color>
+    <color name="colorTheme">#0E7AE6</color>
+    <color name="colorTheme2">#0091ea</color>
+
+    <color name="color_card_bg">#ffffff</color>
+    <color name="color_line_bg">#eeeef1</color>
+    <color name="color_page_bg">#e5e5e5</color>
+
+
+    <color name="color_half_transparent">#99000000</color>
 </resources>

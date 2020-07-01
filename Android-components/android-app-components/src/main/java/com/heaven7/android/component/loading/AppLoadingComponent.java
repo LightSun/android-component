@@ -137,6 +137,17 @@ public interface AppLoadingComponent extends AppComponentContext{
     byte STATE_NETWORK_ERROR = 4;
 
     /**
+     * the code which indicate no network
+     * @since 1.1.7
+     */
+    byte CODE_NO_NETWORK = 1;
+    /**
+     * the code which indicate exception
+     * @since 1.1.7
+     */
+    byte CODE_EXCEPTION  = 2;
+
+    /**
      * the callback of loading component
      */
     interface Callback{
@@ -201,13 +212,6 @@ public interface AppLoadingComponent extends AppComponentContext{
      */
     RecyclerView getRecyclerView();
 
-    /**
-     * get the loading root view
-     * @return the root view of loading.
-     */
-    ViewGroup getLoadingRootView();
-
-
     //=========================================================================
 
     /**
@@ -269,39 +273,51 @@ public interface AppLoadingComponent extends AppComponentContext{
     void showContent(int code);
 
     /**
-     * show tips by target code.
-     * @param code the code indicate this operation
+     * get error delegate
+     * @return the error delegate
+     * @since 1.1.7
      */
-    void showTips(int code);
+    ViewDelegate getErrorDelegate();
     /**
-     * show error by target code.
-     * @param code the code indicate this operation
+     * get empty delegate
+     * @return the error delegate
+     * @since 1.1.7
      */
-    void showError(int code);
-    /**
-     * show empty by target code.
-     * @param code the code indicate this operation
-     */
-    void showEmpty(int code);
-
+    ViewDelegate getEmptyDelegate();
 
     /**
-     * get the view of reload data. often is from error-page
-     * @return the reload view
-     * @since 1.1.6
+     * the view delegate
+     * @since 1.1.7
      */
-    View getReloadView();
+    interface ViewDelegate{
+        /**
+         * show this view
+         * @param code the code
+         * @param msg the message
+         * @param e the throwable if exception
+         */
+        void show(int code, String msg, Throwable e);
 
-    /**
-     * get the empty view which should support pull-to-refresh page.
-     * @return the empty view
-     * @since 1.1.6
-     */
-    View getEmptyView();
+        /**
+         * hide this view
+         */
+        void hide();
 
-    /**
-     * hide the error ui
-     * @since 1.1.6
-     */
-    void hideError();
+        /**
+         * reset to initialize state
+         */
+        void reset();
+
+        /**
+         * get the view
+         * @return the view
+         */
+        View getRefreshView();
+
+        /**
+         * get the reload view
+         * @return the reload view
+         */
+        View getReloadView();
+    }
 }

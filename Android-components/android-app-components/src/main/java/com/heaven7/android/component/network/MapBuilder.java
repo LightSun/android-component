@@ -34,4 +34,17 @@ public class MapBuilder {
     public Map<String, Object> toMap(){
         return mMap;
     }
+
+    /**
+     * convert map to url parameters
+     * @return the url parameter. like "a=1&b=2"
+     */
+    public String toUrlParameters(){
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Object> en : mMap.entrySet()){
+            sb.append("&").append(en.getKey()).append("=").append(en.getValue());
+        }
+        String str = sb.toString();
+        return str.substring(1);
+    }
 }

@@ -18,4 +18,30 @@
         <item name="android:checked">true</item>
     </style>
 
+    <style name="tv_common">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/colorSecond</item>
+    </style>
+
+    <style name="tv_common_theme" parent="tv_common">
+        <item name="android:textColor">@color/colorTheme</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="tv_common_second" parent="tv_common">
+        <item name="android:textColor">@color/colorSecond</item>
+    </style>
+    <style name="tv_common_submit" parent="tv_common">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/selector_running_submit</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:text">@string/submit</item>
+        <item name="android:paddingTop">13sp</item>
+        <item name="android:paddingBottom">13sp</item>
+        <item name="android:gravity">center</item>
+    </style>
 </resources>

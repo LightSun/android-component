@@ -11,8 +11,8 @@ import com.heaven7.android.component.lifecycle.LifeCycleComponent2;
 import com.heaven7.java.base.util.Disposable;
 import com.heaven7.java.base.util.Logger;
 
+import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -139,6 +139,7 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
         private Runnable mMustTask;
         private Consumer<String> mConsumer;
         private Consumer<Throwable> mError;
+        private Consumer<InputStream> mStreamConsumer;
 
         private Object mSrc;
         private volatile Disposable mReqTask;
@@ -178,6 +179,23 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
          */
         public Chain consumer(Consumer<String> consume) {
             return consumer(consume, true);
+        }
+
+        /**
+         * set a stream consumer.
+         * @param consumer the stream consumer
+         * @return this
+         * @since 1.1.7
+         */
+        public Chain streamConsumer(Consumer<InputStream> consumer){
+            this.mStreamConsumer = new Consumer<InputStream>(){
+                @Override
+                public void accept(InputStream in) {
+                    runMustTask();
+                    consumer.accept(in);
+                }
+            };
+            return this;
         }
         /**
          * set a consumer which will consume the network result
@@ -242,7 +260,7 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
                     }
                 });
             }
-            mReqTask = startRequestImpl(mConsumer, mError);
+            mReqTask = startRequestImpl(mConsumer, mStreamConsumer, mError);
             mComponent.addTask(mReqTask);
         }
         /**
@@ -273,11 +291,12 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
 
         /**
          * start request implements
-         * @param expect the expect consumer
+         * @param expect the string consumer
+         * @param consumer the stream consumer
          * @param error the error consumer
          * @return the disposable task
          */
-        protected abstract Disposable startRequestImpl(Consumer<String> expect, Consumer<Throwable> error);
+        protected abstract Disposable startRequestImpl(Consumer<String> expect, Consumer<InputStream> consumer,Consumer<Throwable> error);
 
 
         protected void runMustTask() {
