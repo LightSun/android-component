@@ -130,10 +130,9 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
             mCallback.getPullToRefreshLayout().setFooterDelegate(delegate);
         }
         //adapter delegate
-        mAdapterDelegate = mFactory.onCreateAdapterDelegate(mComponent.getRecyclerView());
-
         mComponent.setLayoutManager(new LinearLayoutManager(context));
         mComponent.setCallback(this);
+        mAdapterDelegate = mFactory.onCreateAdapterDelegate(mComponent.getRecyclerView());
     }
 
     /**

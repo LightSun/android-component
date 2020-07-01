@@ -309,13 +309,13 @@ public interface AppLoadingComponent extends AppComponentContext{
         void reset();
 
         /**
-         * get the view
+         * get the refresh view, can be null
          * @return the view
          */
         View getRefreshView();
 
         /**
-         * get the reload view
+         * get the reload view can be null.
          * @return the reload view
          */
         View getReloadView();
