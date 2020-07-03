@@ -118,16 +118,16 @@ public class AppLoadingComponentImpl implements AppLoadingComponent{
     public void showLoading(int state) {
         switch (state){
             case STATE_LOADING:
-                mPullLayout.getFooterView().setState(LoadingFooterView.STATE_LOADING);
+                mPullLayout.getFooterDelegate().setState(LoadingFooterView.STATE_LOADING);
                 break;
             case STATE_NORMAL:
-                mPullLayout.getFooterView().setState(LoadingFooterView.STATE_NORMAL);
+                mPullLayout.getFooterDelegate().setState(LoadingFooterView.STATE_NORMAL);
                 break;
             case STATE_NETWORK_ERROR:
-                mPullLayout.getFooterView().setState(LoadingFooterView.STATE_NET_ERROR);
+                mPullLayout.getFooterDelegate().setState(LoadingFooterView.STATE_NET_ERROR);
                 break;
             case STATE_THE_END:
-                mPullLayout.getFooterView().setState(LoadingFooterView.STATE_THE_END);
+                mPullLayout.getFooterDelegate().setState(LoadingFooterView.STATE_THE_END);
                 break;
 
             default:
