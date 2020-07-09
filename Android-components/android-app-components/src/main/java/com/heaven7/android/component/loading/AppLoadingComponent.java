@@ -319,5 +319,11 @@ public interface AppLoadingComponent extends AppComponentContext{
          * @return the reload view
          */
         View getReloadView();
+
+        /**
+         * get whole view
+         * @return the view
+         */
+        View getView();
     }
 }

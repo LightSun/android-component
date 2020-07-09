@@ -20,7 +20,6 @@ import com.heaven7.android.pullrefresh.FooterDelegate;
 import com.heaven7.android.pullrefresh.PullToRefreshLayout;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * the list callback
@@ -139,7 +138,7 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
      * start refresh list.
      */
     public void refresh(){
-        if(mCallback.handleRefresh()){
+        if(mCallback.handledRefresh()){
             return;
         }
         mCallback.getPullToRefreshLayout().getSwipeRefreshLayout().setRefreshing(true);
@@ -225,8 +224,10 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
 
     @Override
     public void onThrowable(String url, boolean refresh, Throwable e) {
-        e.printStackTrace();
-        getAppLoadingComponent().getErrorDelegate().show(AppLoadingComponent.CODE_EXCEPTION, null, e);
+        AppLoadingComponent.ViewDelegate d = mCallback.shouldShowError(e) ? getAppLoadingComponent().getErrorDelegate()
+                : getAppLoadingComponent().getEmptyDelegate();
+
+        d.show(AppLoadingComponent.CODE_EXCEPTION, null, e);
 
         mAdapterDelegate.clearItems();
         mCallback.onThrowable(url, refresh, e);
@@ -234,7 +235,7 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
 
     @Override
     public void onRefresh(AppLoadingComponent component) {
-        if(mCallback.handleRefresh()){
+        if(mCallback.handledRefresh()){
             return;
         }
         requestData(true);
@@ -377,6 +378,7 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
          * @param e the exception
          */
         default void onThrowable(String url, boolean refresh, Throwable e) {
+            e.printStackTrace();
         }
 
         /**
@@ -392,9 +394,17 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
          * @return true if handled refresh
          * @see ListHelper#refresh()
          */
-        default boolean handleRefresh(){
+        default boolean handledRefresh(){
             return false;
         }
+
+        /**
+         * called to judge if show error or not
+         * @param e the throwable
+         * @return true if should show error.
+         * @since 1.1.8
+         */
+        default boolean shouldShowError(Throwable e){return true;}
     }
 
     public static class SwipeRefreshDelegate implements EmptyRefreshDelegate{
