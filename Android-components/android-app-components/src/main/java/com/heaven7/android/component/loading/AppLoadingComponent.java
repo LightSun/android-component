@@ -2,6 +2,7 @@ package com.heaven7.android.component.loading;
 
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -325,5 +326,12 @@ public interface AppLoadingComponent extends AppComponentContext{
          * @return the view
          */
         View getView();
+
+        /**
+         * get the image view
+         * @return the image view
+         * @since 1.1.8
+         */
+        ImageView getImageView();
     }
 }

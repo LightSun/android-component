@@ -189,6 +189,16 @@ public class AppLoadingComponentImpl implements AppLoadingComponent{
         public View getReloadView() {
             return mTv_Reload;
         }
+
+        @Override
+        public View getView() {
+            return mView;
+        }
+
+        @Override
+        public ImageView getImageView() {
+            return mIv_notice;
+        }
     }
 
     private static class EmptyDelegateImpl implements ViewDelegate{
@@ -235,6 +245,15 @@ public class AppLoadingComponentImpl implements AppLoadingComponent{
         @Override
         public View getReloadView() {
             return mTv_Reload;
+        }
+
+        @Override
+        public View getView() {
+            return mView;
+        }
+        @Override
+        public ImageView getImageView() {
+            return mIv_notice;
         }
     }
 }
