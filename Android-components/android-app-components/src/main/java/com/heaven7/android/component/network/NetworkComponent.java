@@ -77,10 +77,10 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
      * of get request Chain
      *
      * @param url  the url
-     * @param json the parameter
+     * @param p the parameter
      * @return applier
      */
-    public abstract Chain ofGet(String url, String json);
+    public abstract Chain ofGet(String url, String p);
 
     /**
      * of post request Chain. which often is used for 'FormUrlEncoded'
