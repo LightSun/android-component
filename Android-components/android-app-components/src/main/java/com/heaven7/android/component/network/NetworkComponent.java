@@ -58,10 +58,11 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
     }
 
     /**
+     * <p><h2>this should not appear in here. latter will remove</h2>/p2>
      * run the task async
-     *
      * @param task the task
      */
+    @Deprecated
     public abstract void asyncRun(Runnable task);
 
     /**
@@ -122,7 +123,7 @@ public abstract class NetworkComponent implements LifeCycleComponent, LifeCycleC
      * create upload-chain for target parameters
      * @param url the url
      * @param headers the header
-     * @param formKey the formkey
+     * @param formKey the form-key
      * @param files the files
      * @return chain
      */
