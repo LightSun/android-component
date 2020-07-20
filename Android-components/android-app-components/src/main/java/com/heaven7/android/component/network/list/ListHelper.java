@@ -162,6 +162,7 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
         }
         //show error.
         if(!hasConnectedNetwork(getAppLoadingComponent().getRecyclerView().getContext())){
+            mComponent.showPlaceholderView(AppLoadingComponent.CODE_NO_NETWORK);
             mComponent.getErrorDelegate().show(AppLoadingComponent.CODE_NO_NETWORK, null, null);
             mAdapterDelegate.clearItems();
             return;
@@ -194,6 +195,7 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
         //empty
         if (listData.isEmpty() && mPageM.getPageNo() == 1) {
             if (!mCallback.showEmpty(this)) {
+                mComponent.showPlaceholderView(0);
                 mComponent.getEmptyDelegate().show(0, null, null);
             }
             return;
