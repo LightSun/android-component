@@ -224,9 +224,11 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
 
     @Override
     public void onThrowable(String url, boolean refresh, Throwable e) {
+        setRefreshing(false);
+        mComponent.showPlaceholderView(AppLoadingComponent.CODE_EXCEPTION);
+
         AppLoadingComponent.ViewDelegate d = mCallback.shouldShowError(e) ? getAppLoadingComponent().getErrorDelegate()
                 : getAppLoadingComponent().getEmptyDelegate();
-
         d.show(AppLoadingComponent.CODE_EXCEPTION, null, e);
 
         mAdapterDelegate.clearItems();
@@ -251,6 +253,18 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
     @Override
     public void onClickLoadingView(AppLoadingComponent component, View view, int state) {
 
+    }
+
+    protected void setRefreshing(boolean refreshing){
+        mCallback.getPullToRefreshLayout().getSwipeRefreshLayout().setRefreshing(refreshing);
+        View refreshView = mComponent.getEmptyDelegate().getRefreshView();
+        if(refreshView != null){
+            mRefresh.setRefreshing(refreshView, refreshing);
+        }
+        refreshView = mComponent.getErrorDelegate().getRefreshView();
+        if(refreshView != null){
+            mRefresh.setRefreshing(refreshView, refreshing);
+        }
     }
 
     private static boolean hasConnectedNetwork(Context context) {
