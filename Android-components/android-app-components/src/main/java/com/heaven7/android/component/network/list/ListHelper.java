@@ -275,7 +275,8 @@ public class ListHelper<T> implements AppLoadingComponent.Callback, PageManager.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
                 return capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-                        || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR));
+                        || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+                        || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN));
             } else {
                 NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
                 return activeNetwork != null && activeNetwork.isConnected();
